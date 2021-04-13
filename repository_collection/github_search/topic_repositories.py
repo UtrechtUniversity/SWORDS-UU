@@ -37,8 +37,8 @@ def get_id_from_users(users):
         result.append(user["login"])
     return result
 
-    
-# TODO: fix nondeterministic 403 error 
+
+# TODO: fix nondeterministic 403 error (see: https://github.com/fastai/ghapi/issues/44)
 # main needs to be used since pages uses concurrency
 if __name__ == '__main__':  
     api = GhApi()
