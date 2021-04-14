@@ -11,14 +11,14 @@ def get_complete_query_result(api, query, query_type):
         if(api.last_page() > 0):
             query_result = pages(api.search.repos, api.last_page(), query)
         else:
-            # if 0 is used, query_result will be empty. This needs to be 1 in that case
+            # if there is only one page, last_page() will return 0. This will return nothing, so we need to use 1
             query_result = pages(api.search.repos, 1, query)
     elif(query_type == "SEARCH_USERS"):
         api.search.users(query, per_page = 100)
         if(api.last_page() > 0):
             query_result = pages(api.search.users, api.last_page(), query)
         else:
-            # if 0 is used, query_result will be empty. This needs to be 1 in that case
+            # if there is only one page, last_page() will return 0. This will return nothing, so we need to use 1
             query_result = pages(api.search.users, 1, query)
     result = L()
     for page in query_result:
