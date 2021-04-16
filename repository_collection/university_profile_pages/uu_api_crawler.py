@@ -127,18 +127,19 @@ employee_github_from_links = []
 employee_github_from_profile = []
 employee_github_from_cv = []
 
-all_urls = list(get_employees_url(5))
+for i in range(8):
+    faculty_url = list(get_employees_url(i))
 
-#all_urls.append("jdebruin1")#has github link in profile page and links, for testing
-#all_urls.append("JHNienhuis")#has github.io link in cv, for testing purposes
+    #all_urls.append("jdebruin1")#has github link in profile page and links, for testing
+    #all_urls.append("JHNienhuis")#has github.io link in cv, for testing purposes
 
-for url in all_urls:
-    employee_github_from_links.append([url, get_employee_github_from_links(url)])
-    employee_github_from_cv.append([url, get_employee_github_from_cv(url)])
-    employee_github_from_profile.append([url, get_employee_github_from_profile(url)])
-    #employee_links.append([url, get_employee_links(url)])
-    #employee_link_query.append([url, get_employee_specific_link(url, "orcid")])
-    #employee__profile_query.append([url, get_employee_profile_mention(url, "open science")])
+    for url in faculty_url:
+        employee_github_from_links.append([url, get_employee_github_from_links(url)])
+        employee_github_from_cv.append([url, get_employee_github_from_cv(url)])
+        employee_github_from_profile.append([url, get_employee_github_from_profile(url)])
+        #employee_links.append([url, get_employee_links(url)])
+        #employee_link_query.append([url, get_employee_specific_link(url, "orcid")])
+        #employee__profile_query.append([url, get_employee_profile_mention(url, "open science")])
 
 employee_github_from_links_pd = pd.DataFrame(employee_github_from_links,  columns=["uu_user_id", "github_user_url"])
 employee_github_from_profile_pd = pd.DataFrame(employee_github_from_profile,  columns=["uu_user_id", "github_user_url"])
