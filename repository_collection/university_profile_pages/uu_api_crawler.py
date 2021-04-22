@@ -141,9 +141,9 @@ for i in range(8):
         #employee_link_query.append([url, get_employee_specific_link(url, "orcid")])
         #employee__profile_query.append([url, get_employee_profile_mention(url, "open science")])
 
-employee_github_from_links_pd = pd.DataFrame(employee_github_from_links,  columns=["uu_user_id", "github_user_url"])
-employee_github_from_profile_pd = pd.DataFrame(employee_github_from_profile,  columns=["uu_user_id", "github_user_url"])
-employee_github_from_cv_pd = pd.DataFrame(employee_github_from_cv,  columns=["uu_user_id", "github_user_url"])
+employee_github_from_links_pd = pd.DataFrame(employee_github_from_links,  columns=["uu_user_id", "github_user_id"])
+employee_github_from_profile_pd = pd.DataFrame(employee_github_from_profile,  columns=["uu_user_id", "github_user_id"])
+employee_github_from_cv_pd = pd.DataFrame(employee_github_from_cv,  columns=["uu_user_id", "github_user_id"])
 
 employee_github_from_links_pd = employee_github_from_links_pd.dropna()
 employee_github_from_profile_pd = employee_github_from_profile_pd.dropna()
