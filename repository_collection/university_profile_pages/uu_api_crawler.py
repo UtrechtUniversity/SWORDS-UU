@@ -46,9 +46,17 @@ def get_employee_github_from_links(url):
 
     try:#try if a key exists for links of the employee
         employee_link_list =  API_json["Employee"]['Links']
-        for link in employee_link_list:
-            if "github" in link['Url']:
-                return link['Url']
+        for link_dict in employee_link_list:
+            link = link_dict["Url"]
+            if "github.com" in link:
+                split = link.split("github.com/")
+                # get value after "github.com/" and split after the next slash, then the first value of that split will be the username
+                user = split[1].split("/")[0]
+                return user
+            elif "github.io" in link:
+                githubio_split = link.split(".")
+                user = githubio_split[0].split("://")[1]
+                return user
         return None
     except:
         return None
@@ -73,16 +81,17 @@ def get_employee_github_from_profile(url):
     API_json = API_link.json()
     try:#try if a key exists for profile of the employee
         employee_profile =  API_json["Employee"]['Profile']
-        #print(employee_profile)
         split_employee_profile = employee_profile.split()
         for word in split_employee_profile:
             if "github.com" in word:
-                if "href=" in word:
-                    return word.replace("href=", "")
-                return word
+                split = word.split("github.com/")
+                # get value after "github.com/" and split after the next slash, then the first value of that split will be the username
+                user = split[1].split("/")[0].replace('"', '')#for some reason, a an extra " appears in the string with the username?
+                return user
             elif "github.io" in word:
                 githubio_split = word.split(".")
-                return "github.com/" + githubio_split[0]
+                user = githubio_split[0].split("://")[1]
+                return user
         return None
     except:
         return None
@@ -92,16 +101,17 @@ def get_employee_github_from_cv(url):
     API_json = API_link.json()
     try:#try if a key exists for profile of the employee
         employee_profile =  API_json["Employee"]['CV']
-        #print(employee_profile)
         split_employee_profile = employee_profile.split()
         for word in split_employee_profile:
             if "github.com" in word:
-                if "href=" in word:
-                    return word.replace("href=", "")
-                return word
+                split = word.split("github.com/")
+                # get value after "github.com/" and split after the next slash, then the first value of that split will be the username
+                user = split[1].split("/")[0]
+                return user
             elif "github.io" in word:
                 githubio_split = word.split(".")
-                return "github.com/" + githubio_split[0].replace("https://", "")
+                user = githubio_split[0].split("://")[1]
+                return user
         return None
     except:
         return None
@@ -117,15 +127,19 @@ employee_github_from_links = []
 employee_github_from_profile = []
 employee_github_from_cv = []
 
-all_urls = list(get_employees_url(5))
+for i in range(8):
+    faculty_url = list(get_employees_url(i))
 
-for url in all_urls:
-    employee_github_from_links.append([url, get_employee_github_from_links(url)])
-    employee_github_from_cv.append([url, get_employee_github_from_cv(url)])
-    employee_github_from_profile.append([url, get_employee_github_from_profile(url)])
-    #employee_links.append([url, get_employee_links(url)])
-    #employee_link_query.append([url, get_employee_specific_link(url, "orcid")])
-    #employee__profile_query.append([url, get_employee_profile_mention(url, "open science")])
+    #all_urls.append("jdebruin1")#has github link in profile page and links, for testing
+    #all_urls.append("JHNienhuis")#has github.io link in cv, for testing purposes
+
+    for url in faculty_url:
+        employee_github_from_links.append([url, get_employee_github_from_links(url)])
+        employee_github_from_cv.append([url, get_employee_github_from_cv(url)])
+        employee_github_from_profile.append([url, get_employee_github_from_profile(url)])
+        #employee_links.append([url, get_employee_links(url)])
+        #employee_link_query.append([url, get_employee_specific_link(url, "orcid")])
+        #employee__profile_query.append([url, get_employee_profile_mention(url, "open science")])
 
 employee_github_from_links_pd = pd.DataFrame(employee_github_from_links,  columns=["uu_user_id", "github_user_url"])
 employee_github_from_profile_pd = pd.DataFrame(employee_github_from_profile,  columns=["uu_user_id", "github_user_url"])
