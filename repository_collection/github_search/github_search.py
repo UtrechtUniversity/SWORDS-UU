@@ -51,6 +51,6 @@ if __name__ == '__main__':
     ids_search_repos = get_id_from_repos(search_repos)
     ids_search_users = get_id_from_users(search_users)
 
-    pd.Series(ids_topic_repos, name = "ids").to_csv(Path("repository_collection", "github_search", "results", "ids_topic_repos.csv"), index = False)
-    pd.Series(ids_search_repos, name = "ids").to_csv(Path("repository_collection", "github_search", "results", "ids_search_repos.csv"), index = False)
-    pd.Series(ids_search_users, name = "ids").to_csv(Path("repository_collection", "github_search", "results", "ids_search_users.csv"), index = False)
+    pd.Series(ids_topic_repos, name = "github_user_id").to_csv(Path("repository_collection", "github_search", "results", "ids_topic_repos.csv"), index = False)
+    pd.Series(ids_search_repos, name = "github_user_id").to_csv(Path("repository_collection", "github_search", "results", "ids_search_repos.csv"), index = False)
+    pd.Series(ids_search_users, name = "github_user_id").to_csv(Path("repository_collection", "github_search", "results", "ids_search_users.csv"), index = False)
