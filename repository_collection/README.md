@@ -26,8 +26,8 @@ pip install -r requirements.txt
     ```GITHUB_TOKEN = "YOUR_PERSONAL_GITHUB_TOKEN" ```
     See here on how to create a Github token: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token 
     Since the Github API is limiting the number of unauthorized requests quite a lot, this is necessary to decrease duration of the overall runtime. The result will be a .csv file with all unique users.
-3. Execute the script found in the **merging** subfolder:
+3. Execute the script found in the **get_repositories** subfolder:
     ```bash
-    python3 repository_collection/merging/merge.py
+    python3 repository_collection/get_repositories/repositories.py
     ```
-    The result will be a .csv file with all repositories of the unique users.
+    The result will be a .csv file in the folder repository_collection with all repositories of the unique users.
