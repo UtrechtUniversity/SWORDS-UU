@@ -1,5 +1,12 @@
+import os
+import time
+from pathlib import Path
+
 from ghapi.all import GhApi, pages
 from fastcore.foundation import L
+import pandas as pd
+from dotenv import load_dotenv
+
 
 def get_repos(api, user_id):
     """retrieves complete repositories (exluding forked ones) from a specified user_id
@@ -11,17 +18,23 @@ def get_repos(api, user_id):
     Returns:
         L: fastcore list of repositories
     """
-    # do first request to store last page variable in api object
-    api.search.repos("user:" + user_id, per_page = 100)
+    try:
+        # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
+        query_result = api.search.repos("user:" + user_id, per_page = 100)
+    except Exception as e:
+        print("There was a problem with fetching repositories for user %s" % user_id)
+        print(e)
+        return (None, 1)
+    requests = 1
+    result = L()
     if(api.last_page() > 0):
         query_result = pages(api.search.repos, api.last_page(), "user:" + user_id)
+        requests += 1
+        for page in query_result:
+            result.extend(page["items"])
     else:
-        # if there is only one page, last_page() will return 0. This will return nothing, so we need to use 1
-        query_result = pages(api.search.repos, 1, "user:" + user_id)
-    result = L()
-    for page in query_result:
-        result.extend(page["items"])
-    return result
+        result.extend(query_result["items"])
+    return (result, requests)
 
 def get_full_name_from_repos(repos):
     """Goes through a list of repos and returns their url
@@ -37,35 +50,26 @@ def get_full_name_from_repos(repos):
         result.append(repo["full_name"])
     return result
 
-def is_student(user_id):
-    """Checks whether a GitHub user is a student. The bio of a user is parsed. 
-    If it contains phd the user will not be marked as a student. 
-    If the bio contains only the word student the user will be marked as a student. If
-
-    Args:
-        user_id (string): user id which is named as "login" from the GitHub Api 
-
-    Returns:
-        Boolean: Whether the user is a student or not
-    """
-    user_data = api.users.get_by_username(user_id)
-    user_bio = user_data["bio"]
-    if (user_bio is not None):
-        user_bio = user_bio.lower()
-        # PhD students should be included
-        mention_phd = "phd" in user_bio
-        mention_student = "student" in user_bio
-        return (not mention_phd and mention_student)
-    else:
-        # we can't be sure and therefore keep the user
-        return False
 
 if __name__ == '__main__':  
-    # example
-    user_id = "beld78"
-    api = GhApi()
-    
-    print("Is beld78 a student? " + str(is_student("beld78")))
-    repos = get_repos(api, user_id)
-    repos_names = get_full_name_from_repos(repos)
-    print(repos_names)
+    load_dotenv()
+    # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
+    token = os.getenv('GITHUB_TOKEN') 
+    api = GhApi(token = token)
+    df_users = pd.read_csv("repository_collection/unique_users.csv")
+    # drop students
+    df_users = df_users.drop(df_users[df_users.is_student == True].index)
+
+    result_repos = L()
+    for user in df_users["github_user_id"]:
+        print("Fetching repos for user: %s" % user)
+        repos, requests = get_repos(api, user)
+        if (repos is not None):
+            repos_names = get_full_name_from_repos(repos)
+            result_repos.extend(repos_names)
+            print("Fetched repos: %s" % repos_names)
+        else:
+            print("User has no repositories.")
+        time.sleep(requests*2)
+
+    pd.Series(result_repos, name = "repositories").to_csv(Path("repository_collection", "repositories.csv"), index = False)
