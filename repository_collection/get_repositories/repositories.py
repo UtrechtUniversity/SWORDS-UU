@@ -20,7 +20,7 @@ def get_repos(api, user_id):
     """
     try:
         # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
-        query_result = api.search.repos("user:" + user_id, per_page = 100)
+        query_result = api.search.repos("user:" + user_id, per_page=100)
     except Exception as e:
         print("There was a problem with fetching repositories for user %s" % user_id)
         print(e)
@@ -28,13 +28,15 @@ def get_repos(api, user_id):
     requests = 1
     result = L()
     if(api.last_page() > 0):
-        query_result = pages(api.search.repos, api.last_page(), "user:" + user_id)
+        query_result = pages(
+            api.search.repos, api.last_page(), "user:" + user_id)
         requests += 1
         for page in query_result:
             result.extend(page["items"])
     else:
         result.extend(query_result["items"])
     return (result, requests)
+
 
 def get_full_name_from_repos(repos):
     """Goes through a list of repos and returns their url
@@ -51,11 +53,11 @@ def get_full_name_from_repos(repos):
     return result
 
 
-if __name__ == '__main__':  
+if __name__ == '__main__':
     load_dotenv()
     # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
-    token = os.getenv('GITHUB_TOKEN') 
-    api = GhApi(token = token)
+    token = os.getenv('GITHUB_TOKEN')
+    api = GhApi(token=token)
     df_users = pd.read_csv("repository_collection/unique_users.csv")
     # drop students
     df_users = df_users.drop(df_users[df_users.is_student == True].index)
@@ -72,4 +74,5 @@ if __name__ == '__main__':
             print("User has no repositories.")
         time.sleep(requests*2)
 
-    pd.Series(result_repos, name = "repositories").to_csv(Path("repository_collection", "repositories.csv"), index = False)
+    pd.Series(result_repos, name="repositories").to_csv(
+        Path("repository_collection", "repositories.csv"), index=False)
