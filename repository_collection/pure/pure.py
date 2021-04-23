@@ -3,6 +3,7 @@ from pathlib import Path
 import rispy
 import pandas as pd
 
+
 def get_username_from_text(text):
     for word in text:
         if "github.com" in word:
@@ -16,7 +17,8 @@ def get_username_from_text(text):
             return user
     return None
 
-filepath = r"repository_collection\pure\Pure_160421.ris" 
+
+filepath = r"repository_collection\pure\Pure_160421.ris"
 users = list()
 with open(filepath, 'r', encoding="utf8") as pure_data:
     entries = rispy.load(pure_data)
@@ -24,8 +26,6 @@ with open(filepath, 'r', encoding="utf8") as pure_data:
         user = get_username_from_text(entry.values())
         if (user is not None):
             users.append(user)
-            
-    pd.Series(users, name = "github_user_id").to_csv(Path("repository_collection", "pure", "results", "ids_pure_users.csv"), index = False)
-    
 
-
+    pd.Series(users, name="github_user_id").to_csv(Path(
+        "repository_collection", "pure", "results", "ids_pure_users.csv"), index=False)
