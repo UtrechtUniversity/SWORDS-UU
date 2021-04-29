@@ -18,7 +18,7 @@ def get_username_from_text(text):
     return None
 
 
-filepath = r"repository_collection\pure\Pure_160421.ris"
+filepath = r"repository_collection\pure\Pure_290421.ris"
 users = list()
 with open(filepath, 'r', encoding="utf8") as pure_data:
     entries = rispy.load(pure_data)
