@@ -1,5 +1,5 @@
 # Manual for repository collection
-The data was retrieved on the following date: 29.04.2021 (DD/MM/YYYY)
+The data was retrieved on the following date: 30.04.2021 (DD/MM/YYYY)
 
 ## Installation
 
