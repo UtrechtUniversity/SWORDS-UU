@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 from ghapi.all import GhApi, pages
-from fastcore.foundation import L
+from fastcore.foundation import L, AttrDict
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -49,7 +49,7 @@ def get_full_name_from_repos(repos):
     """
     result = L()
     for repo in repos:
-        result.append(repo["full_name"])
+        result.append(dict(repo))
     return result
 
 
@@ -58,21 +58,39 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
     api = GhApi(token=token)
-    df_users = pd.read_csv("repository_collection/unique_users.csv")
+    df_users = pd.read_excel("unique_users_annotated.xlsx")
     # drop students
-    df_users = df_users.drop(df_users[df_users.is_student == True].index)
-
-    result_repos = L()
+    df_users = df_users.drop(df_users[df_users.final_decision == 0].index)
+    df_users
+    result_repos = []
+    counter = 0
     for user in df_users["github_user_id"]:
-        print("Fetching repos for user: %s" % user)
         repos, requests = get_repos(api, user)
         if (repos is not None):
             repos_names = get_full_name_from_repos(repos)
             result_repos.extend(repos_names)
-            print("Fetched repos: %s" % repos_names)
+            # print("Fetched repos: %s" % repos_names)
         else:
-            print("User has no repositories.")
-        time.sleep(requests*2)
+            print("User %s has no repositories." % user)
+        time.sleep(requests*2 + .1)
+        counter += 1
+        if(counter % 10 == 0):
+            print("Fetched %d users." % counter)
 
-    pd.Series(result_repos, name="repositories").to_csv(
-        Path("repository_collection", "repositories.csv"), index=False)
+    for i in range(len(result_repos)):
+        for key in result_repos[i].keys():
+            if(isinstance(result_repos[i][key], AttrDict)):
+                print(key)
+                if(key == "owner"):
+                    result_repos[i][key] = result_repos[i][key]["login"]
+                    print(result_repos[i][key])
+                elif(key == "permissions"):
+                    result_repos[i][key] = ""
+                elif(key == "license"):
+                    result_repos[i][key] = result_repos[i][key]["name"]
+                    print(result_repos[i][key])
+                print(".....")
+
+    df_result_repos = pd.DataFrame(result_repos)
+    df_result_repos.to_csv(
+        Path("repositories.csv"), index=False)
