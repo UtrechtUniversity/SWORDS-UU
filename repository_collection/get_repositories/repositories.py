@@ -77,6 +77,7 @@ if __name__ == '__main__':
         if(counter % 10 == 0):
             print("Fetched %d users." % counter)
 
+    # Flatten nested structures
     for i in range(len(result_repos)):
         for key in result_repos[i].keys():
             if(isinstance(result_repos[i][key], AttrDict)):
@@ -93,4 +94,4 @@ if __name__ == '__main__':
 
     df_result_repos = pd.DataFrame(result_repos)
     df_result_repos.to_csv(
-        Path("repositories.csv"), index=False)
+        Path("repository_collection", "repositories.csv"), index=False)
