@@ -38,14 +38,14 @@ def get_repos(api, user_id):
     return (result, requests)
 
 
-def get_full_name_from_repos(repos):
-    """Goes through a list of repos and returns their url
+def get_repos_formatted(repos):
+    """Goes through a list of repos and returns them correctly formatted
 
     Args:
         repos (L): fastcore foundation list of repositories
 
     Returns:
-        L: fastcore founation list of full names
+        L: fastcore founation list of complete repository data
     """
     result = L()
     for repo in repos:
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
     api = GhApi(token=token)
-    df_users = pd.read_excel("unique_users_annotated.xlsx")
-    # drop students
+    df_users = pd.read_excel(Path("repository_collection", "unique_users_annotated.xlsx"), engine='openpyxl')
+    # drop filtered users
     df_users = df_users.drop(df_users[df_users.final_decision == 0].index)
     df_users
     result_repos = []
@@ -67,9 +67,8 @@ if __name__ == '__main__':
     for user in df_users["github_user_id"]:
         repos, requests = get_repos(api, user)
         if (repos is not None):
-            repos_names = get_full_name_from_repos(repos)
-            result_repos.extend(repos_names)
-            # print("Fetched repos: %s" % repos_names)
+            repos_formatted = get_repos_formatted(repos)
+            result_repos.extend(repos_formatted)
         else:
             print("User %s has no repositories." % user)
         time.sleep(requests*2 + .1)
@@ -84,13 +83,10 @@ if __name__ == '__main__':
                 print(key)
                 if(key == "owner"):
                     result_repos[i][key] = result_repos[i][key]["login"]
-                    print(result_repos[i][key])
                 elif(key == "permissions"):
                     result_repos[i][key] = ""
                 elif(key == "license"):
                     result_repos[i][key] = result_repos[i][key]["name"]
-                    print(result_repos[i][key])
-                print(".....")
 
     df_result_repos = pd.DataFrame(result_repos)
     df_result_repos.to_csv(
