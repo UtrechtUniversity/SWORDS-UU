@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -15,4 +16,8 @@ df_repos = df_repos[~df_repos.name.str.contains("github.io")]
 #drop duplicates
 df_repos.drop_duplicates(subset='id', inplace=True)
 df_repos.reset_index(drop=True, inplace=True)
-df_repos.to_csv(Path("variable_collection", "repositories_filtered.csv"), index=False)
+
+
+current_date = datetime.today().strftime('%Y-%m-%d')
+df_repos.to_csv(Path("variable_collection", "output", "repositories_filtered_"+current_date+".csv"), index=False)
+

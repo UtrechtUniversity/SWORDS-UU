@@ -1,6 +1,7 @@
 import os
 import time
 from pathlib import Path
+from datetime import datetime
 
 from howfairis import Repo, Checker
 import pandas as pd
@@ -32,7 +33,7 @@ user = os.getenv('GITHUB_USER')
 os.environ['APIKEY_GITHUB'] = user+":"+token
 
 
-df_repos = pd.read_csv(Path("variable_collection", "repositories_filtered.csv"))
+df_repos = pd.read_csv(Path("variable_collection", "output", "repositories_filtered.csv"))
 print(df_repos)
 
 howfairis_variables = []
@@ -55,6 +56,7 @@ for counter, url in enumerate(df_repos["html_url"]):
 
 
 df_howfairis = pd.DataFrame(howfairis_variables, columns=["html_url", "howfairis_repository", "howfairis_license", "howfairis_registry", "howfairis_citation", "howfairis_checklist"])
-
 df_repo_merged = pd.merge(df_repos, df_howfairis, how="left", on='html_url')
-df_repo_merged.to_csv(Path("variable_collection", "repositories_filtered.csv"), index=False)
+
+current_date = datetime.today().strftime('%Y-%m-%d')
+df_repo_merged.to_csv(Path("variable_collection", "output", "repositories_howfairis_"+current_date+".csv"), index=False)
