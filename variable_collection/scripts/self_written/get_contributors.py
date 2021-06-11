@@ -12,7 +12,9 @@ import requests
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 headers = {'Authorization': 'token ' + token}
-
+params = {
+    'per_page': 100,
+}
 
 df_repos = pd.read_csv(Path("variable_collection", "output", "repositories_filtered_2021-05-20.csv"))
 if(token is None):
@@ -39,7 +41,7 @@ variables = []
 for counter, (url, contributor_url) in enumerate(zip(df_repos["html_url"].head(5), df_repos["contributors_url"].head(5))):
     request_successful = False
     while(not request_successful):
-        r = requests.get(url=contributor_url, headers=headers)
+        r = requests.get(url=contributor_url, headers=headers, params=params)
         print(r, contributor_url)
         if (r.status_code == 200): 
             data = r.json()
