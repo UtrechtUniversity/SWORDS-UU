@@ -38,7 +38,7 @@ else:
 
 # get data
 variables = []
-for counter, (url, contributor_url) in enumerate(zip(df_repos["html_url"].head(5), df_repos["contributors_url"].head(5))):
+for counter, (url, contributor_url) in enumerate(zip(df_repos["html_url"], df_repos["contributors_url"])):
     request_successful = False
     while(not request_successful):
         r = requests.get(url=contributor_url, headers=headers, params=params)
