@@ -57,3 +57,6 @@ for repo_url in languages_jupyter["html_url_repository"]:
         if(counter % 10 == 0):
             print("Parsed %d repos." % counter)
             
+df_data = pd.DataFrame(variables, columns=["html_url_repository", "path"])
+current_date = datetime.today().strftime('%Y-%m-%d')
+df_data.to_csv(Path("variable_collection", "output", "jupyter_notebooks_"+current_date+".csv"), index=False)
