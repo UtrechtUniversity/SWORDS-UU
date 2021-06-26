@@ -11,6 +11,10 @@ Install the necessary requirements for each retrieval method through the require
 pip install -r requirements.txt
 ```
 
+### Flowchart
+
+<img src="docs/Phase_1.png" height="1000">
+
 ### Usage
 
 1. Execute the scripts in the subfolders **github_search**, **pure** and **university_profile_pages** in any order. This assumes that the current location is the root folder of the project:
@@ -45,6 +49,10 @@ Install the necessary requirements for each retrieval method through the require
 ```bash
 pip install -r requirements.txt
 ```
+
+### Flowchart
+
+<img src="docs/Phase_2.png" height="500">
 
 ### Usage
 
