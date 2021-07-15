@@ -72,4 +72,15 @@ Please note: Every collected dataset has the date of collection in the file name
     python3 variable_collection/github_api/get_languages.py
     ```
     The scripts will generate .csv files within the folder **variable_collection/output**. 
+    
+## Phase 3: Analysis
 
+We provided examples of analysis in two jupyter notebooks. The requirements have been installed in the previous phase. 
+
+1. open the notebook **repository_collection/analysis_of_data_sources.ipynb** using jupyter notebook
+
+This notebook explores the data sources that were used to collect the repositories. 
+
+2. open the notebook **repository_collection/repo_analysis.ipynb** using jupyter notebook
+
+This notebook analysis the information in the repositories. The notebook contains analysis of licenses, programming languages, howfairis scores and other variables present in github repositories.  
