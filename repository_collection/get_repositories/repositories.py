@@ -22,14 +22,15 @@ def get_repos(api, user_id):
         # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
         query_result = api.search.repos("user:" + user_id, per_page=100)
     except Exception as e:
-        print("There was a problem with fetching repositories for user %s" % user_id)
+        print("There was a problem with fetching repositories for user %s" %
+              user_id)
         print(e)
         return (None, 1)
     requests = 1
     result = L()
-    if(api.last_page() > 0):
-        query_result = pages(
-            api.search.repos, api.last_page(), "user:" + user_id)
+    if (api.last_page() > 0):
+        query_result = pages(api.search.repos, api.last_page(),
+                             "user:" + user_id)
         requests += 1
         for page in query_result:
             result.extend(page["items"])
@@ -58,7 +59,9 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
     api = GhApi(token=token)
-    df_users = pd.read_excel(Path("repository_collection", "unique_users_annotated.xlsx"), engine='openpyxl')
+    df_users = pd.read_excel(Path("repository_collection",
+                                  "unique_users_annotated.xlsx"),
+                             engine='openpyxl')
     # drop filtered users
     df_users = df_users.drop(df_users[df_users.final_decision == 0].index)
     df_users
@@ -71,23 +74,23 @@ if __name__ == '__main__':
             result_repos.extend(repos_formatted)
         else:
             print("User %s has no repositories." % user)
-        time.sleep(requests*2 + .1)
+        time.sleep(requests * 2 + .1)
         counter += 1
-        if(counter % 10 == 0):
+        if (counter % 10 == 0):
             print("Fetched %d users." % counter)
 
     # Flatten nested structures
     for i in range(len(result_repos)):
         for key in result_repos[i].keys():
-            if(isinstance(result_repos[i][key], AttrDict)):
+            if (isinstance(result_repos[i][key], AttrDict)):
                 print(key)
-                if(key == "owner"):
+                if (key == "owner"):
                     result_repos[i][key] = result_repos[i][key]["login"]
-                elif(key == "permissions"):
+                elif (key == "permissions"):
                     result_repos[i][key] = ""
-                elif(key == "license"):
+                elif (key == "license"):
                     result_repos[i][key] = result_repos[i][key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)
-    df_result_repos.to_csv(
-        Path("repository_collection", "repositories.csv"), index=False)
+    df_result_repos.to_csv(Path("repository_collection", "repositories.csv"),
+                           index=False)

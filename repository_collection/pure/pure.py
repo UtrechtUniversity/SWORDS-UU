@@ -27,5 +27,8 @@ with open(filepath, 'r', encoding="utf8") as pure_data:
         if (user is not None):
             users.append(user)
 
-    pd.Series(users, name="github_user_id").to_csv(Path(
-        "repository_collection", "pure", "results", "ids_pure_users.csv"), index=False)
+    pd.Series(users,
+              name="github_user_id").to_csv(Path("repository_collection",
+                                                 "pure", "results",
+                                                 "ids_pure_users.csv"),
+                                            index=False)

@@ -17,7 +17,7 @@ df_repos = df_repos[~df_repos.name.str.contains("github.io")]
 df_repos.drop_duplicates(subset='id', inplace=True)
 df_repos.reset_index(drop=True, inplace=True)
 
-
 current_date = datetime.today().strftime('%Y-%m-%d')
-df_repos.to_csv(Path("variable_collection", "output", "repositories_filtered_"+current_date+".csv"), index=False)
-
+df_repos.to_csv(Path("variable_collection", "output",
+                     "repositories_filtered_" + current_date + ".csv"),
+                index=False)

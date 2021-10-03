@@ -7,6 +7,7 @@ from howfairis import Repo, Checker
 import pandas as pd
 from dotenv import load_dotenv
 
+
 def get_howfairis_compliance(url):
     """Retrieve howfairis compliance - see https://github.com/fair-software/howfairis
 
@@ -22,31 +23,33 @@ def get_howfairis_compliance(url):
     repo = Repo(url)
     checker = Checker(repo, is_quiet=True)
     compliance = checker.check_five_recommendations()
-    
-    return (compliance.repository, compliance.license, compliance.registry, compliance.citation, compliance.checklist)
+
+    return (compliance.repository, compliance.license, compliance.registry,
+            compliance.citation, compliance.checklist)
+
 
 # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
 # see: https://github.com/fair-software/howfairis/#rate-limit
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 user = os.getenv('GITHUB_USER')
-os.environ['APIKEY_GITHUB'] = user+":"+token
+os.environ['APIKEY_GITHUB'] = user + ":" + token
 
-
-df_repos = pd.read_csv(Path("variable_collection", "output", "repositories_filtered.csv"))
+df_repos = pd.read_csv(
+    Path("variable_collection", "output", "repositories_filtered.csv"))
 print(df_repos)
 
 howfairis_variables = []
 for counter, url in enumerate(df_repos["html_url"]):
     request_successful = False
-    while(not request_successful):
+    while (not request_successful):
         try:
             entry = [url]
             result = get_howfairis_compliance(url)
             entry.extend(result)
             print(entry)
             howfairis_variables.append(entry)
-            if(counter % 10 == 0):
+            if (counter % 10 == 0):
                 print("Parsed %d repos." % counter)
             time.sleep(2)
             request_successful = True
@@ -54,9 +57,15 @@ for counter, url in enumerate(df_repos["html_url"]):
             print("Sleep for a while. Error message: %s" % str(e))
             time.sleep(1500)
 
-
-df_howfairis = pd.DataFrame(howfairis_variables, columns=["html_url", "howfairis_repository", "howfairis_license", "howfairis_registry", "howfairis_citation", "howfairis_checklist"])
+df_howfairis = pd.DataFrame(howfairis_variables,
+                            columns=[
+                                "html_url", "howfairis_repository",
+                                "howfairis_license", "howfairis_registry",
+                                "howfairis_citation", "howfairis_checklist"
+                            ])
 df_repo_merged = pd.merge(df_repos, df_howfairis, how="left", on='html_url')
 
 current_date = datetime.today().strftime('%Y-%m-%d')
-df_repo_merged.to_csv(Path("variable_collection", "output", "repositories_howfairis_"+current_date+".csv"), index=False)
+df_repo_merged.to_csv(Path("variable_collection", "output",
+                           "repositories_howfairis_" + current_date + ".csv"),
+                      index=False)
