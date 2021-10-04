@@ -1,5 +1,16 @@
 # SWORDS@UU
 
+- [SWORDS@UU](#swordsuu)
+  - [Phase 1: User and repository collection](#phase-1-user-and-repository-collection)
+    - [Installation](#installation)
+    - [Flowchart](#flowchart)
+    - [Usage](#usage)
+  - [Phase 2: Variable collection](#phase-2-variable-collection)
+    - [Installation](#installation-1)
+    - [Flowchart](#flowchart-1)
+    - [Usage](#usage-1)
+  - [Phase 3: Analysis](#phase-3-analysis)
+
 ## Phase 1: User and repository collection
 The data was retrieved on the following date: 30.04.2021 (DD/MM/YYYY)
 
