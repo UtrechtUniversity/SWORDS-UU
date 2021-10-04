@@ -15,16 +15,17 @@ pip install requirements.txt
 
 ## Usage
 
+First, navigate to this folder. Then, execute the script with arguments.
 ```
 python github_search.py --topic utrecht-university --search "utrecht university"
 ```
 
 The collected GitHub user identifiers are stored in the results folder. 
 
-## License 
+## License
 
-See [/LICENSE](LICENSE).
+See [LICENSE](../../LICENSE).
 
-## Contact 
+## Contact
 
 See https://github.com/UtrechtUniversity/SWORDS-UU.
