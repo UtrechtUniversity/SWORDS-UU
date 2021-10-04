@@ -60,7 +60,7 @@ if __name__ == '__main__':
     try:
         if(args.topic):
             print(f"Searching topics for {args.topic}...")
-            topic_repos = get_complete_query_result(api, "topic:utrecht-university",
+            topic_repos = get_complete_query_result(api, f"topic:{args.topic}",
                                                     "SEARCH_REPOS")
             ids_topic_repos = get_id_from_repos(topic_repos)
             pd.Series(ids_topic_repos,
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
         if(args.search):
             print(f"Searching repos for {args.search}...")
-            search_repos = get_complete_query_result(api, "utrecht university",
+            search_repos = get_complete_query_result(api, args.search,
                                                     "SEARCH_REPOS")
             ids_search_repos = get_id_from_repos(search_repos)
             pd.Series(ids_search_repos,
@@ -83,7 +83,7 @@ if __name__ == '__main__':
             print("Searching repos done")
 
             print(f"Searching users for {args.search}...")
-            search_users = get_complete_query_result(api, "utrecht university",
+            search_users = get_complete_query_result(api, args.search,
                                                     "SEARCH_USERS")
             ids_search_users = get_id_from_users(search_users)
             pd.Series(ids_search_users,
