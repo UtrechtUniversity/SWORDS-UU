@@ -280,13 +280,12 @@ employee_github_pd = pd.DataFrame(employee_github,
 #employee_github_from_cv_pd = employee_github_from_cv_pd.dropna()
 employee_github_pd = employee_github_pd.dropna()
 
-p = Path("repository_collection", "university_profile_pages", "results")
+p = Path("results")
 p.mkdir(parents=True, exist_ok=True)
 
 #employee_github_from_links_pd.to_csv(Path("repository_collection", "university_profile_pages","results", "employees_github_from_links_urls.csv"), index = False)
 #employee_github_from_profile_pd.to_csv(Path("repository_collection", "university_profile_pages","results", "employees_github_from_profile_urls.csv"), index = False)
 #employee_github_from_cv_pd.to_csv(Path("repository_collection", "university_profile_pages","results", "employees_github_from_cv_urls.csv"), index = False)
-employee_github_pd.to_csv(Path("repository_collection",
-                               "university_profile_pages", "results",
+employee_github_pd.to_csv(Path("results",
                                "employees_github_usernames.csv"),
                           index=False)
