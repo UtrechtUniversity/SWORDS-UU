@@ -67,9 +67,6 @@ def get_userdata(user_list, api, sleep=6):
         time.sleep(sleep)
     return pd.DataFrame(results_github_user_api)
 
-# get_userdata(df_users[df_users["new_user"] == True]["github_user_id"], api, 2)
-# results_github_user_api_test = get_userdata(["kequach", "clariah"], api, 2)
-
 
 def update_users(df_users_annotated, df_new_users):
     df_users = df_users_annotated.copy()  # don't modify initial df
@@ -90,10 +87,7 @@ def update_users(df_users_annotated, df_new_users):
             new_index = df_users.index[-1] + 1
             df_users.loc[new_index, "github_user_id"] = github_user_id
             df_users.loc[new_index, keys] = values
-
     return df_users
-
-# update_users(df_users_annotated, results_github_user_api)
 
 
 # Automatic filtering of students
