@@ -1,6 +1,6 @@
 # User collection
 
-<img src="../docs/Phase_1.png">
+<img src="../docs/Phase_1.png" height="500">
 
 This submodule of the SWORDS project is used to collect user profiles from
 GitHub and GitLab that match the given criteria. 
