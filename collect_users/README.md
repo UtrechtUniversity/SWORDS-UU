@@ -1,4 +1,13 @@
-# User collection
+# User collection <!-- omit in toc -->
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Gather GitHub user profiles from data sources](#gather-github-user-profiles-from-data-sources)
+  - [Merge users to CSV file](#merge-users-to-csv-file)
+  - [Enrich users with GitHub data](#enrich-users-with-github-data)
+  - [Filter users](#filter-users)
+- [License](#license)
+- [Contact](#contact)
 
 <img src="../docs/Phase_1.png" height="500">
 
@@ -25,8 +34,12 @@ pip install -r university_profile_pages/requirements.txt
 
 ## Usage
 
+### Gather GitHub user profiles from data sources
+
 See each individual user collection method for usage instructions. Each method
 stores the collected user profiles in the `results` folder. 
+
+### Merge users to CSV file
 
 Because there are multiple user collection methods, users can be found with
 multiple methods. Therefore, the collected data is deduplicated after
@@ -52,6 +65,8 @@ github_user_id,source
 
 Where source indicates from which method the user id was retrieved.
 
+### Enrich users with GitHub data
+
 Next, the data is enriched with GitHub information. Execute the file **enrich_users.py**.
  Note: This script can also be used to update an existing file. It can also be specified whether the update should only include new entries (e.g. when there are more results available) or if everything should be updated.
 There are 4 arguments that can be passed. Bold arguments are required:
@@ -68,6 +83,10 @@ python enrich_users.py --input users_merged.csv
 python enrich_users.py --input users_merged.csv --update False --fileupdate "unique_users_annotated.xlsx"
 python enrich_users.py --input users_merged.csv --update True --fileupdate "unique_users_annotated.xlsx" --output "unique_users_annotated.xlsx"
 ```
+
+### Filter users
+
+The filtering of users is done manually.
 
 ## License 
 
