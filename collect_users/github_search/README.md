@@ -9,14 +9,15 @@ ghapi package - github_search retrieves all users for the following:
 
 To use this submodule, install the requirements with 
 
-```
-pip install requirements.txt
+```console
+pip install -r requirements.txt
 ```
 
 ## Usage
 
 First, navigate to this folder. Then, execute the script with arguments.
-```
+
+```console
 python github_search.py --topic utrecht-university --search "utrecht university"
 ```
 

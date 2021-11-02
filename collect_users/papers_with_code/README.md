@@ -5,14 +5,15 @@ This collection is based on the website paperswithcode.com based on the followin
 
 To use this submodule, install the requirements with 
 
-```
-pip install requirements.txt
+```console
+pip install -r requirements.txt
 ```
 
 ## Usage
 
 First, navigate to this folder. Then, execute the script.
-```
+
+```console
 python papers_with_code.py
 ```
 
