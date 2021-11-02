@@ -90,7 +90,7 @@ The filtering of users is done manually.
 
 ## License 
 
-See [/LICENSE](LICENSE).
+See [/LICENSE](../LICENSE).
 
 ## Contact 
 
