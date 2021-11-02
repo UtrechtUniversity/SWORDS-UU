@@ -27,7 +27,7 @@ In this step, repositories of enriched users are retrieved. To do this, execute 
 There are 2 arguments that can be passed.
 
 - --users: The path to the file with enriched users. Default value: ../collect_users/unique_users_annotated.xlsx
-- --output: The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: '%Y-%m-%d'. Default value: repositories
+- --output: The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
@@ -41,7 +41,7 @@ In this step, non-relevant repositories are filtered. To do this, execute the fi
 There are 2 arguments that can be passed. Bold arguments are required:
 
 - --**input**: The file name of the retrieved repositories.
-- --output: The file name of the filtered repositories. Note that there will always be a timestamp added to the file name in the following format: '%Y-%m-%d'. Default value: repositories_filtered
+- --output: The file name of the filtered repositories. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories_filtered
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
