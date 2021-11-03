@@ -308,7 +308,3 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,macos,pycharm+all,sublimetext
-collect_repositories/filter_repos.ipynb
-.vscode/settings.json
-collect_users/merge_github_user_profiles.ipynb
-Playground.ipynb
