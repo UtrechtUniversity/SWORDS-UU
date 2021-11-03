@@ -11,18 +11,16 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     "--files",
     "-f",
-    nargs="*",
     help="set file paths to be merged. Example: '*/results/*.csv'",
     required=True)
 # python merge_users.py file1.csv file2.csv | python merge_users.py */results/*.csv
 parser.add_argument("--output",
                     "-o",
                     help="file name of output. Default: users_merged.csv",
-                    default="users_merged.csv")
+                    default="results/users_merged.csv")
 
 # Read arguments from the command line
 args = parser.parse_args()
-
 print(f"Search query: {args.files}")
 data_files = glob.glob(args.files)
 print(f"Parsing files for... \n {data_files}")
@@ -35,11 +33,9 @@ df_github_names_long = pd.concat(
 df_github_names_long['github_user_id'] = df_github_names_long[
     'github_user_id'].str.lower()
 
-df_users = df_github_names_long[[
+df_users = df_github_names_long[["github_user_id", "source"]].sort_values([
     "github_user_id", "source"
-]].sort_values("github_user_id").drop_duplicates("github_user_id").reset_index(
-    drop=True
-)  # note: this will keep only one entry for each github id even if it was found in multiple sources
+]).drop_duplicates(["github_user_id", "source"]).reset_index(drop=True) # duplicates need to be dropped because one source can return a github_user_id multiple times
 
 df_users['source'] = df_users['source'].map(lambda x: x.split("results\\")[
     1])  # remove file path so the column only contains the file name

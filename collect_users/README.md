@@ -51,13 +51,13 @@ collection.
 Users from each collection method need to be merged after each method was executed. To do this, execute the file **merge_users.py**.
 There are 2 arguments that can be passed. Bold arguments are required:
 
-- --**files**: The query for merging the .csv files. To merge all .csv files in each results folder, use the following query: '*/results/*.csv'
-- --output: The file name of the merged output. Default value: users_merged.csv
+- --**files**: The query for merging the .csv files. To merge all .csv files in each results folder, use the following query: methods/*/results/*.csv
+- --output: The file name of the merged output. Default value: results/users_merged.csv
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python merge_users.py --files '*/results/*.csv' --output 'users_merged.csv'
+python scripts/merge_users.py --files methods/*/results/*.csv --output results/users_merged.csv
 ```
 
 The structure of the exported data is as follows:
