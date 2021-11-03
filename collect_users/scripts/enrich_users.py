@@ -18,10 +18,10 @@ parser.add_argument("--input",
 parser.add_argument(
     "--update",
     "-u",
+    action='store_true',
     help=
     "Update everything including existing users or only add new ones. Default is False",
-    default=False,
-    type=lambda x: (str(x).lower() == 'true'))
+    default=False)
 parser.add_argument(
     "--fileupdate",
     "-fu",
@@ -31,12 +31,13 @@ parser.add_argument(
 parser.add_argument("--output",
                     "-o",
                     help="file name of output. Default: users_enriched.csv",
-                    default="users_enriched.csv")
+                    default="results/users_enriched.csv")
 
 # Read arguments from the command line
 args = parser.parse_args()
 
 df_users = pd.read_csv(args.input)
+df_users = df_users.drop_duplicates("github_user_id").reset_index(drop=True)
 
 UPDATE_EVERYTHING = args.update
 
@@ -143,7 +144,7 @@ else:  # no authentication
 if 'new_user' in df_users.columns:  # updating users
     if (UPDATE_EVERYTHING == True):
         df_users_all = pd.merge(df_users[df_users["new_user"] == True].drop(
-            ["uu_user_id"], axis=1),
+            ["source"], axis=1),
                                 df_users_annotated,
                                 on="github_user_id",
                                 how="outer")

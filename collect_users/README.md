@@ -74,17 +74,17 @@ Next, the data is enriched with GitHub information. Execute the file **enrich_us
  Note: This script can also be used to update an existing file. It can also be specified whether the update should only include new entries (e.g. when there are more results available) or if everything should be updated.
 There are 4 arguments that can be passed. Bold arguments are required:
 
-- --**input**: The file name of the input. Default: users_merged.csv
-- --update: Update everything including existing users or only add new users. Default is False.
-- --fileupdate: If you want to update an existing file, provide a file name in this argument. Example: 'unique_users_annotated.xlsx'
-- --output: The file name of the enriched output. Default: users_enriched.csv
+- --**input**: The file name of the input. Default: results/users_merged.csv
+- --update: Update everything including existing users or only add new users. Only relevant if fileupdate argument is provided. Default is False.
+- --fileupdate: If you want to update an existing file, provide a file name in this argument. Example: results/unique_users_annotated.xlsx
+- --output: The file name of the enriched output. Default: results/users_enriched.csv
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Examples:
 
 ```console
-python enrich_users.py --input users_merged.csv
-python enrich_users.py --input users_merged.csv --update False --fileupdate "unique_users_annotated.xlsx"
-python enrich_users.py --input users_merged.csv --update True --fileupdate "unique_users_annotated.xlsx" --output "unique_users_annotated.xlsx"
+python scripts/enrich_users.py --input results/users_merged.csv
+python scripts/enrich_users.py --input results/users_merged.csv --fileupdate results/users_enriched.csv
+python scripts/enrich_users.py --input results/users_merged.csv --update --fileupdate results/users_enriched.csv --output results/users_enriched_updated.csv
 ```
 
 ### Prepare filtering
