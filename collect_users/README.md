@@ -75,7 +75,7 @@ Next, the data is enriched with GitHub information. Execute the file **enrich_us
 There are 4 arguments that can be passed. Bold arguments are required:
 
 - --**input**: The file name of the input. Default: results/users_merged.csv
-- --update: Update everything including existing users or only add new users. Only relevant if fileupdate argument is provided. Default is False.
+- --update: Boolean flag. Update everything including existing users or only add new users. Only relevant if fileupdate argument is provided. This is false by default.
 - --fileupdate: If you want to update an existing file, provide a file name in this argument. Example: results/unique_users_annotated.xlsx
 - --output: The file name of the enriched output. Default: results/users_enriched.csv
 
