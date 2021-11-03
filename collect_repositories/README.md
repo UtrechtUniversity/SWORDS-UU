@@ -4,6 +4,7 @@
 - [Usage](#usage)
   - [Retrieve repositories of filtered users](#retrieve-repositories-of-filtered-users)
   - [Filter repositories](#filter-repositories)
+  - [Data analysis](#data-analysis)
 - [License](#license)
 - [Contact](#contact)
 
@@ -50,6 +51,10 @@ python filter_repos.py --input 'repositories_2021-10-25.csv'
 ```
 
 Currently, the script only filters out *github.io* repositories, as these are usually no research repositories. Additional filtering can be done manually.
+
+### Data analysis
+
+Interactive data analysis can be found in the [Jupyter Notebook TBD]().
 
 ## License 
 

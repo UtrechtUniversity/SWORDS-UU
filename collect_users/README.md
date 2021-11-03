@@ -5,7 +5,9 @@
   - [Gather GitHub user profiles from data sources](#gather-github-user-profiles-from-data-sources)
   - [Merge users to CSV file](#merge-users-to-csv-file)
   - [Enrich users with GitHub data](#enrich-users-with-github-data)
+  - [Prepare filtering](#prepare-filtering)
   - [Filter users](#filter-users)
+  - [Data analysis](#data-analysis)
 - [License](#license)
 - [Contact](#contact)
 
@@ -21,15 +23,16 @@ Currently, the following collection methods are available:
 - Pure
 - UU employee pages
 
+The collection method scripts can be found in the subfolder *methods*. Each method has a subfolder *results* where the output will be located. 
+
+The merging, enriching and preparation for filtering scripts can be found in the *scripts* subfolder. The output from these can be found in the *results* subfolder.
+
 ## Installation 
 
-The code in this submodule requires Python 3.7+. To install the code dependencies, install the packages in the requirements file. 
+The code in this submodule requires Python 3.7+. To install the code dependencies, install the packages in the requirements file. This covers requirements for files in the *scripts* folder, as well as the data analysis notebook. For the collection methods, each collection method has its own requirements.txt file in the corresponding subfolder.
 
 ```console
-pip install -r github_search/requirements.txt
-pip install -r papers_with_code/requirements.txt
-pip install -r pure/requirements.txt
-pip install -r university_profile_pages/requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -84,9 +87,17 @@ python enrich_users.py --input users_merged.csv --update False --fileupdate "uni
 python enrich_users.py --input users_merged.csv --update True --fileupdate "unique_users_annotated.xlsx" --output "unique_users_annotated.xlsx"
 ```
 
+### Prepare filtering
+
+TODO
+
 ### Filter users
 
 The filtering of users is done manually.
+
+### Data analysis
+
+Interactive data analysis can be found in the [Jupyter Notebook analysis_of_data_sources.ipynb](analysis_of_data_sources.ipynb).
 
 ## License 
 
