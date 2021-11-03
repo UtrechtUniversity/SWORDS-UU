@@ -17,7 +17,8 @@ def get_username_from_string(url):
 
 if __name__ == '__main__':
     r = requests.get(
-        'https://paperswithcode.com/search?q_meta=&q_type=&q=utrecht+university')
+        'https://paperswithcode.com/search?q_meta=&q_type=&q=utrecht+university'
+    )
     print(f"Fetching papers from url: {r.url}")
     if r.status_code == 200:
         soup = BeautifulSoup(r.text, 'html.parser')
