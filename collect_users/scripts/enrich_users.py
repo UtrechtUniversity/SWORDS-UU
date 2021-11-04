@@ -36,7 +36,15 @@ parser.add_argument("--output",
 # Read arguments from the command line
 args = parser.parse_args()
 
-df_users = pd.read_csv(args.input)
+
+def read_pandas_file(file_path):
+    if ("xlsx" in file_path):
+        return pd.read_excel(file_path, engine='openpyxl')
+    else:
+        return pd.read_csv(file_path)
+
+
+df_users = read_pandas_file(args.input)
 df_users = df_users.drop_duplicates("github_user_id").reset_index(drop=True)
 
 UPDATE_EVERYTHING = args.update
@@ -44,11 +52,7 @@ UPDATE_EVERYTHING = args.update
 if (args.fileupdate):
     try:
         # If this block is successfully executed it is an update of users
-        if ("xlsx" in args.fileupdate):
-            df_users_annotated = pd.read_excel(args.fileupdate,
-                                               engine='openpyxl')
-        else:
-            df_users_annotated = pd.read_csv(args.fileupdate)
+        df_users_annotated = read_pandas_file(args.fileupdate)
         df_users["new_user"] = False
         df_users.loc[~df_users["github_user_id"].
                      isin(df_users_annotated["github_user_id"].str.lower()),
