@@ -47,7 +47,7 @@ There are 2 arguments that can be passed. Bold arguments are required:
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/filter_repos.py --input 'results/repositories_2021-10-25.csv'
+python scripts/filter_repos.py --input results/repositories_2021-11-04.csv 
 ```
 
 Currently, the script only filters out *github.io* repositories, as these are usually no research repositories. Additional filtering can be done manually.
