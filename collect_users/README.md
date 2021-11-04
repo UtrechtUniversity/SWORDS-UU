@@ -52,12 +52,14 @@ Users from each collection method need to be merged after each method was execut
 There are 2 arguments that can be passed.
 
 - --files: The query for merging the .csv files. To merge all .csv files in each results folder, use the following query (this is the default): methods/*/results/*.csv
+  - You can add multiple arguments to specify specific files or also to use wildcards as shown in the default. See examples.
 - --output: The file name of the merged output. Default value: results/users_merged.csv
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
 python scripts/merge_users.py --files methods/*/results/*.csv --output results/users_merged.csv
+python scripts/merge_users.py --files methods/*/results/*.csv additional_users.csv --output results/users_merged.csv
 ```
 
 The structure of the exported data is as follows:

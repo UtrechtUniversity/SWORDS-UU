@@ -1,4 +1,5 @@
 from pathlib import Path
+import pathlib
 import argparse
 import glob
 
@@ -11,6 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     "--files",
     "-f",
+    nargs="*",
     help="set file paths to be merged. Example: methods/*/results/*.csv",
     default="methods/*/results/*.csv")
 # python merge_users.py file1.csv file2.csv | python merge_users.py */results/*.csv
@@ -21,8 +23,16 @@ parser.add_argument("--output",
 
 # Read arguments from the command line
 args = parser.parse_args()
-print(f"Search query: {args.files}")
-data_files = glob.glob(args.files)
+print(f"File arguments: {args.files}")
+
+data_files = []
+for file in args.files:
+    print(file)
+    if ("*" in file):  # workaround for Windows shell not expanding asterisk
+        data_files.extend(glob.glob(file))
+    else:
+        data_files.append(file)
+
 print(f"Parsing files for... \n {data_files}")
 df_github_names_long = pd.concat(
     [pd.read_csv(fp) for fp in data_files],
@@ -35,10 +45,12 @@ df_github_names_long['github_user_id'] = df_github_names_long[
 
 df_users = df_github_names_long[["github_user_id", "source"]].sort_values([
     "github_user_id", "source"
-]).drop_duplicates(["github_user_id", "source"]).reset_index(drop=True) # duplicates need to be dropped because one source can return a github_user_id multiple times
+]).drop_duplicates(["github_user_id", "source"]).reset_index(
+    drop=True
+)  # duplicates need to be dropped because one source can return a github_user_id multiple times
 
-df_users['source'] = df_users['source'].map(lambda x: x.split("results\\")[
-    1])  # remove file path so the column only contains the file name
+df_users['source'] = df_users['source'].map(lambda x: pathlib.PurePath(
+    x).name)  # remove file path so the column only contains the file name
 
 df_users.to_csv(Path(args.output), index=False)
 print("Successfully merged users.")
