@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ### Flowchart
 
-<img src="docs/Phase_1.png" height="1000">
+<img src="docs/Complete_pipeline.jpg" height="1000">
 
 ### Usage
 
