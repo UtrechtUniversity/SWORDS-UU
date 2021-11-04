@@ -2,6 +2,7 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Running whole phase 1 pipeline](#running-whole-phase-1-pipeline)
   - [Gather GitHub user profiles from data sources](#gather-github-user-profiles-from-data-sources)
   - [Merge users to CSV file](#merge-users-to-csv-file)
   - [Enrich users with GitHub data](#enrich-users-with-github-data)
@@ -36,6 +37,12 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+### Running whole phase 1 pipeline
+
+There is a shell script **run_pipeline.sh** available that will run all the necessary steps. Otherwise you can execute each of them on its own, allowing more control over the arguments.
+
+To use it, navigate to this folder and run the file. On windows, you can use Git Bash to execute it.
 
 ### Gather GitHub user profiles from data sources
 
