@@ -241,7 +241,9 @@ employee_github_from_cv = []
 employee_github = []
 
 faculty_ids = []
-print("Looping through faculties... Note: Getting errors here is expected. This will take a while. You can keep cancelling via ctrl + c until you see continuous errors.")
+print(
+    "Looping through faculties... Note: Getting errors here is expected. This will take a while. You can keep cancelling via ctrl + c until you see continuous errors."
+)
 for i in range(
         99
 ):  #the distribution of employees over these numbers seems to differ from week to week. Highest found value were employee ids were found was 18
