@@ -12,7 +12,7 @@ parser.add_argument(
     "--files",
     "-f",
     help="set file paths to be merged. Example: methods/*/results/*.csv",
-    required=True)
+    default="methods/*/results/*.csv")
 # python merge_users.py file1.csv file2.csv | python merge_users.py */results/*.csv
 parser.add_argument("--output",
                     "-o",

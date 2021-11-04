@@ -13,15 +13,15 @@ parser = argparse.ArgumentParser()
 # Add arguments to be parsed
 parser.add_argument("--input",
                     "-i",
-                    help="file name of input. Default: users_merged.csv",
-                    required=True)
+                    help="file name of input.",
+                    default="results/users_merged.csv")
 parser.add_argument(
     "--update",
     "-u",
     action='store_true',
     help=
-    "Update everything including existing users or only add new ones. Default is False",
-    default=False)
+    "Update everything including existing users or only add new ones. Default is False"
+)
 parser.add_argument(
     "--fileupdate",
     "-fu",
@@ -30,7 +30,7 @@ parser.add_argument(
 )
 parser.add_argument("--output",
                     "-o",
-                    help="file name of output. Default: users_enriched.csv",
+                    help="file name of output.",
                     default="results/users_enriched.csv")
 
 # Read arguments from the command line
