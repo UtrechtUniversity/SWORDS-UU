@@ -27,13 +27,13 @@ pip install -r requirements.txt
 In this step, repositories of enriched users are retrieved. To do this, execute the file **repositories.py**.
 There are 2 arguments that can be passed.
 
-- --users: The path to the file with enriched users. Default value: ../collect_users/unique_users_annotated.xlsx
-- --output: The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories
+- --users: The path to the file with enriched users. Default value: ../collect_users/results/unique_users_annotated.xlsx
+- --output: The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: results/repositories
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python repositories.py --users '../collect_users/unique_users_annotated.xlsx' --output 'repositories'
+python scripts/repositories.py --users ../collect_users/results/unique_users_annotated.xlsx --output results/repositories
 ```
 
 ### Filter repositories
@@ -47,7 +47,7 @@ There are 2 arguments that can be passed. Bold arguments are required:
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python filter_repos.py --input 'repositories_2021-10-25.csv'
+python scripts/filter_repos.py --input 'results/repositories_2021-10-25.csv'
 ```
 
 Currently, the script only filters out *github.io* repositories, as these are usually no research repositories. Additional filtering can be done manually.
