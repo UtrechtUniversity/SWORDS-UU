@@ -1,6 +1,8 @@
 import os
 import time
 from pathlib import Path
+import argparse
+from datetime import datetime
 
 from ghapi.all import GhApi, pages
 from fastcore.foundation import L, AttrDict
@@ -54,17 +56,44 @@ def get_repos_formatted(repos):
     return result
 
 
+def read_pandas_file(file_path):
+    if ("xlsx" in file_path):
+        return pd.read_excel(file_path, engine='openpyxl')
+    else:
+        return pd.read_csv(file_path)
+
+
 if __name__ == '__main__':
+
+    # Initiate the parser
+    parser = argparse.ArgumentParser()
+
+    # Add arguments to be parsed
+    parser.add_argument(
+        "--users",
+        "-u",
+        help="The path to the file with enriched users.",
+        default="../collect_users/results/unique_users_annotated.xlsx")
+    parser.add_argument(
+        "--output",
+        "-o",
+        help=
+        "The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD.",
+        default="results/repositories")
+
+    # Read arguments from the command line
+    args = parser.parse_args()
+    print(f"Retrieving repositories for the following file: {args.users}")
+
     load_dotenv()
     # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
     api = GhApi(token=token)
-    df_users = pd.read_excel(Path("repository_collection",
-                                  "unique_users_annotated.xlsx"),
-                             engine='openpyxl')
+    df_users = read_pandas_file(args.users)
+
     # drop filtered users
     df_users = df_users.drop(df_users[df_users.final_decision == 0].index)
-    df_users
+
     result_repos = []
     counter = 0
     for user in df_users["github_user_id"]:
@@ -75,15 +104,17 @@ if __name__ == '__main__':
         else:
             print("User %s has no repositories." % user)
         time.sleep(requests * 2 + .1)
-        counter += 1
         if (counter % 10 == 0):
-            print("Fetched %d users." % counter)
+            print("Processed %d out of %d users." %
+                  (counter, len(df_users.index)))
+        counter += 1
 
+    
+    print("Finished processing users. Flattening nested structures...")
     # Flatten nested structures
     for i in range(len(result_repos)):
         for key in result_repos[i].keys():
             if (isinstance(result_repos[i][key], AttrDict)):
-                print(key)
                 if (key == "owner"):
                     result_repos[i][key] = result_repos[i][key]["login"]
                 elif (key == "permissions"):
@@ -92,5 +123,9 @@ if __name__ == '__main__':
                     result_repos[i][key] = result_repos[i][key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)
-    df_result_repos.to_csv(Path("repository_collection", "repositories.csv"),
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    output_path = args.output + "_" + current_date + ".csv"
+    df_result_repos.to_csv(Path(output_path),
                            index=False)
+
+    print(f"Successfully retrieved user repositories. Saved result to {output_path}.")
