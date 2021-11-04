@@ -1,7 +1,8 @@
 import requests
 from pathlib import Path
-from bs4 import BeautifulSoup
+import argparse
 
+from bs4 import BeautifulSoup
 import pandas as pd
 
 
@@ -16,9 +17,17 @@ def get_username_from_string(url):
 
 
 if __name__ == '__main__':
-    r = requests.get(
-        'https://paperswithcode.com/search?q_meta=&q_type=&q=utrecht+university'
-    )
+
+    # Initiate the parser
+    parser = argparse.ArgumentParser()
+
+    # Add arguments to be parsed
+    parser.add_argument("--query", "-t", help="set topic search string")
+
+    # Read arguments from the command line
+    args = parser.parse_args()
+    r = requests.get('https://paperswithcode.com/search?q_meta=&q_type=&q=' +
+                     args.query)
     print(f"Fetching papers from url: {r.url}")
     if r.status_code == 200:
         soup = BeautifulSoup(r.text, 'html.parser')
