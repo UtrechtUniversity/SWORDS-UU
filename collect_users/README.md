@@ -55,6 +55,11 @@ Because there are multiple user collection methods, users can be found with
 multiple methods. Therefore, the collected data is deduplicated after
 collection. 
 
+Note that you should create a .env file in the root project folder and add the following line:
+```GITHUB_TOKEN = "YOUR_PERSONAL_GITHUB_TOKEN" ```
+See here on how to create a Github token: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token 
+Since the Github API is limiting the number of unauthorized requests quite a lot, this is recommended to decrease the runtime. Otherwise the waiting time is much longer.
+
 Users from each collection method need to be merged after each method was executed. To do this, execute the file **merge_users.py**.
 There are 2 arguments that can be passed.
 
@@ -80,7 +85,7 @@ Where source indicates from which method the user id was retrieved.
 ### Enrich users with GitHub data
 
 Next, the data is enriched with GitHub information. Execute the file **enrich_users.py**.
- Note: This script can also be used to update an existing file. It can also be specified whether the update should only include new entries (e.g. when there are more results available) or if everything should be updated.
+ Note: This script can also be used to update users of an existing file, as well as adding additional users. It can be specified whether the update should only include new entries (e.g. when there are more results available) or if all users should be updated.
 There are 4 arguments that can be passed.
 
 - --input: The file name of the input. Default: results/users_merged.csv
