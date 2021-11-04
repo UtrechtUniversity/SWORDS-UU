@@ -241,6 +241,7 @@ employee_github_from_cv = []
 employee_github = []
 
 faculty_ids = []
+print("Looping through faculties... Note: Getting errors here is expected. This will take a while. You can keep cancelling via ctrl + c until you see continuous errors.")
 for i in range(
         99
 ):  #the distribution of employees over these numbers seems to differ from week to week. Highest found value were employee ids were found was 18
@@ -268,7 +269,7 @@ for i in range(
     except:
         print("error occured getting faculty url")
         continue
-
+print("Finished looping through faculties.")
 #employee_github_from_links_pd = pd.DataFrame(employee_github_from_links,  columns=["uu_user_id", "github_user_id"])
 #employee_github_from_profile_pd = pd.DataFrame(employee_github_from_profile,  columns=["uu_user_id", "github_user_id"])
 #employee_github_from_cv_pd = pd.DataFrame(employee_github_from_cv,  columns=["uu_user_id", "github_user_id"])
