@@ -109,7 +109,6 @@ if __name__ == '__main__':
                   (counter, len(df_users.index)))
         counter += 1
 
-    
     print("Finished processing users. Flattening nested structures...")
     # Flatten nested structures
     for i in range(len(result_repos)):
@@ -125,7 +124,8 @@ if __name__ == '__main__':
     df_result_repos = pd.DataFrame(result_repos)
     current_date = datetime.today().strftime('%Y-%m-%d')
     output_path = args.output + "_" + current_date + ".csv"
-    df_result_repos.to_csv(Path(output_path),
-                           index=False)
+    df_result_repos.to_csv(Path(output_path), index=False)
 
-    print(f"Successfully retrieved user repositories. Saved result to {output_path}.")
+    print(
+        f"Successfully retrieved user repositories. Saved result to {output_path}."
+    )
