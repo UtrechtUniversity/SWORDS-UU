@@ -19,5 +19,5 @@ df_repos.reset_index(drop=True, inplace=True)
 
 current_date = datetime.today().strftime('%Y-%m-%d')
 df_repos.to_csv(Path("variable_collection", "output",
-                     "repositories_filtered_" + current_date + ".csv"),
+                     "repositories_filtered" + "_" + current_date + ".csv"),
                 index=False)
