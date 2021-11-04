@@ -112,29 +112,6 @@ def update_users(df_users_annotated, df_new_users):
     return df_users
 
 
-# Automatic filtering of students
-def is_student(user_bio):
-    """Checks whether a GitHub user is a student. The bio of a user is parsed. 
-    If it contains phd the user will not be marked as a student. 
-    If the bio contains only the word student the user will be marked as a student. If
-
-    Args:
-        user_id (string): user id which is named as "login" from the GitHub Api 
-
-    Returns:
-        Boolean: Whether the user is a student or not
-    """
-    user_bio = str(user_bio).lower()
-    if (user_bio != "nan"):
-        # PhD students should be included
-        mention_phd = "phd" in user_bio
-        mention_student = "student" in user_bio
-        return (not mention_phd and mention_student)
-    else:
-        # we can't be sure and therefore keep the user
-        return False
-
-
 load_dotenv()
 # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
 token = os.getenv('GITHUB_TOKEN')
@@ -166,9 +143,6 @@ if 'new_user' in df_users.columns:  # updating users
 
     df_users_enriched = update_users(df_users_annotated,
                                      results_github_user_api)
-    df_users_enriched["is_student"] = df_users_enriched['bio'].apply(
-        is_student)
-
 else:  # first time collecting data
     results_github_user_api = get_userdata(df_users["github_user_id"], api,
                                            sleep)
@@ -177,17 +151,6 @@ else:  # first time collecting data
                                        right_on="login",
                                        how="left")
     df_users_enriched.drop(["login"], axis=1, inplace=True)
-    df_users_enriched = df_users_enriched.reindex(
-        columns=df_users_enriched.columns.tolist() + [
-            "is_student", "is_employee", "is_currently_employed",
-            "is_research_group", "final_decision", "note"
-        ])
-    df_users_enriched["is_student"] = df_users_enriched['bio'].apply(
-        is_student)
-
-print(
-    f"How many users are students? \n {df_users_enriched['is_student'].value_counts().to_frame()}"
-)
 
 if ("xlsx" in args.output):
     df_users_enriched.to_excel(args.output, index=False)
