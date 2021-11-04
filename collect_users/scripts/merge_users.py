@@ -27,7 +27,6 @@ print(f"File arguments: {args.files}")
 
 data_files = []
 for file in args.files:
-    print(file)
     if ("*" in file):  # workaround for Windows shell not expanding asterisk
         data_files.extend(glob.glob(file))
     else:
