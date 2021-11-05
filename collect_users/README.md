@@ -119,7 +119,7 @@ python scripts/prepare_filtering.py
 
 ### Filter users
 
-The filtering of users is done manually. It is recommended to turn the resulting file from the previous step to an .xlsx file and make use of Excel tools to manually annotate the users. In the SWORDS UU implementation, we decided to filter out students in this step.
+The filtering of users is done manually. It is recommended to turn the resulting file from the previous step to an .xlsx file and make use of Excel tools to manually annotate the users. In the SWORDS UU implementation, we decided to filter out students in this step. The resulting file was named **unique_users_annotated.xlsx** which is assumed to be the file used as input for phase 2.
 
 ### Data analysis
 
