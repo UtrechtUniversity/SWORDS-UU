@@ -1,2 +1,2 @@
-# Self-written
-This folder holds all code for variables that are retrieved by self-written code
+# GitHub API
+This folder holds the code for variables that are retrieved by GitHub API.
