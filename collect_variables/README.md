@@ -68,6 +68,8 @@ python scripts/github_api/github.py --input output/repositories_howfairis_2021-1
 
 Interactive data analysis can be found in the [Jupyter Notebook variable_analysis.ipynb](variable_analysis.ipynb). As mentioned in the phase diagram, it is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
 
+This notebook analyzes the information in the repositories. The notebook contains analysis of licenses, programming languages, howfairis scores and other variables present in github repositories.  
+
 ## License
 
 See [/LICENSE](../LICENSE).
