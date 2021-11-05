@@ -2,6 +2,7 @@ import os
 import time
 from pathlib import Path
 from datetime import datetime
+import argparse
 
 from howfairis import Repo, Checker
 import pandas as pd
@@ -28,6 +29,32 @@ def get_howfairis_compliance(url):
             compliance.citation, compliance.checklist)
 
 
+def read_pandas_file(file_path):
+    if ("xlsx" in file_path):
+        return pd.read_excel(file_path, engine='openpyxl')
+    else:
+        return pd.read_csv(file_path)
+
+
+# Initiate the parser
+parser = argparse.ArgumentParser()
+
+# Add arguments to be parsed
+parser.add_argument("--input",
+                    "-i",
+                    help="The file name of the retrieved repositories.",
+                    required=True)
+parser.add_argument(
+    "--output",
+    "-o",
+    help=
+    "The file name of the filtered repositories. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories_filtered",
+    default="output/repositories_howfairis")
+
+# Read arguments from the command line
+args = parser.parse_args()
+print(f"Retrieving howfairis variables for the following file: {args.input}")
+
 # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
 # see: https://github.com/fair-software/howfairis/#rate-limit
 load_dotenv()
@@ -35,9 +62,7 @@ token = os.getenv('GITHUB_TOKEN')
 user = os.getenv('GITHUB_USER')
 os.environ['APIKEY_GITHUB'] = user + ":" + token
 
-df_repos = pd.read_csv(
-    Path("variable_collection", "output", "repositories_filtered.csv"))
-print(df_repos)
+df_repos = read_pandas_file(args.input)
 
 howfairis_variables = []
 for counter, url in enumerate(df_repos["html_url"]):
@@ -50,11 +75,14 @@ for counter, url in enumerate(df_repos["html_url"]):
             print(entry)
             howfairis_variables.append(entry)
             if (counter % 10 == 0):
-                print("Parsed %d repos." % counter)
+                print("Parsed %d out of %d repos." %
+                      (counter, len(df_repos.index)))
             time.sleep(2)
             request_successful = True
         except Exception as e:
-            print("Sleep for a while. Error message: %s" % str(e))
+            print(
+                "Error occured (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
+                % str(e))
             time.sleep(1500)
 
 df_howfairis = pd.DataFrame(howfairis_variables,
@@ -66,6 +94,9 @@ df_howfairis = pd.DataFrame(howfairis_variables,
 df_repo_merged = pd.merge(df_repos, df_howfairis, how="left", on='html_url')
 
 current_date = datetime.today().strftime('%Y-%m-%d')
-df_repo_merged.to_csv(Path("variable_collection", "output",
-                           "repositories_howfairis_" + current_date + ".csv"),
-                      index=False)
+output_path = args.output + "_" + current_date + ".csv"
+df_repo_merged.to_csv(Path(output_path), index=False)
+
+print(
+    f"Successfully retrieved howfairis variables. Saved result to {output_path}."
+)
