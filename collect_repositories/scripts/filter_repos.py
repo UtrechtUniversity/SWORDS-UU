@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 
 # Add arguments to be parsed
 parser.add_argument("--input",
-                    "-u",
+                    "-i",
                     help="The file name of the retrieved repositories.",
                     required=True)
 parser.add_argument(
