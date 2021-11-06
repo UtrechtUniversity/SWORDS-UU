@@ -54,7 +54,9 @@ Currently, the script only filters out *github.io* repositories, as these are us
 
 ### Data analysis
 
-Interactive data analysis can be found in the [Jupyter Notebook TBD]().
+Interactive data analysis can be found in the [Jupyter Notebook repo_analysis.ipynb](repo_analysis.ipynb). It is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
+
+This notebook analyzes the information of the retrieved repositories. The notebook contains analysis of open science mentions, stargazers, watchers, issues, forks, branches, homepages and commits.
 
 ## License 
 
