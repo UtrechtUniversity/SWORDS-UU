@@ -1,9 +1,8 @@
-# SWORDS@UU <!-- omit in toc -->
+# SWORDS@UU 
 
-- [Pipeline](#pipeline)
-- [Phase 2: Variable collection](#phase-2-variable-collection)
-  - [Installation](#installation)
-  - [Flowchart](#flowchart)
+- [SWORDS@UU](#swordsuu)
+  - [Contact](#contact)
+  - [Pipeline](#pipeline)
 
 This repository is the implementation for the Scan of Open Research Data at Utrecht University (SWORDS@UU). The project is split into 3 phases that correspond to the folder structure. The following hyperlinks lead to the detailed readme of each phase.
 
