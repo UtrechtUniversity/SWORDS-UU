@@ -15,6 +15,10 @@ Each phase consists of several Python scripts and file outputs, mainly in .csv f
 
 For more information about the phases, please look into the corresponding subfolders for further information on installation and usage.
 
+## Contact
+
+For technical questions, you contact either [Keven Quach](https://github.com/kequach) or [Jonathan de Bruin](https://github.com/J535D165) or open an issue on GitHub.
+
 ## Pipeline
 
 <img src="docs/Complete_pipeline.jpg" height="1500">
