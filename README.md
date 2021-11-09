@@ -4,7 +4,7 @@
   - [Contact](#contact)
   - [Pipeline](#pipeline)
 
-This repository is the implementation for the Scan of Open Research Data at Utrecht University (SWORDS@UU). The project is split into 3 phases that correspond to the folder structure. The following hyperlinks lead to the detailed readme of each phase.
+This repository is the implementation for the Scan and revieW of Open Research Data and Software at Utrecht University (SWORDS@UU). The project is split into 3 phases that correspond to the folder structure. The following hyperlinks lead to the detailed readme of each phase.
 
 1. [User collection](collect_users/README.md)
 2. [Repository collection](collect_repositories/README.md)
@@ -20,4 +20,4 @@ For technical questions, you contact either [Keven Quach](https://github.com/keq
 
 ## Pipeline
 
-<img src="docs/Complete_pipeline.jpg" height="1500">
+<img src="docs/Complete_pipeline.png" height="1500">
