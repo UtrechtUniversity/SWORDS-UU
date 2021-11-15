@@ -6,6 +6,7 @@
   - [Pipeline](#pipeline)
   - [Contact](#contact)
   - [Contributors](#contributors)
+    - [Citation](#citation)
   - [Attribution](#attribution)
 
 This repository is the implementation for the Scan and revieW of Open Research Data and Software at Utrecht University (SWORDS@UU). The project is split into 3 phases that correspond to the folder structure. The following hyperlinks lead to the detailed readme of each phase.
@@ -29,6 +30,19 @@ For technical questions, you contact either [Keven Quach](https://github.com/keq
 ## Contributors
 
 This project was implemented by de Bruin, J., Lamprecht, A., Quach, K., & Slewe, C. (2021).
+
+### Citation
+
+```
+@software{de_Bruin_Scan_and_revieW_2021,
+author = {de Bruin, Jonathan and Lamprecht, Anna-Lena and Quach, Keven and Slewe, Christopher},
+month = {9},
+title = {{Scan and revieW of Open Research Data and Software at Utrecht University}},
+url = {https://github.com/UtrechtUniversity/SWORDS-UU},
+version = {1.0.0},
+year = {2021}
+}
+```
 
 ## Attribution
 
