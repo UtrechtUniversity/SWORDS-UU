@@ -9,7 +9,7 @@ python papers_with_code.py --query utrecht+university
 cd ../pure
 pip install -r requirements.txt
 python pure.py
-cd ../university_profile_pages
+cd ../profile_pages
 pip install -r requirements.txt
 python uu_api_crawler.py
 echo "Merging users..."
