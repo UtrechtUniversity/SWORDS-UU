@@ -13,9 +13,9 @@ cd ../profile_pages
 pip install -r requirements.txt
 python uu_api_crawler.py
 echo "Merging users..."
-pip install -r requirements.txt
 
 cd ../../
+pip install -r requirements.txt
 python scripts/merge_users.py --files methods/*/results/*.csv --output results/users_merged.csv
 echo "Enriching users..."
 python scripts/enrich_users.py --input results/users_merged.csv
