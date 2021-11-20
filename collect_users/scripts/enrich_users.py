@@ -146,6 +146,7 @@ if 'new_user' in df_users.columns:  # updating users
 else:  # first time collecting data
     results_github_user_api = get_userdata(df_users["github_user_id"], api,
                                            sleep)
+    results_github_user_api["login"] = results_github_user_api["login"].str.lower() # key to merge is lowercase so this needs to be lowercase as well
     df_users_enriched = df_users.merge(results_github_user_api,
                                        left_on="github_user_id",
                                        right_on="login",
