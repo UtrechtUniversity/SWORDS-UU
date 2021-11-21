@@ -23,6 +23,7 @@ def get_repos(api, user_id):
     try:
         # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
         query_result = api.search.repos("user:" + user_id, per_page=100)
+        print(user_id)
     except Exception as e:
         print("There was a problem with fetching repositories for user %s" %
               user_id)
