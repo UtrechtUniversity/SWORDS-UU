@@ -226,68 +226,42 @@ def get_all_employee_github_links(
         return None
 
 
-#print(get_employee_github_from_links("Jdebruin1"))
-#print(get_employee_github_from_profile("ZWang3"))
-#print(get_employee_github_from_profile("jdebruin1"))
-#print(get_all_employee_github_links("Jdebruin1"))
-#print(get_all_employee_github_links("ZWang3"))
+if __name__ == '__main__':
 
-#employee_links = []
-#employee_link_query = []
-#employee__profile_query = []
-employee_github_from_links = []
-employee_github_from_profile = []
-employee_github_from_cv = []
-employee_github = []
+    employee_github_from_links = []
+    employee_github_from_profile = []
+    employee_github_from_cv = []
+    employee_github = []
 
-faculty_ids = []
-print(
-    "Looping through faculties... Note: Getting errors here is expected. This will take a while. You can keep cancelling via ctrl + c until you see continuous errors."
-)
-for i in range(
-        99
-):  #the distribution of employees over these numbers seems to differ from week to week. Highest found value were employee ids were found was 18
-    try:  #sometimes a json decoder error occurs
-        faculty_url = list(get_employees_url(i))
-        #faculty_ids.append(faculty_url)
-        #faculty_ids.append("jdebruin1")#has github link in profile page and links, for testing
-        #faculty_ids.append("JHNienhuis")#has github.io link in cv, for testing purposes
-        print(i)
-        try:  #some of the pages are empty and contain no urls
-            for url in faculty_url:
-                #employee_github_from_links.append([url, get_employee_github_from_links(url)])
-                #employee_github_from_cv.append([url, get_employee_github_from_cv(url)])
-                #employee_github_from_profile.append([url, get_employee_github_from_profile(url)])
-                #employee_links.append([url, get_employee_links(url)])
-                #employee_link_query.append([url, get_employee_specific_link(url, "orcid")])
-                #employee__profile_query.append([url, get_employee_profile_mention(url, "open science")])
-                github_user_names = get_all_employee_github_links(url)
-                if github_user_names:
-                    for github_user_name in github_user_names:
-                        employee_github.append([url, github_user_name])
+    faculty_ids = []
+    print(
+        "Looping through faculties... Note: Getting errors here is expected. This will take a while. You can keep cancelling via ctrl + c until you see continuous errors."
+    )
+    for i in range(99):
+        try:
+            faculty_url = list(get_employees_url(i))
+            print(i)
+            try:
+                for url in faculty_url:
+                    github_user_names = get_all_employee_github_links(url)
+                    if github_user_names:
+                        for github_user_name in github_user_names:
+                            employee_github.append([url, github_user_name])
+            except:
+                print("couldn't loop through urls")
+                continue
         except:
-            print("couldn't loop through urls")
+            print("error occured getting faculty url")
             continue
-    except:
-        print("error occured getting faculty url")
-        continue
-print("Finished looping through faculties.")
-#employee_github_from_links_pd = pd.DataFrame(employee_github_from_links,  columns=["uu_user_id", "github_user_id"])
-#employee_github_from_profile_pd = pd.DataFrame(employee_github_from_profile,  columns=["uu_user_id", "github_user_id"])
-#employee_github_from_cv_pd = pd.DataFrame(employee_github_from_cv,  columns=["uu_user_id", "github_user_id"])
-employee_github_pd = pd.DataFrame(employee_github,
-                                  columns=["uu_user_id", "github_user_id"])
+    print("Finished looping through faculties.")
+    employee_github_pd = pd.DataFrame(employee_github,
+                                      columns=["uu_user_id", "github_user_id"])
 
-#employee_github_from_links_pd = employee_github_from_links_pd.dropna()
-#employee_github_from_profile_pd = employee_github_from_profile_pd.dropna()
-#employee_github_from_cv_pd = employee_github_from_cv_pd.dropna()
-employee_github_pd = employee_github_pd.dropna()
+    employee_github_pd = employee_github_pd.dropna()
 
-p = Path("results")
-p.mkdir(parents=True, exist_ok=True)
+    p = Path("results")
+    p.mkdir(parents=True, exist_ok=True)
 
-#employee_github_from_links_pd.to_csv(Path("repository_collection", "university_profile_pages","results", "employees_github_from_links_urls.csv"), index = False)
-#employee_github_from_profile_pd.to_csv(Path("repository_collection", "university_profile_pages","results", "employees_github_from_profile_urls.csv"), index = False)
-#employee_github_from_cv_pd.to_csv(Path("repository_collection", "university_profile_pages","results", "employees_github_from_cv_urls.csv"), index = False)
-employee_github_pd.to_csv(Path("results", "employees_github_usernames.csv"),
-                          index=False)
+    employee_github_pd.to_csv(Path("results",
+                                   "employees_github_usernames.csv"),
+                              index=False)
