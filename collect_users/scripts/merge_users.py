@@ -1,7 +1,7 @@
-from pathlib import Path
-import pathlib
 import argparse
 import glob
+import pathlib
+from pathlib import Path
 
 import pandas as pd
 
