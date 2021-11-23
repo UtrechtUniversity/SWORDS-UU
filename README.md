@@ -7,6 +7,7 @@
   - [Pipeline](#pipeline)
   - [Contact](#contact)
   - [Contributors](#contributors)
+    - [Citation](#citation)
   - [Attribution](#attribution)
 
 ## About
@@ -37,7 +38,33 @@ For technical questions, you contact either [Keven Quach](https://github.com/keq
 
 ## Contributors
 
-This project was implemented by de Bruin, J., Lamprecht, A., Quach, K., & Slewe, C. (2021).
+This project was implemented by de Bruin, J., Quach, K., Slewe, C., & Lamprecht, A. (2021).
+
+### Citation
+
+Use this citation for citing the SWORDS implementation of Utrecht University.
+```
+@software{de_Bruin_Scan_and_revieW_2021,
+author = {de Bruin, Jonathan and Quach, Keven and Slewe, Christopher and Lamprecht, Anna-Lena},
+month = {9},
+title = {{Scan and revieW of Open Research Data and Software at Utrecht University}},
+url = {https://github.com/UtrechtUniversity/SWORDS-UU},
+version = {1.0.0},
+year = {2021}
+}
+```
+
+Use this citation for citing the SWORDS template.
+```
+@software{de_Bruin_Scan_and_revieW_2021,
+author = {de Bruin, Jonathan and Quach, Keven and Slewe, Christopher and Lamprecht, Anna-Lena},
+month = {9},
+title = {{Template of Scan and revieW of Open Research Data and Software}},
+url = {https://github.com/UtrechtUniversity/SWORDS-template},
+version = {1.0.0},
+year = {2021}
+}
+```
 
 ## Attribution
 
