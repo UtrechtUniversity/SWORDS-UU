@@ -32,22 +32,32 @@ args = parser.parse_args()
 print(f"Filtering repositories for the following file: {args.input}")
 df_repos = read_pandas_file(args.input)
 
+num_total = len(df_repos.index)
+
 #drop duplicates
 df_repos.drop_duplicates(subset='id', inplace=True)
+print(
+    f"Filtered {num_total - len(df_repos.index)} of {num_total} total repositories by dropping duplicates."
+)
+#drop forks
+df_repos = df_repos[df_repos['fork'] == False]
+print(
+    f"Filtered {num_total - len(df_repos.index)} of {num_total} total repositories by dropping forks."
+)
 df_repos.reset_index(drop=True, inplace=True)
 
 # drop github.io repos
 df_repos_filtered = df_repos[~df_repos.name.str.contains("github.io")]
+print(
+    f"Filtered {len(df_repos.index) - len(df_repos_filtered.index)} of {num_total} total repositories by dropping github.io repositories."
+)
 
-# df_repos['size'].replace('', np.nan, inplace=True)
-# df_repos.dropna(subset=['size'], inplace=True)
-# df_repos[df_repos.size != 0]
-
-num_total = len(df_repos.index)
 num_final = len(df_repos_filtered.index)
 num_filtered = num_total - num_final
 
-print(f"Filtered {num_filtered} of {num_total} repositories. {num_final} repositories left.")
+print(
+    f"Filtered {num_filtered} of {num_total} repositories. {num_final} repositories left."
+)
 
 current_date = datetime.today().strftime('%Y-%m-%d')
 output_path = args.output + "_" + current_date + ".csv"
