@@ -81,9 +81,13 @@ for counter, url in enumerate(df_repos["html_url"]):
             request_successful = True
         except Exception as e:
             print(
-                "Error occured (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
-                % str(e))
-            time.sleep(1500)
+                "Error occured for %s (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
+                % (str(url), str(e)))
+            if ("Something went wrong asking the repo for its default branch"
+                    in str(e)):
+                request_successful = True  # skip this repo
+            else:
+                time.sleep(1500)
 
 df_howfairis = pd.DataFrame(howfairis_variables,
                             columns=[
