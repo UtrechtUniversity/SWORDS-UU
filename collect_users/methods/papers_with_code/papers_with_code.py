@@ -1,9 +1,9 @@
-import requests
-from pathlib import Path
 import argparse
+from pathlib import Path
 
-from bs4 import BeautifulSoup
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
 
 def get_username_from_string(url):

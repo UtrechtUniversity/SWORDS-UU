@@ -1,9 +1,9 @@
-from pathlib import Path
 import argparse
+from pathlib import Path
 
-from ghapi.all import GhApi, pages
-from fastcore.foundation import L
 import pandas as pd
+from fastcore.foundation import L
+from ghapi.all import GhApi, pages
 
 
 def get_complete_query_result(api, query, query_type):
