@@ -1,40 +1,11 @@
-from pathlib import Path
 import argparse
 import os
 import time
-from dotenv import load_dotenv
+from pathlib import Path
 
-from ghapi.all import GhApi
 import pandas as pd
-
-# Initiate the parser
-parser = argparse.ArgumentParser()
-
-# Add arguments to be parsed
-parser.add_argument("--input",
-                    "-i",
-                    help="file name of input.",
-                    default="results/users_merged.csv")
-parser.add_argument(
-    "--update",
-    "-u",
-    action='store_true',
-    help=
-    "Update everything including existing users or only add new ones. Default is False"
-)
-parser.add_argument(
-    "--fileupdate",
-    "-fu",
-    help=
-    "If you want to update an existing file, provide a file name in this argument. Example: 'unique_users_annotated.xlsx'"
-)
-parser.add_argument("--output",
-                    "-o",
-                    help="file name of output.",
-                    default="results/users_enriched.csv")
-
-# Read arguments from the command line
-args = parser.parse_args()
+from dotenv import load_dotenv
+from ghapi.all import GhApi
 
 
 def read_pandas_file(file_path):
@@ -42,28 +13,6 @@ def read_pandas_file(file_path):
         return pd.read_excel(file_path, engine='openpyxl')
     else:
         return pd.read_csv(file_path)
-
-
-df_users = read_pandas_file(args.input)
-df_users = df_users.drop_duplicates("github_user_id").reset_index(drop=True)
-
-UPDATE_EVERYTHING = args.update
-
-if (args.fileupdate):
-    try:
-        # If this block is successfully executed it is an update of users
-        df_users_annotated = read_pandas_file(args.fileupdate)
-        df_users["new_user"] = False
-        df_users.loc[~df_users["github_user_id"].
-                     isin(df_users_annotated["github_user_id"].str.lower()),
-                     "new_user"] = True
-    except FileNotFoundError:
-        print("No file with annotated user data yet available.")
-    try:
-        print("New users:")
-        print(df_users[df_users["new_user"] == True])
-    except KeyError:
-        print("No new users.")
 
 
 def get_userdata(user_list, api, sleep=6):
@@ -112,49 +61,103 @@ def update_users(df_users_annotated, df_new_users):
     return df_users
 
 
-load_dotenv()
-# if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
-token = os.getenv('GITHUB_TOKEN')
-api = GhApi(token=token)
+if __name__ == '__main__':
 
-if (token is not None):  # authentication
-    sleep = 2
-else:  # no authentication
-    sleep = 6
+    # Initiate the parser
+    parser = argparse.ArgumentParser()
 
-if 'new_user' in df_users.columns:  # updating users
-    if (UPDATE_EVERYTHING == True):
-        df_users_all = pd.merge(df_users[df_users["new_user"] == True].drop(
-            ["source"], axis=1),
-                                df_users_annotated,
-                                on="github_user_id",
-                                how="outer")
-        results_github_user_api = get_userdata(df_users_all["github_user_id"],
-                                               api, sleep)
+    # Add arguments to be parsed
+    parser.add_argument("--input",
+                        "-i",
+                        help="file name of input.",
+                        default="results/users_merged.csv")
+    parser.add_argument(
+        "--update",
+        "-u",
+        action='store_true',
+        help=
+        "Update everything including existing users or only add new ones. Default is False"
+    )
+    parser.add_argument(
+        "--fileupdate",
+        "-fu",
+        help=
+        "If you want to update an existing file, provide a file name in this argument. Example: 'unique_users_annotated.xlsx'"
+    )
+    parser.add_argument("--output",
+                        "-o",
+                        help="file name of output.",
+                        default="results/users_enriched.csv")
 
-    else:  # only add new users
-        df_users_update = pd.merge(df_users[df_users["new_user"] == True],
-                                   df_users_annotated,
-                                   left_on="github_user_id",
-                                   right_on="github_user_id",
-                                   how="left")
-        results_github_user_api = get_userdata(
-            df_users_update["github_user_id"], api, sleep)
+    # Read arguments from the command line
+    args = parser.parse_args()
 
-    df_users_enriched = update_users(df_users_annotated,
-                                     results_github_user_api)
-else:  # first time collecting data
-    results_github_user_api = get_userdata(df_users["github_user_id"], api,
-                                           sleep)
-    df_users_enriched = df_users.merge(results_github_user_api,
+    df_users = read_pandas_file(args.input)
+    df_users = df_users.drop_duplicates("github_user_id").reset_index(
+        drop=True)
+
+    UPDATE_EVERYTHING = args.update
+
+    if (args.fileupdate):
+        try:
+            # If this block is successfully executed it is an update of users
+            df_users_annotated = read_pandas_file(args.fileupdate)
+            df_users["new_user"] = False
+            df_users.loc[~df_users["github_user_id"].isin(
+                df_users_annotated["github_user_id"].str.lower()),
+                         "new_user"] = True
+        except FileNotFoundError:
+            print("No file with annotated user data yet available.")
+        try:
+            print("New users:")
+            print(df_users[df_users["new_user"] == True])
+        except KeyError:
+            print("No new users.")
+
+    load_dotenv()
+    # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
+    token = os.getenv('GITHUB_TOKEN')
+    api = GhApi(token=token)
+
+    if (token is not None):  # authentication
+        sleep = 2
+    else:  # no authentication
+        sleep = 6
+
+    if 'new_user' in df_users.columns:  # updating users
+        if (UPDATE_EVERYTHING == True):
+            df_users_all = pd.merge(
+                df_users[df_users["new_user"] == True].drop(["source"],
+                                                            axis=1),
+                df_users_annotated,
+                on="github_user_id",
+                how="outer")
+            results_github_user_api = get_userdata(
+                df_users_all["github_user_id"], api, sleep)
+
+        else:  # only add new users
+            df_users_update = pd.merge(df_users[df_users["new_user"] == True],
+                                       df_users_annotated,
                                        left_on="github_user_id",
-                                       right_on="login",
+                                       right_on="github_user_id",
                                        how="left")
-    df_users_enriched.drop(["login"], axis=1, inplace=True)
+            results_github_user_api = get_userdata(
+                df_users_update["github_user_id"], api, sleep)
 
-if ("xlsx" in args.output):
-    df_users_enriched.to_excel(args.output, index=False)
-else:
-    df_users_enriched.to_csv(args.output, index=False)
+        df_users_enriched = update_users(df_users_annotated,
+                                         results_github_user_api)
+    else:  # first time collecting data
+        results_github_user_api = get_userdata(df_users["github_user_id"], api,
+                                               sleep)
+        df_users_enriched = df_users.merge(results_github_user_api,
+                                           left_on="github_user_id",
+                                           right_on="login",
+                                           how="left")
+        df_users_enriched.drop(["login"], axis=1, inplace=True)
 
-print("Successfully enriched users.")
+    if ("xlsx" in args.output):
+        df_users_enriched.to_excel(args.output, index=False)
+    else:
+        df_users_enriched.to_csv(args.output, index=False)
+
+    print("Successfully enriched users.")
