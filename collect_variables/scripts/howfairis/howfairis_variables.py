@@ -81,9 +81,16 @@ for counter, url in enumerate(df_repos["html_url"]):
             request_successful = True
         except Exception as e:
             print(
-                "Error occured (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
-                % str(e))
-            time.sleep(1500)
+                "Error occured for %s (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
+                % (str(url), str(e)))
+            if ("Something went wrong asking the repo for its default branch"
+                    in str(e)):
+                print("Skipping repository...")
+                request_successful = True  # skip this repo
+            elif ("TimeoutError" in str(e)):
+                time.sleep(5)
+            else:
+                time.sleep(1500)
 
 df_howfairis = pd.DataFrame(howfairis_variables,
                             columns=[
@@ -98,5 +105,5 @@ output_path = args.output + "_" + current_date + ".csv"
 df_repo_merged.to_csv(Path(output_path), index=False)
 
 print(
-    f"Successfully retrieved howfairis variables. Saved result to {output_path}."
+    f"Successfully retrieved howfairis variables for {len(df_howfairis.index)} out of {len(df_repos.index)} repositories. Saved result to {output_path}."
 )
