@@ -4,13 +4,13 @@ authors:
 - family-names: "de Bruin"
   given-names: "Jonathan"
   orcid: "https://orcid.org/0000-0002-4297-0502"
-- family-names: "Lamprecht"
-  given-names: "Anna-Lena"
-  orcid: "https://orcid.org/0000-0003-1953-5606"
 - family-names: "Quach"
   given-names: "Keven"
 - family-names: "Slewe"
   given-names: "Christopher"
+- family-names: "Lamprecht"
+  given-names: "Anna-Lena"
+  orcid: "https://orcid.org/0000-0003-1953-5606"
 title: "Scan and revieW of Open Research Data and Software at Utrecht University"
 version: 1.0.0
 date-released: 2021-09-18

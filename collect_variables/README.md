@@ -59,6 +59,7 @@ There are 10 arguments that can be passed. For each of the 4 information types y
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
+python scripts/github_api/github.py --input output/repositories_howfairis_2021-11-04.csv --jupyter --contributors --languages --topics
 python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --contributors --contributors_output output/contributors
 python scripts/github_api/github.py --input output/repositories_howfairis_2021-11-04.csv --contributors --languages --jupyter --topics
 python scripts/github_api/github.py --input output/repositories_howfairis_2021-11-04.csv --jupyter --input_languages output/languages_2021-11-04.csv

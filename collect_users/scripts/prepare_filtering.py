@@ -1,41 +1,29 @@
-from pathlib import Path
 import argparse
 import os
 import time
-from dotenv import load_dotenv
+from pathlib import Path
 
-from ghapi.all import GhApi
 import pandas as pd
-
-# Initiate the parser
-parser = argparse.ArgumentParser()
-
-# Add arguments to be parsed
-parser.add_argument("--input",
-                    "-i",
-                    help="file name of input.",
-                    default="results/users_enriched.csv")
-parser.add_argument("--output",
-                    "-o",
-                    help="file name of output.",
-                    default="results/users_enriched.csv")
+from dotenv import load_dotenv
+from ghapi.all import GhApi
 
 
-def read_pandas_file(file_path):
+def read_input_file(file_path):
     if ("xlsx" in file_path):
         return pd.read_excel(file_path, engine='openpyxl')
     else:
         return pd.read_csv(file_path)
 
 
-# Flagging of students
 def is_student(user_bio):
-    """Checks whether a GitHub user is a student. The bio of a user is parsed. 
-    If it contains phd the user will not be marked as a student. 
-    If the bio contains only the word student the user will be marked as a student.
+    """Checks whether a GitHub user is a student.
+
+    The bio of a user is parsed. If it contains phd the user will not be
+    marked as a student. If the bio contains only the word student the user
+    will be marked as a student.
 
     Args:
-        user_id (string): user id which is named as "login" from the GitHub Api 
+        user_id (string): user id which is named as "login" from the GitHub Api
 
     Returns:
         Boolean: Whether the user is a student or not
@@ -51,36 +39,49 @@ def is_student(user_bio):
         return False
 
 
-# Read arguments from the command line
-args = parser.parse_args()
+if __name__ == '__main__':
 
-df_users_enriched = read_pandas_file(args.input)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input",
+                        "-i",
+                        help="file name of input.",
+                        default="results/users_enriched.csv")
+    parser.add_argument("--output",
+                        "-o",
+                        help="file name of output.",
+                        default="results/users_enriched.csv")
+    args = parser.parse_args()
 
-df_users_enriched["is_student"] = df_users_enriched['bio'].apply(is_student)
+    df_users_enriched = read_input_file(args.input)
 
-print("Successfully added is_student column.")
-print(
-    f"How many users are students? \n {df_users_enriched['is_student'].value_counts().to_frame()}"
-)
+    df_users_enriched["is_student"] = df_users_enriched['bio'].apply(
+        is_student)
 
-columns_to_add = [
-    "is_employee", "is_currently_employed", "is_research_group",
-    "final_decision", "note"
-]
+    print("Successfully added is_student column.")
+    print(
+        f"How many users are students? \n {df_users_enriched['is_student'].value_counts().to_frame()}"
+    )
 
-print("Adding empty columns to dataframe...")
-for column in columns_to_add:
-    if (column not in df_users_enriched):
-        df_users_enriched = pd.concat(
-            [df_users_enriched,
-             pd.DataFrame(columns=[column])])
+    columns_to_add = [
+        "is_employee", "is_currently_employed", "is_research_group",
+        "final_decision", "note"
+    ]
+
+    print("Adding empty columns to dataframe...")
+    for column in columns_to_add:
+        if (column not in df_users_enriched):
+            df_users_enriched = pd.concat(
+                [df_users_enriched,
+                 pd.DataFrame(columns=[column])])
+        else:
+            print(
+                f"Column {column} already exists. This column will be skipped."
+            )
+    print("Successfully added columns.")
+
+    if ("xlsx" in args.output):
+        df_users_enriched.to_excel(args.output, index=False)
     else:
-        print(f"Column {column} already exists. This column will be skipped.")
-print("Successfully added columns.")
+        df_users_enriched.to_csv(args.output, index=False)
 
-if ("xlsx" in args.output):
-    df_users_enriched.to_excel(args.output, index=False)
-else:
-    df_users_enriched.to_csv(args.output, index=False)
-
-print("Successfully prepared filtering.")
+    print("Successfully prepared filtering.")

@@ -21,24 +21,24 @@ def get_repos(api, user_id):
         L: fastcore list of repositories
     """
     try:
-        # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
-        query_result = api.search.repos("user:" + user_id, per_page=100)
+    # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
+        print(f"Fetching repos for user '{user_id}'")
+        query_result = api.repos.list_for_user(user_id, per_page=100)
     except Exception as e:
         print("There was a problem with fetching repositories for user %s" %
               user_id)
         print(e)
-        return (None, 1)
-    requests = 1
+        return (None)
     result = L()
-    if (api.last_page() > 0):
-        query_result = pages(api.search.repos, api.last_page(),
-                             "user:" + user_id)
-        requests += 1
-        for page in query_result:
-            result.extend(page["items"])
+    num_pages = api.last_page()
+    if (num_pages > 0):
+        query_result = pages(api.repos.list_for_user, num_pages, user_id)
+        for page in query_result[0]:
+            result.append(page)            
+        time.sleep(2)
     else:
-        result.extend(query_result["items"])
-    return (result, requests)
+        result.extend(query_result)
+    return (result)
 
 
 def get_repos_formatted(repos):
@@ -52,7 +52,8 @@ def get_repos_formatted(repos):
     """
     result = L()
     for repo in repos:
-        result.append(dict(repo))
+        repo_dict = dict(repo)
+        result.append(repo_dict)
     return result
 
 
@@ -97,13 +98,13 @@ if __name__ == '__main__':
     result_repos = []
     counter = 0
     for user in df_users["github_user_id"]:
-        repos, requests = get_repos(api, user)
+        repos = get_repos(api, user)
         if (repos is not None):
             repos_formatted = get_repos_formatted(repos)
             result_repos.extend(repos_formatted)
         else:
             print("User %s has no repositories." % user)
-        time.sleep(requests * 2 + .1)
+        time.sleep(2.1)
         if (counter % 10 == 0):
             print("Processed %d out of %d users." %
                   (counter, len(df_users.index)))
