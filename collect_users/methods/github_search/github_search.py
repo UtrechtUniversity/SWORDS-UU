@@ -65,7 +65,7 @@ if __name__ == '__main__':
             ids_topic_repos = get_users_from_repos(topic_repos)
             pd.DataFrame(ids_topic_repos,
                          columns=columns).to_csv(Path("results",
-                                                      "ids_topic_repos.csv"),
+                                                      "github_search_topic.csv"),
                                                  index=False)
             print("Searching topics done")
         else:
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             ids_search_repos = get_users_from_repos(search_repos)
             pd.DataFrame(ids_search_repos,
                          columns=columns).to_csv(Path("results",
-                                                      "ids_search_repos.csv"),
+                                                      "github_search_repos.csv"),
                                                  index=False)
             print("Searching repos done")
 
@@ -90,7 +90,7 @@ if __name__ == '__main__':
             ids_search_users = get_users_from_users(search_users)
             pd.DataFrame(ids_search_users,
                          columns=columns).to_csv(Path("results",
-                                                      "ids_search_users.csv"),
+                                                      "github_search_users.csv"),
                                                  index=False)
             print("Searching users done")
         else:

@@ -56,6 +56,6 @@ if __name__ == '__main__':
 
     pd.DataFrame(github_user,
               columns=["service","user_id"]).to_csv(Path("results",
-                                                 "ids_paperswithcode.csv"),
+                                                 "paperswithcode.csv"),
                                             index=False)
     print("Successfully exported users.")

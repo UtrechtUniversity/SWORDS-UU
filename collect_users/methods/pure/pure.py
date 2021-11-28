@@ -38,5 +38,5 @@ if __name__ == '__main__':
         pd.DataFrame(users,
                      columns=["service",
                               "user_id"]).to_csv(Path("results",
-                                                      "ids_pure_users.csv"),
+                                                      "pure.csv"),
                                                  index=False)
