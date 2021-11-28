@@ -15,7 +15,7 @@ pip install -r requirements.txt
 First, navigate to this folder. Then, execute the script.
 
 ```console
-python pure.py Pure_290421.ris
+python pure.py data/Pure_290421.ris
 ```
 
 The collected GitHub user identifiers are stored in the results folder.
