@@ -42,21 +42,21 @@ def get_userdata(user_list, api, sleep=6):
 def update_users(df_users_annotated, df_new_users):
     df_users = df_users_annotated.copy()  # don't modify initial df
     for row_new in df_new_users.iterrows():  # iterate over rows in first df
-        # get github_user_id from this row
-        github_user_id = row_new[1]['login']
+        # get user_id from this row
+        user_id = row_new[1]['login']
         # get keys and values
         keys, values = zip(*[(key, value) for key, value in row_new[1].items()
                              if key != "login"])
         #         print(keys)
-        # find row index in df2 where login value corresponds to github_user_id, if it exists
-        index_row_annotated = df_users.index[df_users['github_user_id'] ==
-                                             github_user_id]
+        # find row index in df2 where login value corresponds to user_id, if it exists
+        index_row_annotated = df_users.index[df_users['user_id'] ==
+                                             user_id]
         if (len(index_row_annotated) > 0):  # user exists already
             df_users.loc[index_row_annotated, keys] = values
             pass
         else:  # user doesn't exist yet - insert
             new_index = df_users.index[-1] + 1
-            df_users.loc[new_index, "github_user_id"] = github_user_id
+            df_users.loc[new_index, "user_id"] = user_id
             df_users.loc[new_index, keys] = values
     return df_users
 
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     df_users = read_pandas_file(args.input)
-    df_users = df_users.drop_duplicates("github_user_id").reset_index(
+    df_users = df_users.drop_duplicates("user_id").reset_index(
         drop=True)
 
     UPDATE_EVERYTHING = args.update
@@ -103,8 +103,8 @@ if __name__ == '__main__':
             # If this block is successfully executed it is an update of users
             df_users_annotated = read_pandas_file(args.fileupdate)
             df_users["new_user"] = False
-            df_users.loc[~df_users["github_user_id"].isin(
-                df_users_annotated["github_user_id"].str.lower()),
+            df_users.loc[~df_users["user_id"].isin(
+                df_users_annotated["user_id"].str.lower()),
                          "new_user"] = True
         except FileNotFoundError:
             print("No file with annotated user data yet available.")
@@ -130,28 +130,28 @@ if __name__ == '__main__':
                 df_users[df_users["new_user"] == True].drop(["source"],
                                                             axis=1),
                 df_users_annotated,
-                on="github_user_id",
+                on="user_id",
                 how="outer")
             results_github_user_api = get_userdata(
-                df_users_all["github_user_id"], api, sleep)
+                df_users_all["user_id"], api, sleep)
 
         else:  # only add new users
             df_users_update = pd.merge(df_users[df_users["new_user"] == True],
                                        df_users_annotated,
-                                       left_on="github_user_id",
-                                       right_on="github_user_id",
+                                       left_on="user_id",
+                                       right_on="user_id",
                                        how="left")
             results_github_user_api = get_userdata(
-                df_users_update["github_user_id"], api, sleep)
+                df_users_update["user_id"], api, sleep)
 
         df_users_enriched = update_users(df_users_annotated,
                                          results_github_user_api)
     else:  # first time collecting data
-        results_github_user_api = get_userdata(df_users["github_user_id"], api,
+        results_github_user_api = get_userdata(df_users["user_id"], api,
                                                sleep)
         results_github_user_api["login"] = results_github_user_api["login"].str.lower() # key to merge is lowercase so this needs to be lowercase as well
         df_users_enriched = df_users.merge(results_github_user_api,
-                                           left_on="github_user_id",
+                                           left_on="user_id",
                                            right_on="login",
                                            how="left")
         df_users_enriched.drop(["login"], axis=1, inplace=True)
