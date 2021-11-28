@@ -41,12 +41,14 @@ if __name__ == '__main__':
         keys=data_files,
         names=["source", "row"]).reset_index("source").reset_index(drop=True)
     # lowercase to remove duplicates correctly
-    df_github_names_long['github_user_id'] = df_github_names_long[
-        'github_user_id'].str.lower()
+    df_github_names_long['user_id'] = df_github_names_long[
+        'user_id'].str.lower()
 
-    df_users = df_github_names_long[["github_user_id", "source"]].sort_values([
-        "github_user_id", "source"
-    ]).drop_duplicates(["github_user_id", "source"]).reset_index(drop=True)
+    df_users = df_github_names_long[[
+        "user_id", "source", "service"
+    ]].sort_values(["user_id", "source",
+                    "service"]).drop_duplicates(["user_id", "source"
+                                                 ]).reset_index(drop=True)
 
     df_users['source'] = df_users['source'].map(lambda x: pathlib.PurePath(
         x).name)  # remove file path so the column only contains the file name

@@ -84,7 +84,7 @@ python scripts/merge_users.py --files methods/*/results/*.csv additional_users.c
 The structure of the exported data is as follows:
 
 ```
-github_user_id,source
+user_id,source,service
 ```
 
 Where source indicates from which method the user id was retrieved.

@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ### Retrieve repositories of filtered users
 
-In this step, repositories of enriched users are retrieved. To do this, execute the file **repositories.py**. Note: The column with githuber user ids needs to have the name **github_user_id**.
+In this step, repositories of enriched users are retrieved. To do this, execute the file **repositories.py**. Note: The column with githuber user ids needs to have the name **user_id**.
 There are 2 arguments that can be passed.
 
 - --users: The path to the file with enriched users. Default value: ../collect_users/results/unique_users_annotated.xlsx

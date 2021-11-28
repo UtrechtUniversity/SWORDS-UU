@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
     result_repos = []
     counter = 0
-    for user in df_users["github_user_id"]:
+    for user in df_users["user_id"]:
         repos = get_repos(api, user)
         if (repos is not None):
             repos_formatted = get_repos_formatted(repos)
