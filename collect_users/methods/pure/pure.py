@@ -26,14 +26,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     users = list()
+    service = "github.com"
     with open(args.file, 'r', encoding="utf8") as pure_data:
         entries = rispy.load(pure_data)
         for entry in entries:
             user = get_username_from_text(entry.values())
             if (user is not None):
-                users.append(user)
+                users.append([service, user])
 
-        pd.Series(users,
-                  name="github_user_id").to_csv(Path("results",
-                                                     "ids_pure_users.csv"),
-                                                index=False)
+        print(f"Successfully parsed file {args.file}.")
+        pd.DataFrame(users,
+                     columns=["service",
+                              "user_id"]).to_csv(Path("results",
+                                                      "ids_pure_users.csv"),
+                                                 index=False)

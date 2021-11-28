@@ -28,22 +28,20 @@ def get_complete_query_result(api, query, query_type):
     return result
 
 
-def get_id_from_repos(repos):
+def get_users_from_repos(repos):
     result = L()
     for repo in repos:
-        result.append(repo["owner"]["login"])
+        result.append([service, repo["owner"]["login"]])
     return result
 
 
-def get_id_from_users(users):
+def get_users_from_users(users):
     result = L()
     for user in users:
-        result.append(user["login"])
+        result.append([service, user["login"]])
     return result
 
 
-# TODO: fix nondeterministic 403 error (see: https://github.com/fastai/ghapi/issues/44)
-# main needs to be used since pages uses concurrency
 if __name__ == '__main__':
     # Initiate the parser
     parser = argparse.ArgumentParser()
@@ -57,16 +55,18 @@ if __name__ == '__main__':
 
     api = GhApi()
 
+    service = "github.com"
+    columns = ["service", "user_id"]
     try:
         if (args.topic):
             print(f"Searching topics for {args.topic}...")
             topic_repos = get_complete_query_result(api, f"topic:{args.topic}",
                                                     "SEARCH_REPOS")
-            ids_topic_repos = get_id_from_repos(topic_repos)
-            pd.Series(ids_topic_repos,
-                      name="github_user_id").to_csv(Path(
-                          "results", "ids_topic_repos.csv"),
-                                                    index=False)
+            ids_topic_repos = get_users_from_repos(topic_repos)
+            pd.DataFrame(ids_topic_repos,
+                         columns=columns).to_csv(Path("results",
+                                                      "ids_topic_repos.csv"),
+                                                 index=False)
             print("Searching topics done")
         else:
             print(
@@ -77,21 +77,21 @@ if __name__ == '__main__':
             print(f"Searching repos for {args.search}...")
             search_repos = get_complete_query_result(api, args.search,
                                                      "SEARCH_REPOS")
-            ids_search_repos = get_id_from_repos(search_repos)
-            pd.Series(ids_search_repos,
-                      name="github_user_id").to_csv(Path(
-                          "results", "ids_search_repos.csv"),
-                                                    index=False)
+            ids_search_repos = get_users_from_repos(search_repos)
+            pd.DataFrame(ids_search_repos,
+                         columns=columns).to_csv(Path("results",
+                                                      "ids_search_repos.csv"),
+                                                 index=False)
             print("Searching repos done")
 
             print(f"Searching users for {args.search}...")
             search_users = get_complete_query_result(api, args.search,
                                                      "SEARCH_USERS")
-            ids_search_users = get_id_from_users(search_users)
-            pd.Series(ids_search_users,
-                      name="github_user_id").to_csv(Path(
-                          "results", "ids_search_users.csv"),
-                                                    index=False)
+            ids_search_users = get_users_from_users(search_users)
+            pd.DataFrame(ids_search_users,
+                         columns=columns).to_csv(Path("results",
+                                                      "ids_search_users.csv"),
+                                                 index=False)
             print("Searching users done")
         else:
             print(

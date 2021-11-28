@@ -148,9 +148,7 @@ def get_employee_github_from_cv(url):
         return None
 
 
-def get_all_employee_github_links(
-        url
-):
+def get_all_employee_github_links(url):
     time.sleep(1)
     try:
         API_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
@@ -245,6 +243,7 @@ if __name__ == '__main__':
     employee_github_from_profile = []
     employee_github_from_cv = []
     employee_github = []
+    service = "github.com"
 
     faculty_ids = []
     print(
@@ -261,7 +260,7 @@ if __name__ == '__main__':
                     github_user_names = get_all_employee_github_links(url)
                     if github_user_names:
                         for github_user_name in github_user_names:
-                            employee_github.append([url, github_user_name])
+                            employee_github.append([service, github_user_name])
             except:
                 print("couldn't loop through urls")
                 continue
@@ -270,7 +269,7 @@ if __name__ == '__main__':
             continue
     print("Finished looping through faculties.")
     employee_github_pd = pd.DataFrame(employee_github,
-                                      columns=["uu_user_id", "github_user_id"])
+                                      columns=["service", "user_id"])
 
     employee_github_pd = employee_github_pd.dropna()
 
