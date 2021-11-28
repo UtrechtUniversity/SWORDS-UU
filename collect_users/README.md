@@ -47,7 +47,14 @@ To use it, navigate to this folder and run the file. On windows, you can use Git
 ### Gather GitHub user profiles from data sources
 
 See each individual user collection method for usage instructions. Each method
-stores the collected user profiles in the `results` folder.
+stores the collected user profiles in the `results` folder in the schema of the following example:
+
+| service    | user_id  |
+| ---------- | -------- |
+| github.com | kequach  |
+| github.com | J535D165 |
+
+Currently, only github.com data is retrieved. This project can be extended to other services like GitLab.
 
 ### Merge users to CSV file
 
