@@ -130,7 +130,7 @@ The filtering of users is done manually. It is recommended to turn the resulting
 
 ### Data analysis
 
-Interactive data analysis can be found in the [Jupyter Notebook analysis_of_data_sources.ipynb](analysis_of_data_sources.ipynb). This notebook explores the data sources that were used to collect the repositories.
+Interactive data analysis can be found in the [Jupyter Notebook analyse_users.ipynb](analyse_users.ipynb.ipynb). This notebook explores the data sources that were used to collect the repositories.
 
 ## License
 
