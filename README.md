@@ -26,7 +26,7 @@ The project is split into 3 phases that correspond to the folder structure. The 
 
 Each phase consists of several Python scripts and file outputs, mainly in .csv format. There is also a corresponding interactive data analysis jupyter notebook file in each phase. You can find the whole pipeline as a diagram under [Pipeline](#flowchart).
 
-For more information about the phases, please look into the corresponding subfolders for further information on installation and usage.
+For more information about the phases, please look into the corresponding subfolders for further information on installation and usage. Note that every .csv output has a datestamp column named **date**.
 
 ## Pipeline
 

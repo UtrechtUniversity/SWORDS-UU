@@ -49,10 +49,10 @@ To use it, navigate to this folder and run the file. On windows, you can use Git
 See each individual user collection method for usage instructions. Each method
 stores the collected user profiles in the `results` folder in the schema of the following example:
 
-| service    | user_id  |
-| ---------- | -------- |
-| github.com | kequach  |
-| github.com | J535D165 |
+| service    | date       | user_id  |
+| ---------- | ---------- | -------- |
+| github.com | 2021-12-02 | kequach  |
+| github.com | 2021-12-02 | J535D165 |
 
 Currently, only github.com data is retrieved. This project can be extended to other services like GitLab.
 
@@ -84,7 +84,7 @@ python scripts/merge_users.py --files methods/*/results/*.csv additional_users.c
 The structure of the exported data is as follows:
 
 ```
-user_id,source,service
+user_id,source,service,timestamp
 ```
 
 Where source indicates from which method the user id was retrieved.
@@ -103,7 +103,7 @@ There are 4 arguments that can be passed.
 Navigate to this folder and execute the script. Adjust parameters as needed. Examples:
 
 ```console
-python scripts/enrich_users.py --input results/users_merged.csv
+python scripts/enrich_users.py --input results/users_merged.csv --output results/users_enriched.csv
 python scripts/enrich_users.py --input results/users_merged.csv --fileupdate results/users_enriched.csv
 python scripts/enrich_users.py --input results/users_merged.csv --update --fileupdate results/users_enriched.csv --output results/users_enriched_updated.csv
 ```
