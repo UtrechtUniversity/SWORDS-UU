@@ -1,4 +1,3 @@
-from pathlib import Path
 from datetime import datetime
 import argparse
 
@@ -11,13 +10,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--input",
                     "-i",
                     help="The file name of the retrieved repositories.",
-                    required=True)
-parser.add_argument(
-    "--output",
-    "-o",
-    help=
-    "The file name of the filtered repositories. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories_filtered",
-    default="results/repositories_filtered")
+                    default="results/repositories.csv")
+parser.add_argument("--output",
+                    "-o",
+                    help="The file name of the filtered repositories.",
+                    default="results/repositories_filtered.csv")
 
 
 def read_pandas_file(file_path):
@@ -60,8 +57,8 @@ print(
 )
 
 current_date = datetime.today().strftime('%Y-%m-%d')
-output_path = args.output + "_" + current_date + ".csv"
-df_repos_filtered.to_csv(Path(output_path), index=False)
+df_repos_filtered["date"] = current_date
+df_repos_filtered.to_csv(args.output, index=False)
 
 print(
-    f"Successfully filtered user repositories. Saved result to {output_path}.")
+    f"Successfully filtered user repositories. Saved result to {args.output}.")

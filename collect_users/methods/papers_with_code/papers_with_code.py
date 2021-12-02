@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 import requests
@@ -42,6 +43,7 @@ if __name__ == '__main__':
     github_url = []
     github_user = []
     service = "github.com"
+    current_date = datetime.today().strftime('%Y-%m-%d')
     for url in paper_url:
         r = requests.get(url)
         if r.status_code == 200:
@@ -50,12 +52,16 @@ if __name__ == '__main__':
             for a in soup.select('#implementations-full-list a'):
                 if ('#' != a['href']):
                     github_url.append(a['href'])
-                    github_user.append([service, get_username_from_string(a['href'])])
+                    github_user.append([
+                        service, current_date,
+                        get_username_from_string(a['href'])
+                    ])
 
     print(f"Found following users: {github_user}")
 
     pd.DataFrame(github_user,
-              columns=["service","user_id"]).to_csv(Path("results",
-                                                 "paperswithcode.csv"),
-                                            index=False)
+                 columns=["service", "date",
+                          "user_id"]).to_csv(Path("results",
+                                                  "paperswithcode.csv"),
+                                             index=False)
     print("Successfully exported users.")

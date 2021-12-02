@@ -2,6 +2,7 @@ import argparse
 import glob
 import pathlib
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 
@@ -16,7 +17,7 @@ if __name__ == '__main__':
         "-f",
         nargs="*",
         help="set file paths to be merged. Example: methods/*/results/*.csv",
-        default="methods/*/results/*.csv")
+        default=["methods/*/results/*.csv"])
     parser.add_argument("--output",
                         "-o",
                         help="file name of output. Default: users_merged.csv",
@@ -53,5 +54,8 @@ if __name__ == '__main__':
     df_users['source'] = df_users['source'].map(lambda x: pathlib.PurePath(
         x).name)  # remove file path so the column only contains the file name
 
+    
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    df_users["date"] = current_date
     df_users.to_csv(Path(args.output), index=False)
     print("Successfully merged users.")

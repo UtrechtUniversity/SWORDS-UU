@@ -1,6 +1,5 @@
 import os
 import time
-from pathlib import Path
 import argparse
 from datetime import datetime
 
@@ -21,7 +20,7 @@ def get_repos(api, user_id):
         L: fastcore list of repositories
     """
     try:
-    # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
+        # do first request to store last page variable in api object. If more than one page is available, another request needs to be made
         print(f"Fetching repos for user '{user_id}'")
         query_result = api.repos.list_for_user(user_id, per_page=100)
     except Exception as e:
@@ -34,7 +33,7 @@ def get_repos(api, user_id):
     if (num_pages > 0):
         query_result = pages(api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
-            result.append(page)            
+            result.append(page)
         time.sleep(2)
     else:
         result.extend(query_result)
@@ -70,17 +69,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Add arguments to be parsed
-    parser.add_argument(
-        "--users",
-        "-u",
-        help="The path to the file with enriched users.",
-        default="../collect_users/results/unique_users_annotated.xlsx")
+    parser.add_argument("--users",
+                        "-u",
+                        help="The path to the file with enriched users.",
+                        default="../collect_users/results/users_enriched.xlsx")
     parser.add_argument(
         "--output",
         "-o",
-        help=
-        "The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD.",
-        default="results/repositories")
+        help="The file name of the repositories that are retrieved.",
+        default="results/repositories.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()
@@ -124,9 +121,9 @@ if __name__ == '__main__':
 
     df_result_repos = pd.DataFrame(result_repos)
     current_date = datetime.today().strftime('%Y-%m-%d')
-    output_path = args.output + "_" + current_date + ".csv"
-    df_result_repos.to_csv(Path(output_path), index=False)
+    df_result_repos["date"] = current_date
+    df_result_repos.to_csv(args.output, index=False)
 
     print(
-        f"Successfully retrieved user repositories. Saved result to {output_path}."
+        f"Successfully retrieved user repositories. Saved result to {args.output}."
     )

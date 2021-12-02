@@ -1,6 +1,5 @@
 import os
 import time
-from pathlib import Path
 from datetime import datetime
 import argparse
 
@@ -40,16 +39,15 @@ def read_pandas_file(file_path):
 parser = argparse.ArgumentParser()
 
 # Add arguments to be parsed
-parser.add_argument("--input",
-                    "-i",
-                    help="The file name of the retrieved repositories.",
-                    required=True)
 parser.add_argument(
-    "--output",
-    "-o",
-    help=
-    "The file name of the filtered repositories. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories_filtered",
-    default="output/repositories_howfairis")
+    "--input",
+    "-i",
+    help="The file name of the retrieved repositories.",
+    default="../collect_repositories/results/repositories_filtered.csv")
+parser.add_argument("--output",
+                    "-o",
+                    help="The file name of the filtered repositories.",
+                    default="output/repositories_howfairis.csv")
 
 # Read arguments from the command line
 args = parser.parse_args()
@@ -101,9 +99,9 @@ df_howfairis = pd.DataFrame(howfairis_variables,
 df_repo_merged = pd.merge(df_repos, df_howfairis, how="left", on='html_url')
 
 current_date = datetime.today().strftime('%Y-%m-%d')
-output_path = args.output + "_" + current_date + ".csv"
-df_repo_merged.to_csv(Path(output_path), index=False)
+df_repo_merged["date"] = current_date
+df_repo_merged.to_csv(args.output, index=False)
 
 print(
-    f"Successfully retrieved howfairis variables for {len(df_howfairis.index)} out of {len(df_repos.index)} repositories. Saved result to {output_path}."
+    f"Successfully retrieved howfairis variables for {len(df_howfairis.index)} out of {len(df_repos.index)} repositories. Saved result to {args.output}."
 )

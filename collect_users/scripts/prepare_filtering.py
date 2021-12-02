@@ -1,11 +1,7 @@
 import argparse
-import os
-import time
-from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
-from dotenv import load_dotenv
-from ghapi.all import GhApi
 
 
 def read_input_file(file_path):
@@ -79,6 +75,9 @@ if __name__ == '__main__':
             )
     print("Successfully added columns.")
 
+    
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    df_users_enriched["date"] = current_date
     if ("xlsx" in args.output):
         df_users_enriched.to_excel(args.output, index=False)
     else:

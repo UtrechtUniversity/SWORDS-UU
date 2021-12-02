@@ -1,6 +1,5 @@
 import os
 import time
-from pathlib import Path
 from datetime import datetime
 import ast
 import argparse
@@ -20,10 +19,10 @@ def read_pandas_file(file_path):
 def export_file(variables, columns, var_type, output):
     df_data = pd.DataFrame(variables, columns=columns)
     current_date = datetime.today().strftime('%Y-%m-%d')
-    output_path = output + "_" + current_date + ".csv"
-    df_data.to_csv(Path(output_path), index=False)
+    df_data["date"] = current_date
+    df_data.to_csv(output, index=False)
     print(
-        f"Successfully retrieved {var_type} variables. Saved result to {output_path}."
+        f"Successfully retrieved {var_type} variables. Saved result to {output}."
     )
 
 
@@ -34,7 +33,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--input",
                     "-i",
                     help="The file name of the repositories data.",
-                    required=True)
+                    default="output/repositories_howfairis.csv")
 
 parser.add_argument("--contributors",
                     "-c",
@@ -44,7 +43,7 @@ parser.add_argument("--contributors",
 parser.add_argument("--contributors_output",
                     "-cout",
                     help="Optional. Path for contributors output",
-                    default="output/contributors")
+                    default="output/contributors.csv")
 
 parser.add_argument(
     "--jupyter",
@@ -62,7 +61,7 @@ parser.add_argument(
 parser.add_argument("--jupyter_output",
                     "-jout",
                     help="Optional. Path for jupyter notebooks output",
-                    default="output/jupyter_notebooks")
+                    default="output/jupyter_notebooks.csv")
 
 parser.add_argument("--languages",
                     "-l",
@@ -72,7 +71,7 @@ parser.add_argument("--languages",
 parser.add_argument("--languages_output",
                     "-lout",
                     help="Optional. Path for languages output",
-                    default="output/languages")
+                    default="output/languages.csv")
 
 parser.add_argument("--topics",
                     "-t",
@@ -82,7 +81,7 @@ parser.add_argument("--topics",
 parser.add_argument("--topics_output",
                     "-tout",
                     help="Optional. Path for topics output",
-                    default="output/topics")
+                    default="output/topics.csv")
 
 # Read arguments from the command line
 args = parser.parse_args()
@@ -104,6 +103,8 @@ if (token is None):
     sleep = 6
 else:
     sleep = 2
+
+df_repos = df_repos.head(5)
 
 languages = None
 
