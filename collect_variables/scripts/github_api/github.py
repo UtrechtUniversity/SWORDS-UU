@@ -104,8 +104,6 @@ if (token is None):
 else:
     sleep = 2
 
-df_repos = df_repos.head(5)
-
 languages = None
 
 if (args.contributors):

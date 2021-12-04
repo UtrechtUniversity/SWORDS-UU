@@ -57,7 +57,7 @@ print(
 )
 
 current_date = datetime.today().strftime('%Y-%m-%d')
-df_repos_filtered["date"] = current_date
+df_repos_filtered = df_repos_filtered.assign(date=current_date)
 df_repos_filtered.to_csv(args.output, index=False)
 
 print(
