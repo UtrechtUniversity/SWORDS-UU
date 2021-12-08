@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 from fastcore.foundation import L
@@ -31,14 +32,14 @@ def get_complete_query_result(api, query, query_type):
 def get_users_from_repos(repos):
     result = L()
     for repo in repos:
-        result.append([service, repo["owner"]["login"]])
+        result.append([service, current_date, repo["owner"]["login"]])
     return result
 
 
 def get_users_from_users(users):
     result = L()
     for user in users:
-        result.append([service, user["login"]])
+        result.append([service, current_date, user["login"]])
     return result
 
 
@@ -56,17 +57,17 @@ if __name__ == '__main__':
     api = GhApi()
 
     service = "github.com"
-    columns = ["service", "user_id"]
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    columns = ["service", "date", "user_id"]
     try:
         if (args.topic):
             print(f"Searching topics for {args.topic}...")
             topic_repos = get_complete_query_result(api, f"topic:{args.topic}",
                                                     "SEARCH_REPOS")
             ids_topic_repos = get_users_from_repos(topic_repos)
-            pd.DataFrame(ids_topic_repos,
-                         columns=columns).to_csv(Path("results",
-                                                      "github_search_topic.csv"),
-                                                 index=False)
+            pd.DataFrame(ids_topic_repos, columns=columns).to_csv(Path(
+                "results", "github_search_topic.csv"),
+                                                                  index=False)
             print("Searching topics done")
         else:
             print(
@@ -78,20 +79,18 @@ if __name__ == '__main__':
             search_repos = get_complete_query_result(api, args.search,
                                                      "SEARCH_REPOS")
             ids_search_repos = get_users_from_repos(search_repos)
-            pd.DataFrame(ids_search_repos,
-                         columns=columns).to_csv(Path("results",
-                                                      "github_search_repos.csv"),
-                                                 index=False)
+            pd.DataFrame(ids_search_repos, columns=columns).to_csv(Path(
+                "results", "github_search_repos.csv"),
+                                                                   index=False)
             print("Searching repos done")
 
             print(f"Searching users for {args.search}...")
             search_users = get_complete_query_result(api, args.search,
                                                      "SEARCH_USERS")
             ids_search_users = get_users_from_users(search_users)
-            pd.DataFrame(ids_search_users,
-                         columns=columns).to_csv(Path("results",
-                                                      "github_search_users.csv"),
-                                                 index=False)
+            pd.DataFrame(ids_search_users, columns=columns).to_csv(Path(
+                "results", "github_search_users.csv"),
+                                                                   index=False)
             print("Searching users done")
         else:
             print(

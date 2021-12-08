@@ -1,7 +1,7 @@
 import argparse
 import os
 import time
-from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -47,7 +47,6 @@ def update_users(df_users_annotated, df_new_users):
         # get keys and values
         keys, values = zip(*[(key, value) for key, value in row_new[1].items()
                              if key != "login"])
-        #         print(keys)
         # find row index in df2 where login value corresponds to user_id, if it exists
         index_row_annotated = df_users.index[df_users['user_id'] ==
                                              user_id]
@@ -156,6 +155,9 @@ if __name__ == '__main__':
                                            how="left")
         df_users_enriched.drop(["login"], axis=1, inplace=True)
 
+
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    df_users_enriched["date"] = current_date
     if ("xlsx" in args.output):
         df_users_enriched.to_excel(args.output, index=False)
     else:

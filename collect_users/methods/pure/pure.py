@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 import rispy
@@ -27,16 +28,17 @@ if __name__ == '__main__':
 
     users = list()
     service = "github.com"
+    current_date = datetime.today().strftime('%Y-%m-%d')
+
     with open(args.file, 'r', encoding="utf8") as pure_data:
         entries = rispy.load(pure_data)
         for entry in entries:
             user = get_username_from_text(entry.values())
             if (user is not None):
-                users.append([service, user])
+                users.append([service, current_date, user])
 
         print(f"Successfully parsed file {args.file}.")
         pd.DataFrame(users,
-                     columns=["service",
-                              "user_id"]).to_csv(Path("results",
-                                                      "pure.csv"),
+                     columns=["service", "date",
+                              "user_id"]).to_csv(Path("results", "pure.csv"),
                                                  index=False)
