@@ -34,7 +34,7 @@ if __name__ == '__main__':
         entries = rispy.load(pure_data)
         for entry in entries:
             user = get_username_from_text(entry.values())
-            if (user is not None):
+            if user is not None:
                 users.append([service, current_date, user])
 
         print(f"Successfully parsed file {args.file}.")

@@ -30,7 +30,7 @@ def get_repos(api, user_id):
         return (None)
     result = L()
     num_pages = api.last_page()
-    if (num_pages > 0):
+    if num_pages > 0:
         query_result = pages(api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
             result.append(page)
@@ -57,7 +57,7 @@ def get_repos_formatted(repos):
 
 
 def read_pandas_file(file_path):
-    if ("xlsx" in file_path):
+    if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
         return pd.read_csv(file_path)
@@ -96,13 +96,13 @@ if __name__ == '__main__':
     counter = 0
     for user in df_users["user_id"]:
         repos = get_repos(api, user)
-        if (repos is not None):
+        if repos is not None:
             repos_formatted = get_repos_formatted(repos)
             result_repos.extend(repos_formatted)
         else:
             print("User %s has no repositories." % user)
         time.sleep(2.1)
-        if (counter % 10 == 0):
+        if counter % 10 == 0:
             print("Processed %d out of %d users." %
                   (counter, len(df_users.index)))
         counter += 1
@@ -111,12 +111,12 @@ if __name__ == '__main__':
     # Flatten nested structures
     for i in range(len(result_repos)):
         for key in result_repos[i].keys():
-            if (isinstance(result_repos[i][key], AttrDict)):
-                if (key == "owner"):
+            if isinstance(result_repos[i][key], AttrDict):
+                if key == "owner":
                     result_repos[i][key] = result_repos[i][key]["login"]
-                elif (key == "permissions"):
+                elif key == "permissions":
                     result_repos[i][key] = ""
-                elif (key == "license"):
+                elif key == "license":
                     result_repos[i][key] = result_repos[i][key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)

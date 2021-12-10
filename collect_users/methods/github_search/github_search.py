@@ -9,16 +9,16 @@ from ghapi.all import GhApi, pages
 
 def get_complete_query_result(api, query, query_type):
     # do first request to store last page variable in api object
-    if (query_type == "SEARCH_REPOS"):
+    if query_type == "SEARCH_REPOS":
         api.search.repos(query, per_page=100)
-        if (api.last_page() > 0):
+        if api.last_page() > 0:
             query_result = pages(api.search.repos, api.last_page(), query)
         else:
             # if there is only one page, last_page() will return 0. This will return nothing, so we need to use 1
             query_result = pages(api.search.repos, 1, query)
-    elif (query_type == "SEARCH_USERS"):
+    elif query_type == "SEARCH_USERS":
         api.search.users(query, per_page=100)
-        if (api.last_page() > 0):
+        if api.last_page() > 0:
             query_result = pages(api.search.users, api.last_page(), query)
         else:
             # if there is only one page, last_page() will return 0. This will return nothing, so we need to use 1
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     current_date = datetime.today().strftime('%Y-%m-%d')
     columns = ["service", "date", "user_id"]
     try:
-        if (args.topic):
+        if args.topic:
             print(f"Searching topics for {args.topic}...")
             topic_repos = get_complete_query_result(api, f"topic:{args.topic}",
                                                     "SEARCH_REPOS")
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 "No topic argument provided. If you want to retrieve topics, please provide the argument as --topic"
             )
 
-        if (args.search):
+        if args.search:
             print(f"Searching repos for {args.search}...")
             search_repos = get_complete_query_result(api, args.search,
                                                      "SEARCH_REPOS")
@@ -98,7 +98,7 @@ if __name__ == '__main__':
             )
     except Exception as e:
         print(f"Error occured: {e}")
-        if ("403" in str(e)):
+        if "403" in str(e):
             print(
                 "A HTTP Error 403 indicates that rate limits are reached. Please try again in a few minutes."
             )

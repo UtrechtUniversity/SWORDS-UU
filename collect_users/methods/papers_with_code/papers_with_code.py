@@ -34,7 +34,7 @@ if __name__ == '__main__':
         soup = BeautifulSoup(r.text, 'html.parser')
         paper_url = []
         for a in soup.select('.entity > a'):
-            if ('#code' not in a['href']):
+            if '#code' not in a['href']:
                 paper_url.append('https://paperswithcode.com' + a['href'])
 
     print(f"Found following papers: {paper_url}")
@@ -50,7 +50,7 @@ if __name__ == '__main__':
             soup = BeautifulSoup(r.text, 'html.parser')
 
             for a in soup.select('#implementations-full-list a'):
-                if ('#' != a['href']):
+                if '#' != a['href']:
                     github_url.append(a['href'])
                     github_user.append([
                         service, current_date,

@@ -29,7 +29,7 @@ def get_howfairis_compliance(url):
 
 
 def read_pandas_file(file_path):
-    if ("xlsx" in file_path):
+    if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
         return pd.read_csv(file_path)
@@ -72,7 +72,7 @@ for counter, url in enumerate(df_repos["html_url"]):
             entry.extend(result)
             print(entry)
             howfairis_variables.append(entry)
-            if (counter % 10 == 0):
+            if counter % 10 == 0:
                 print("Parsed %d out of %d repos." %
                       (counter, len(df_repos.index)))
             time.sleep(2)
@@ -81,11 +81,11 @@ for counter, url in enumerate(df_repos["html_url"]):
             print(
                 "Error occured for %s (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
                 % (str(url), str(e)))
-            if ("Something went wrong asking the repo for its default branch"
-                    in str(e)):
+            if "Something went wrong asking the repo for its default branch" in str(
+                    e):
                 print("Skipping repository...")
                 request_successful = True  # skip this repo
-            elif ("TimeoutError" in str(e)):
+            elif "TimeoutError" in str(e):
                 time.sleep(5)
             else:
                 time.sleep(1500)

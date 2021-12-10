@@ -18,7 +18,7 @@ parser.add_argument("--output",
 
 
 def read_pandas_file(file_path):
-    if ("xlsx" in file_path):
+    if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
         return pd.read_csv(file_path)
