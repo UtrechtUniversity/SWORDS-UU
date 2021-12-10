@@ -17,7 +17,15 @@ parser.add_argument("--output",
                     default="results/repositories_filtered.csv")
 
 
-def read_pandas_file(file_path):
+def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
     if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
@@ -27,7 +35,7 @@ def read_pandas_file(file_path):
 # Read arguments from the command line
 args = parser.parse_args()
 print(f"Filtering repositories for the following file: {args.input}")
-df_repos = read_pandas_file(args.input)
+df_repos = read_input_file(args.input)
 
 num_total = len(df_repos.index)
 

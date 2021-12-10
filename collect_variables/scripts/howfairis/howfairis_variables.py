@@ -28,7 +28,15 @@ def get_howfairis_compliance(url):
             compliance.citation, compliance.checklist)
 
 
-def read_pandas_file(file_path):
+def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
     if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
@@ -60,7 +68,7 @@ token = os.getenv('GITHUB_TOKEN')
 user = os.getenv('GITHUB_USER')
 os.environ['APIKEY_GITHUB'] = user + ":" + token
 
-df_repos = read_pandas_file(args.input)
+df_repos = read_input_file(args.input)
 
 howfairis_variables = []
 for counter, url in enumerate(df_repos["html_url"]):

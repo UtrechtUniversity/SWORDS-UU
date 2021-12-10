@@ -1,3 +1,7 @@
+"""
+Prepare enriched data to be manually filtered.
+This file adds columns and info whether a user is a student.
+"""
 import argparse
 from datetime import datetime
 
@@ -5,6 +9,14 @@ import pandas as pd
 
 
 def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
     if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
@@ -29,7 +41,7 @@ def is_student(user_bio):
         # PhD students should be included
         mention_phd = "phd" in user_bio
         mention_student = "student" in user_bio
-        return (not mention_phd and mention_student)
+        return not mention_phd and mention_student
     else:
         # we can't be sure and therefore keep the user
         return False
@@ -54,9 +66,8 @@ if __name__ == '__main__':
         is_student)
 
     print("Successfully added is_student column.")
-    print(
-        f"How many users are students? \n {df_users_enriched['is_student'].value_counts().to_frame()}"
-    )
+    print("How many users are students? \n "
+          f"{df_users_enriched['is_student'].value_counts().to_frame()}")
 
     columns_to_add = [
         "is_employee", "is_currently_employed", "is_research_group",

@@ -9,7 +9,15 @@ from dotenv import load_dotenv
 import requests
 
 
-def read_pandas_file(file_path):
+def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
     if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
@@ -98,7 +106,7 @@ params = {
     'per_page': 100,
 }
 
-df_repos = read_pandas_file(args.input)
+df_repos = read_input_file(args.input)
 if token is None:
     sleep = 6
 else:
@@ -205,7 +213,7 @@ if args.jupyter:
             )
             quit()
         else:
-            languages = read_pandas_file(args.input_languages)
+            languages = read_input_file(args.input_languages)
     variables = []
     counter = 0
     languages_jupyter = languages[languages["language"] ==

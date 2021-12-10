@@ -1,3 +1,6 @@
+"""
+This file retrieves Github usernames from PapersWithCode.com
+"""
 import argparse
 from pathlib import Path
 from datetime import datetime
@@ -7,10 +10,19 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_username_from_string(url):
-    if "github.com" in url:
-        split = url.split("github.com/")
-        # get value after "github.com/" and split after the next slash, then the first value of that split will be the username
+def get_username_from_string(url_github):
+    """Parses a Github url for the username
+
+    Args:
+        url (string): Github.com url
+
+    Returns:
+        string: username
+    """
+    if "github.com" in url_github:
+        split = url_github.split("github.com/")
+        # get value after "github.com/" and split after the next slash,
+        # then the first value of that split will be the username
         user = split[1].split("/")[0]
         return user
     else:
@@ -38,11 +50,11 @@ if __name__ == '__main__':
                 paper_url.append('https://paperswithcode.com' + a['href'])
 
     print(f"Found following papers: {paper_url}")
-    print(f"Fetching github users from papers...")
+    print("Fetching github users from papers...")
 
     github_url = []
     github_user = []
-    service = "github.com"
+    SERVICE = "github.com"
     current_date = datetime.today().strftime('%Y-%m-%d')
     for url in paper_url:
         r = requests.get(url)
@@ -50,10 +62,10 @@ if __name__ == '__main__':
             soup = BeautifulSoup(r.text, 'html.parser')
 
             for a in soup.select('#implementations-full-list a'):
-                if '#' != a['href']:
+                if a['href'] != '#':
                     github_url.append(a['href'])
                     github_user.append([
-                        service, current_date,
+                        SERVICE, current_date,
                         get_username_from_string(a['href'])
                     ])
 

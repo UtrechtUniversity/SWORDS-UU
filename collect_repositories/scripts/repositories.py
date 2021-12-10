@@ -56,7 +56,15 @@ def get_repos_formatted(repos):
     return result
 
 
-def read_pandas_file(file_path):
+def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
     if "xlsx" in file_path:
         return pd.read_excel(file_path, engine='openpyxl')
     else:
@@ -87,7 +95,7 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
     api = GhApi(token=token)
-    df_users = read_pandas_file(args.users)
+    df_users = read_input_file(args.users)
 
     # drop filtered users
     df_users = df_users.drop(df_users[df_users.final_decision == 0].index)

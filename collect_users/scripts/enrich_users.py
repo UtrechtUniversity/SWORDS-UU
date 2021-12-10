@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi
 
 
-def read_pandas_file(file_path):
+def read_input_file(file_path):
     """reads in the input file through Pandas
 
     Args:
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     # Read arguments from the command line
     args = parser.parse_args()
 
-    df_users = read_pandas_file(args.input)
+    df_users = read_input_file(args.input)
     df_users = df_users.drop_duplicates("user_id").reset_index(drop=True)
 
     UPDATE_EVERYTHING = args.update
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     if args.fileupdate:
         try:
             # If this block is successfully executed it is an update of users
-            df_users_annotated = read_pandas_file(args.fileupdate)
+            df_users_annotated = read_input_file(args.fileupdate)
             df_users["new_user"] = False
             df_users.loc[~df_users["user_id"].
                          isin(df_users_annotated["user_id"].str.lower()),
