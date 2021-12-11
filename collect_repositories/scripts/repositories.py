@@ -115,7 +115,7 @@ if __name__ == '__main__':
             repos_formatted = get_repos_formatted(repos)
             result_repos.extend(repos_formatted)
         else:
-            print("User %s has no repositories." % user)
+            print(f"User {user} has no repositories.")
         time.sleep(2.1)
         if COUNTER % 10 == 0:
             print(f"Processed {COUNTER} out of {len(df_users.index)} users.")
