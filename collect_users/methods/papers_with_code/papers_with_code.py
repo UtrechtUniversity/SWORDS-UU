@@ -19,14 +19,13 @@ def get_username_from_string(url_github):
     Returns:
         string: username
     """
+    user = None
     if "github.com" in url_github:
         split = url_github.split("github.com/")
         # get value after "github.com/" and split after the next slash,
         # then the first value of that split will be the username
         user = split[1].split("/")[0]
-        return user
-    else:
-        return None
+    return user
 
 
 if __name__ == '__main__':

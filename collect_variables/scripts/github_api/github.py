@@ -1,3 +1,6 @@
+"""
+This file retrieves Github API variables for an input file with repositories.
+"""
 import os
 import time
 from datetime import datetime
@@ -19,13 +22,22 @@ def read_input_file(file_path):
         DataFrame
     """
     if "xlsx" in file_path:
-        return pd.read_excel(file_path, engine='openpyxl')
+        input_file = pd.read_excel(file_path, engine='openpyxl')
     else:
-        return pd.read_csv(file_path)
+        input_file = pd.read_csv(file_path)
+    return input_file
 
 
-def export_file(variables, columns, var_type, output):
-    df_data = pd.DataFrame(variables, columns=columns)
+def export_file(variables_retrieved, columns, var_type, output):
+    """Exports the retrieved data to a file.
+
+    Args:
+        variables_retrieved (List): Holds the retrieved variables
+        columns (List): column names of the retrieved variables
+        var_type (string): Used to output which variables were retrieved
+        output (string): file path
+    """
+    df_data = pd.DataFrame(variables_retrieved, columns=columns)
     current_date = datetime.today().strftime('%Y-%m-%d')
     df_data["date"] = current_date
     df_data.to_csv(output, index=False)
@@ -63,7 +75,7 @@ parser.add_argument(
     "--input_languages",
     "-ilang",
     help=
-    "Optional. If languages are not retrieved but jupyter notebooks should be, there needs to be an input file."
+    "Optional. Needed if languages are not retrieved but jupyter notebooks are."
 )
 
 parser.add_argument("--jupyter_output",
@@ -94,11 +106,13 @@ parser.add_argument("--topics_output",
 # Read arguments from the command line
 args = parser.parse_args()
 print(f"Retrieving howfairis variables for the following file: {args.input}")
-print(
-    f"Retrieving contributors? {args.contributors} \nRetrieving jupyter notebooks? {args.jupyter} \nRetrieving languages? {args.languages}\nRetrieving topics? {args.topics}"
-)
+print(f"Retrieving contributors? {args.contributors}"
+      f"\nRetrieving jupyter notebooks? {args.jupyter}"
+      f"\nRetrieving languages? {args.languages}"
+      f"\nRetrieving topics? {args.topics}")
 
-# if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
+# if unauthorized API is used, rate limit is lower,
+# leading to a ban and waiting time needs to be increased
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 headers = {'Authorization': 'token ' + token}
@@ -108,31 +122,31 @@ params = {
 
 df_repos = read_input_file(args.input)
 if token is None:
-    sleep = 6
+    SLEEP = 6
 else:
-    sleep = 2
+    SLEEP = 2
 
-languages = None
+LANGUAGES = None
 
 if args.contributors:
 
-    # get column names
-    url = "https://api.github.com/repos/kequach/HTML-Examples/contributors"  # arbitrary repo to retrieve column names
-    r = requests.get(url=url, headers=headers)
+    # get column names from arbitrary repo
+    URL = "https://api.github.com/repos/kequach/HTML-Examples/contributors"
+    r = requests.get(url=URL, headers=headers)
     data = r.json()
     if isinstance(data, list):
         column_headers = list(data[0].keys())
         all_column_headers = ["html_url_repository"] + column_headers
-        time.sleep(sleep)
+        time.sleep(SLEEP)
     else:
         print("There was an error retrieving column names.")
 
     # get data
     variables = []
-    for counter, (url, contributor_url) in enumerate(
+    for COUNTER, (url, contributor_url) in enumerate(
             zip(df_repos["html_url"], df_repos["contributors_url"])):
-        request_successful = False
-        while (not request_successful):
+        REQUEST_SUCCESSFUL = False
+        while not REQUEST_SUCCESSFUL:
             r = requests.get(url=contributor_url,
                              headers=headers,
                              params=params)
@@ -145,23 +159,22 @@ if args.contributors:
                     print(entry[0:2])
                     variables.append(entry)
             elif r.status_code == 403:  # timeout
-                print("There was a problem: %s" % contributor_url)
+                print(f"There was a problem: {contributor_url}")
                 print("Sleep for a while.")
                 for i in range(100):
                     time.sleep(6)
                     continue
             elif r.status_code in [204, 404]:  # (non-existing repo)
-                print("Repository does not exist: %s" % url)
+                print(f"Repository does not exist: {url}")
             else:
-                print("Unhandled status code: %d - skip repository" %
-                      r.status_code)
+                print(f"Unhandled status code: {r.status_code} - skip repository")
 
-            request_successful = True
-            time.sleep(sleep)
+            REQUEST_SUCCESSFUL = True
+            time.sleep(SLEEP)
 
-            if counter % 10 == 0:
+            if COUNTER % 10 == 0:
                 print("Parsed %d out of %d repos." %
-                      (counter, len(df_repos.index)))
+                      (COUNTER, len(df_repos.index)))
 
     export_file(variables, all_column_headers, "contributor",
                 args.contributors_output)
@@ -169,10 +182,10 @@ if args.contributors:
 if args.languages:
     # get languages
     variables = []
-    for counter, (url, languages_url) in enumerate(
+    for COUNTER, (url, languages_url) in enumerate(
             zip(df_repos["html_url"], df_repos["languages_url"])):
-        request_successful = False
-        while (not request_successful):
+        REQUEST_SUCCESSFUL = False
+        while not REQUEST_SUCCESSFUL:
             r = requests.get(url=languages_url, headers=headers)
             print(r, url, languages_url)
             if r.status_code == 200:
@@ -194,37 +207,38 @@ if args.languages:
                 print("Unhandled status code: %d - skip repository" %
                       r.status_code)
 
-            request_successful = True
-            time.sleep(sleep)
-            if counter % 10 == 0:
+            REQUEST_SUCCESSFUL = True
+            time.sleep(SLEEP)
+            if COUNTER % 10 == 0:
                 print("Parsed %d out of %d repos." %
-                      (counter, len(df_repos.index)))
+                      (COUNTER, len(df_repos.index)))
 
     cols = ["html_url_repository", "language", "num_chars"]
     export_file(variables, cols, "language", args.languages_output)
     if args.jupyter:  # keep df for parsing jupyter files
-        languages = pd.DataFrame(variables, columns=cols)
+        LANGUAGES = pd.DataFrame(variables, columns=cols)
 
 if args.jupyter:
-    if languages is None:
+    if LANGUAGES is None:
         if args.input_languages is None:
             print(
                 "Please provide a file with languages that can be parsed for jupyter notebooks."
             )
             quit()
         else:
-            languages = read_input_file(args.input_languages)
+            LANGUAGES = read_input_file(args.input_languages)
     variables = []
-    counter = 0
-    languages_jupyter = languages[languages["language"] ==
+    COUNTER = 0
+    languages_jupyter = LANGUAGES[LANGUAGES["language"] ==
                                   "Jupyter Notebook"].drop(
                                       ["language", "num_chars"], axis=1)
     print("Parse %d repos." % len(languages_jupyter["html_url_repository"]))
     for repo_url in languages_jupyter["html_url_repository"]:
         repo_string = repo_url.split("github.com/")[1]
-        api_string = "https://api.github.com/repos/" + repo_string + "/git/trees/master?recursive=1"  # see: https://stackoverflow.com/a/61656698/5708610
-        request_successful = False
-        while (not request_successful):
+        # see: https://stackoverflow.com/a/61656698/5708610
+        api_string = "https://api.github.com/repos/" + repo_string + "/git/trees/master?recursive=1"
+        REQUEST_SUCCESSFUL = False
+        while not REQUEST_SUCCESSFUL:
             r = requests.get(url=api_string, headers=headers)
             print(r, repo_url)
             if r.status_code == 200:
@@ -235,7 +249,7 @@ if args.jupyter:
                         print(entry)
                         variables.append(entry)
             elif r.status_code == 403:  # timeout
-                print("There was a problem: %s" % contributor_url)
+                print("There was a problem.")
                 print("Sleep for a while.")
                 for i in range(100):
                     time.sleep(6)
@@ -246,12 +260,12 @@ if args.jupyter:
                 print("Unhandled status code: %d - skip repository" %
                       r.status_code)
 
-            request_successful = True
-            counter += 1
-            time.sleep(sleep)
-            if counter % 10 == 0:
+            REQUEST_SUCCESSFUL = True
+            COUNTER += 1
+            time.sleep(SLEEP)
+            if COUNTER % 10 == 0:
                 print("Parsed %d out of %d repos." %
-                      (counter, len(languages_jupyter.index)))
+                      (COUNTER, len(languages_jupyter.index)))
 
     export_file(variables, ["html_url_repository", "path"], "jupyter notebook",
                 args.jupyter_output)

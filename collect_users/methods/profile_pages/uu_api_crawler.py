@@ -1,3 +1,6 @@
+"""
+This file retrieves Github usernames from the API of Utrecht University employee pages
+"""
 import time
 from pathlib import Path
 from datetime import datetime
@@ -9,146 +12,33 @@ REST_API_URL = "https://www.uu.nl/medewerkers/RestApi/Public"
 
 
 def get_employees_url(faculty_number):
+    """The function takes a faculty number (0-99) and returns employee URLs
+
+    Args:
+        faculty_number (integer): Faculty number
+
+    Returns:
+        Series: Employee URLs retrieved from faculty
+    """
     url = f"{REST_API_URL}/GetEmployeesOrganogram?f={faculty_number}&l=EN&fullresult=true"
     json_nested = requests.get(url)
-    df = pd.DataFrame(json_nested.json()["Employees"])
+    df_employees = pd.DataFrame(json_nested.json()["Employees"])
     try:
-        return df["Url"]
+        return df_employees["Url"]
     except Exception as e:
-        return None
-
-
-def get_employee_links(url):
-    time.sleep(1)
-    api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
-    api_json = api_link.json()
-
-    try:
-        return api_json["Employee"]['Links']
-    except Exception as e:
-        return None
-
-
-def get_employee_specific_link(url, search_query):
-    time.sleep(1)
-    api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
-    api_json = api_link.json()
-
-    try:
-        employee_link_list = api_json["Employee"]['Links']
-        for link in employee_link_list:
-            if search_query in link['Url']:
-                return link['Url']
-        return None
-    except Exception as e:
-        return None
-
-
-def get_employee_github_from_links(url):
-    time.sleep(1)
-    api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
-    api_json = api_link.json()
-
-    try:
-        employee_link_list = api_json["Employee"]['Links']
-        for link_dict in employee_link_list:
-            link = link_dict["Url"]
-            if "github.com" in link:
-                split = link.split("github.com/")
-                # get value after "github.com/" and split after the next
-                # slash, then the first value of that split will be the
-                # username
-                user = split[1].split("/")[0]
-                return user
-            elif "github.io" in link:
-                githubio_split = link.split(".")
-                user = githubio_split[0].split("://")[1]
-                return user
-        return None
-    except Exception as e:
-        return None
-
-
-def get_employee_profile_mention(url, query):
-    query = query.lower()
-    time.sleep(1)
-    api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
-    api_json = api_link.json()
-
-    try:
-        employee_profile = api_json["Employee"]['Profile']
-        if query in employee_profile.lower():
-            return f"{query} found in user profile"
-        return None
-    except Exception as e:
-        return None
-
-
-def get_employee_github_from_profile(url):
-    time.sleep(1)
-    api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
-    api_json = api_link.json()
-    try:
-        employee_profile = api_json["Employee"]['Profile']
-        split_employee_profile = employee_profile.split()
-        for word in split_employee_profile:
-            if "github.com" in word:
-                split = word.split("github.com/")
-                # get value after "github.com/" and split after the next
-                # slash, then the first value of that split will be the
-                # username
-                user = split[1].split("/")[0]
-                # sometimes, there is still some tokens after the username due
-                # to the href format of the links. This is migated by
-                # splitting on a " and using the first word
-                user = user.split('"')[0]
-                return user
-            elif "github.io" in word:
-                githubio_split = word.split(".")
-                user = githubio_split[0].split("://")[1]
-                # sometimes, there is still some tokens after the username due
-                # to the href format of the links. This is migated by
-                # splitting on a " and using the first word
-                user = user.split('"')[0]
-                return user
-        return None
-    except Exception as e:
-        return None
-
-
-def get_employee_github_from_cv(url):
-    time.sleep(1)
-    api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
-    api_json = api_link.json()
-    try:
-        employee_profile = api_json["Employee"]['CV']
-        split_employee_profile = employee_profile.split()
-        for word in split_employee_profile:
-            if "github.com" in word:
-                split = word.split("github.com/")
-                # get value after "github.com/" and split after the next
-                # slash, then the first value of that split will be the
-                # username
-                user = split[1].split("/")[0]
-                # sometimes, there is still some tokens after the username due
-                # to the href format of the links. This is migated by
-                # splitting on a " and using the first word
-                user = user.split('"')[0]
-                return user
-            elif "github.io" in word:
-                githubio_split = word.split(".")
-                user = githubio_split[0].split("://")[1]
-                # sometimes, there is still some tokens after the username due
-                # to the href format of the links. This is migated by
-                # splitting on a " and using the first word
-                user = user.split('"')[0]
-                return user
-        return None
-    except Exception as e:
+        print(f"There was an error: {e}")
         return None
 
 
 def get_all_employee_github_links(url):
+    """Gathers all github links from a URL
+
+    Args:
+        url (string): URL
+
+    Returns:
+        List: Github links
+    """
     time.sleep(1)
     try:
         api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
@@ -234,6 +124,7 @@ def get_all_employee_github_links(url):
         else:
             return None
     except Exception as e:
+        print(f"There was an error: {e}")
         return None
 
 
@@ -264,10 +155,10 @@ if __name__ == '__main__':
                             employee_github.append(
                                 [SERVICE, current_date, github_user_name])
             except Exception as e:
-                print("couldn't loop through urls")
+                print(f"couldn't loop through urls. Error: {e}")
                 continue
         except Exception as e:
-            print("error occured getting faculty url")
+            print(f"error occured getting faculty url. Error: {e}")
             continue
     print("Finished looping through faculties.")
     employee_github_pd = pd.DataFrame(employee_github,

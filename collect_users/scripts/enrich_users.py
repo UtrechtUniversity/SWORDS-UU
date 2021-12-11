@@ -51,10 +51,10 @@ def get_userdata(user_list):
                     user.pop(k, None)
             github_data.append(user)
         except Exception as e:
-            print("User %s encountered an error." % user_id)
+            print(f"User {user_id} encountered an error.")
             print(e)
         if index % 10 == 0:
-            print("Processed %d out of %d users." % (index, len(user_list)))
+            print(f"Processed {index} out of {len(user_list)} users.")
         time.sleep(SLEEP)
     return pd.DataFrame(github_data)
 

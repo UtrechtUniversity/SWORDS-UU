@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument("file", help="Input file")
     args = parser.parse_args()
 
-    users = list()
+    users = []
     SERVICE = "github.com"
     current_date = datetime.today().strftime('%Y-%m-%d')
 

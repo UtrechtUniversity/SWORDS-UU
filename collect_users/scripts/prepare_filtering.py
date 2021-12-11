@@ -18,9 +18,10 @@ def read_input_file(file_path):
         DataFrame
     """
     if "xlsx" in file_path:
-        return pd.read_excel(file_path, engine='openpyxl')
+        file = pd.read_excel(file_path, engine='openpyxl')
     else:
-        return pd.read_csv(file_path)
+        file = pd.read_csv(file_path)
+    return file
 
 
 def is_student(user_bio):
@@ -37,14 +38,13 @@ def is_student(user_bio):
         Boolean: Whether the user is a student or not
     """
     user_bio = str(user_bio).lower()
+    student = False
     if user_bio != "nan":
         # PhD students should be included
         mention_phd = "phd" in user_bio
         mention_student = "student" in user_bio
-        return not mention_phd and mention_student
-    else:
-        # we can't be sure and therefore keep the user
-        return False
+        student = not mention_phd and mention_student
+    return student
 
 
 if __name__ == '__main__':
