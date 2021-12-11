@@ -2,6 +2,7 @@
 This file retrieves Github API variables for an input file with repositories.
 """
 import os
+import sys
 import time
 from datetime import datetime
 import ast
@@ -167,14 +168,15 @@ if args.contributors:
             elif r.status_code in [204, 404]:  # (non-existing repo)
                 print(f"Repository does not exist: {url}")
             else:
-                print(f"Unhandled status code: {r.status_code} - skip repository")
+                print(
+                    f"Unhandled status code: {r.status_code} - skip repository"
+                )
 
             REQUEST_SUCCESSFUL = True
             time.sleep(SLEEP)
 
             if COUNTER % 10 == 0:
-                print("Parsed %d out of %d repos." %
-                      (COUNTER, len(df_repos.index)))
+                print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
 
     export_file(variables, all_column_headers, "contributor",
                 args.contributors_output)
@@ -196,22 +198,22 @@ if args.languages:
                     print(entry)
                     variables.append(entry)
             elif r.status_code == 403:  # timeout
-                print("There was a problem: %s" % languages_url)
+                print(f"There was a problem: {languages_url}")
                 print("Sleep for a while.")
                 for i in range(100):
                     time.sleep(6)
                     continue
             elif r.status_code in [204, 404]:  # (non-existing repo)
-                print("Repository does not exist: %s" % url)
+                print(f"Repository does not exist: {url}")
             else:
-                print("Unhandled status code: %d - skip repository" %
-                      r.status_code)
+                print(
+                    f"Unhandled status code: {r.status_code} - skip repository"
+                )
 
             REQUEST_SUCCESSFUL = True
             time.sleep(SLEEP)
             if COUNTER % 10 == 0:
-                print("Parsed %d out of %d repos." %
-                      (COUNTER, len(df_repos.index)))
+                print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
 
     cols = ["html_url_repository", "language", "num_chars"]
     export_file(variables, cols, "language", args.languages_output)
@@ -224,7 +226,7 @@ if args.jupyter:
             print(
                 "Please provide a file with languages that can be parsed for jupyter notebooks."
             )
-            quit()
+            sys.exit()
         else:
             LANGUAGES = read_input_file(args.input_languages)
     variables = []
@@ -232,7 +234,7 @@ if args.jupyter:
     languages_jupyter = LANGUAGES[LANGUAGES["language"] ==
                                   "Jupyter Notebook"].drop(
                                       ["language", "num_chars"], axis=1)
-    print("Parse %d repos." % len(languages_jupyter["html_url_repository"]))
+    print(f"Parse {len(languages_jupyter.index)} repos.")
     for repo_url in languages_jupyter["html_url_repository"]:
         repo_string = repo_url.split("github.com/")[1]
         # see: https://stackoverflow.com/a/61656698/5708610
@@ -255,17 +257,19 @@ if args.jupyter:
                     time.sleep(6)
                     continue
             elif r.status_code in [204, 404]:  # (non-existing repo)
-                print("Repository does not exist: %s" % repo_url)
+                print(f"Repository does not exist: {repo_url}")
             else:
-                print("Unhandled status code: %d - skip repository" %
-                      r.status_code)
+                print(
+                    f"Unhandled status code: {r.status_code} - skip repository"
+                )
 
             REQUEST_SUCCESSFUL = True
             COUNTER += 1
             time.sleep(SLEEP)
             if COUNTER % 10 == 0:
-                print("Parsed %d out of %d repos." %
-                      (COUNTER, len(languages_jupyter.index)))
+                print(
+                    f"Parsed {COUNTER} out of {len(languages_jupyter.index)} repos."
+                )
 
     export_file(variables, ["html_url_repository", "path"], "jupyter notebook",
                 args.jupyter_output)
