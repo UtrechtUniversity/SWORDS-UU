@@ -1,3 +1,4 @@
+#pylint: skip-file
 """
 This file retrieves Github usernames from the API of Utrecht University employee pages
 """
