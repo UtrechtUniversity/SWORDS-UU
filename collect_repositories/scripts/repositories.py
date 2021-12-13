@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     print("Finished processing users. Flattening nested structures...")
     # Flatten nested structures
-    for i in range(len(result_repos)):
+    for i, _ in enumerate(result_repos):
         for key in result_repos[i].keys():
             if isinstance(result_repos[i][key], AttrDict):
                 if key == "owner":
