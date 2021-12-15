@@ -127,7 +127,7 @@ if __name__ == '__main__':
             print(
                 "No search argument provided. If you want to retrieve general results and "
                 "users, please provide the argument as --search")
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print(f"Error occured: {e}")
         if "403" in str(e):
             print("A HTTP Error 403 indicates that rate limits are reached. "

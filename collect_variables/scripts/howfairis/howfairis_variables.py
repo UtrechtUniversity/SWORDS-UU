@@ -89,7 +89,7 @@ for counter, url in enumerate(df_repos["html_url"]):
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
             time.sleep(2)
             REQUEST_SUCCESSFUL = True
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             print(f"Error occured for {url} (most likely timeout issue due"
                   f" to API limitation. Sleep for a while. Error message: {e}")
             if "Something went wrong asking the repo for its default branch" in str(

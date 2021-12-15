@@ -50,7 +50,7 @@ def get_userdata(user_list):
                 for k in entries_to_remove:
                     user.pop(k, None)
             github_data.append(user)
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             print(f"User {user_id} encountered an error.")
             print(e)
         if index % 10 == 0:

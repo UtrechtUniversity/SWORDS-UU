@@ -26,7 +26,7 @@ def get_employees_url(faculty_number):
     df_employees = pd.DataFrame(json_nested.json()["Employees"])
     try:
         return df_employees["Url"]
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print(f"There was an error: {e}")
         return None
 
@@ -65,7 +65,7 @@ def get_all_employee_github_links(url):
                     githubio_split = word.split(".")
                     try:
                         user = githubio_split[0].split("://")[1]
-                    except Exception as e:
+                    except Exception as e: # pylint: disable=broad-except
                         user = githubio_split[0]
                     # sometimes, there is still some tokens after the username
                     # due to the href format of the links. This is migated by
@@ -93,7 +93,7 @@ def get_all_employee_github_links(url):
                     githubio_split = word.split(".")
                     try:
                         user = githubio_split[0].split("://")[1]
-                    except Exception as e:
+                    except Exception as e: # pylint: disable=broad-except
                         user = githubio_split[0]
                     # sometimes, there is still some tokens after the username
                     # due to the href format of the links. This is migated by
@@ -117,14 +117,14 @@ def get_all_employee_github_links(url):
                         githubio_split = link.split(".")
                         try:
                             user = githubio_split[0].split("://")[1]
-                        except Exception as e:
+                        except Exception as e: # pylint: disable=broad-except
                             user = githubio_split[0]
                         git_link_list.append(user)
         if len(git_link_list) != 0:
             return git_link_list
         else:
             return None
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print(f"There was an error: {e}")
         return None
 
@@ -155,10 +155,10 @@ if __name__ == '__main__':
                         for github_user_name in github_user_names:
                             employee_github.append(
                                 [SERVICE, current_date, github_user_name])
-            except Exception as e:
+            except Exception as e: # pylint: disable=broad-except
                 print(f"couldn't loop through urls. Error: {e}")
                 continue
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             print(f"error occured getting faculty url. Error: {e}")
             continue
     print("Finished looping through faculties.")

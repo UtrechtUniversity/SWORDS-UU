@@ -27,7 +27,7 @@ def get_repos(user_id):
         # If more than one page is available, another request needs to be made.
         print(f"Fetching repos for user '{user_id}'")
         query_result = api.repos.list_for_user(user_id, per_page=100)
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print(
             f"There was a problem with fetching repositories for user {user_id}"
         )
