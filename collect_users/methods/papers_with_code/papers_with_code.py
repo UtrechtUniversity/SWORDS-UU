@@ -1,19 +1,31 @@
+"""
+This file retrieves Github usernames from PapersWithCode.com
+"""
 import argparse
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 
-def get_username_from_string(url):
-    if "github.com" in url:
-        split = url.split("github.com/")
-        # get value after "github.com/" and split after the next slash, then the first value of that split will be the username
+def get_username_from_string(url_github):
+    """Parses a Github url for the username
+
+    Args:
+        url (string): Github.com url
+
+    Returns:
+        string: username
+    """
+    user = None
+    if "github.com" in url_github:
+        split = url_github.split("github.com/")
+        # get value after "github.com/" and split after the next slash,
+        # then the first value of that split will be the username
         user = split[1].split("/")[0]
-        return user
-    else:
-        return None
+    return user
 
 
 if __name__ == '__main__':
@@ -33,28 +45,34 @@ if __name__ == '__main__':
         soup = BeautifulSoup(r.text, 'html.parser')
         paper_url = []
         for a in soup.select('.entity > a'):
-            if ('#code' not in a['href']):
+            if '#code' not in a['href']:
                 paper_url.append('https://paperswithcode.com' + a['href'])
 
     print(f"Found following papers: {paper_url}")
-    print(f"Fetching github users from papers...")
+    print("Fetching github users from papers...")
 
     github_url = []
     github_user = []
+    SERVICE = "github.com"
+    current_date = datetime.today().strftime('%Y-%m-%d')
     for url in paper_url:
         r = requests.get(url)
         if r.status_code == 200:
             soup = BeautifulSoup(r.text, 'html.parser')
 
             for a in soup.select('#implementations-full-list a'):
-                if ('#' != a['href']):
+                if a['href'] != '#':
                     github_url.append(a['href'])
-                    github_user.append(get_username_from_string(a['href']))
+                    github_user.append([
+                        SERVICE, current_date,
+                        get_username_from_string(a['href'])
+                    ])
 
-    print(f"Found following github users: {github_user}")
+    print(f"Found following users: {github_user}")
 
-    pd.Series(github_user,
-              name="github_user_id").to_csv(Path("results",
-                                                 "ids_paperswithcode.csv"),
-                                            index=False)
+    pd.DataFrame(github_user,
+                 columns=["service", "date",
+                          "user_id"]).to_csv(Path("results",
+                                                  "paperswithcode.csv"),
+                                             index=False)
     print("Successfully exported users.")

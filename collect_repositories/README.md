@@ -24,16 +24,17 @@ pip install -r requirements.txt
 
 ### Retrieve repositories of filtered users
 
-In this step, repositories of enriched users are retrieved. To do this, execute the file **repositories.py**. Note: The column with githuber user ids needs to have the name **github_user_id**.
+In this step, repositories of enriched users are retrieved. To do this, execute the file **repositories.py**. Note: The column with githuber user ids needs to have the name **user_id**.
 There are 2 arguments that can be passed.
 
-- --users: The path to the file with enriched users. Default value: ../collect_users/results/unique_users_annotated.xlsx
-- --output: The file name of the repositories that are retrieved. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: results/repositories
+- --users: The path to the file with enriched users. Default value: ../collect_users/results/users_enriched.xlsx
+- --output: The file name of the repositories that are retrieved. Default value: results/repositories.csv
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/repositories.py --users ../collect_users/results/unique_users_annotated.xlsx --output results/repositories
+python scripts/repositories.py --users ../collect_users/results/unique_users_annotated.xlsx --output results/repositories.csv
+python scripts/repositories.py --users ../collect_users/results/users_enriched.csv
 ```
 
 ### Filter repositories
@@ -41,20 +42,21 @@ python scripts/repositories.py --users ../collect_users/results/unique_users_ann
 In this step, non-relevant repositories are filtered. To do this, execute the file **filter_repos.py**.
 There are 2 arguments that can be passed. Bold arguments are required:
 
-- --**input**: The file name of the retrieved repositories.
-- --output: The file name of the filtered repositories. Note that there will always be a timestamp added to the file name in the following format: YYYY-MM-DD. Default value: repositories_filtered
+- --input: The file name of the retrieved repositories. Default value: results/repositories.csv
+- --output: The file name of the filtered repositories. Default value: results/repositories_filtered.csv
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/filter_repos.py --input results/repositories_2021-11-04.csv 
+python scripts/filter_repos.py --input results/repositories.csv 
+python scripts/filter_repos.py
 ```
 
 Currently, the script only filters out *github.io* repositories, as these are usually no research repositories. Additional filtering can be done manually.
 
 ### Data analysis
 
-Interactive data analysis can be found in the [Jupyter Notebook repo_analysis.ipynb](repo_analysis.ipynb). It is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
+Interactive data analysis can be found in the [Jupyter Notebook analyse_repositories.ipynb](analyse_repositories.ipynb). It is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
 
 This notebook analyzes the information of the retrieved repositories. The notebook contains analysis of open science mentions, stargazers, watchers, issues, forks, branches, homepages and commits.
 
