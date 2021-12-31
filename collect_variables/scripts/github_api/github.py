@@ -11,6 +11,9 @@ import argparse
 import pandas as pd
 from dotenv import load_dotenv
 import requests
+from ghapi.all import GhApi
+from fastcore.foundation import L
+from fastcore.net import ExceptionsHTTP
 
 
 def read_input_file(file_path):
@@ -45,6 +48,62 @@ def export_file(variables_retrieved, columns, var_type, output):
     print(
         f"Successfully retrieved {var_type} variables. Saved result to {output}."
     )
+
+
+def get_data_from_api(url, owner, repo_name, variable_type):
+    """The function calls the ghapi api to retrieve
+
+    Args:
+        url (string): repository url. E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
+        owner (string): repository owner. E.g.: kequach
+        repo_name (string): repository name. E.g.: HTML-Examples
+        variable_type (string): which type of variable should be retrieved. Supported are: contributors, languages, jupyter_notebooks
+    Returns:
+        list: A list of the retrieved variables
+    """
+    retrieved_variables = []
+    request_successful = False
+    while not request_successful:
+        try:
+            if variable_type == "contributors":
+                data = api.repos.list_contributors(
+                    owner=owner, repo=repo_name, anon=1, per_page=100)
+                for contributor in data:
+                    entry = [url]
+                    entry.extend(list(contributor.values()))
+                    print(entry[0:2])
+                    retrieved_variables.append(entry)
+            elif variable_type == "languages":
+                data = api.repos.list_languages(owner=owner, repo=repo_name)
+                for language, num_chars in data.items():
+                    entry = [url]
+                    entry.extend([language, num_chars])
+                    print(entry)
+                    retrieved_variables.append(entry)
+            elif variable_type == "jupyter_notebooks":
+                data = api.git.get_tree(
+                    owner=owner, repo=repo_name, tree_sha="master", recursive=1)
+                for file in data["tree"]:
+                    if file["type"] == "blob" and ".ipynb" in file["path"]:
+                        entry = [repo_url, file["path"]]
+                        print(entry)
+                        variables.append(entry)
+        except ExceptionsHTTP as e:
+            print(f"There was an error: {e}")
+            # (non-existing repo)
+            if any(status_code in e for status_code in ["204", "404"]):
+                print(f"Repository does not exist: {url}")
+            elif "403" in e:  # timeout
+                print("Sleep for a while.")
+                for _ in range(100):
+                    time.sleep(6)
+                    continue
+            else:
+                print(
+                    f"Unhandled status code: {e} - skip repository"
+                )
+        request_successful = True
+        return retrieved_variables
 
 
 # Initiate the parser
@@ -103,16 +162,6 @@ parser.add_argument("--topics_output",
                     help="Optional. Path for topics output",
                     default="output/topics.csv")
 
-parser.add_argument("--downloads",
-                    "-d",
-                    action='store_true',
-                    help="Set this flag if downloads should be retrieved")
-
-parser.add_argument("--downloads_out",
-                    "-dout",
-                    help="Optional. Path for downloads output",
-                    default="output/downloads")
-
 # Read arguments from the command line
 args = parser.parse_args()
 print(f"Retrieving howfairis variables for the following file: {args.input}")
@@ -125,12 +174,15 @@ print(f"Retrieving contributors? {args.contributors}"
 # leading to a ban and waiting time needs to be increased
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
+api = GhApi(token=token)
+
 headers = {'Authorization': 'token ' + token}
 params = {
     'per_page': 100,
 }
 
 df_repos = read_input_file(args.input)
+df_repos = df_repos.head(10)
 if token is None:
     SLEEP = 6
 else:
@@ -139,12 +191,9 @@ else:
 LANGUAGES = None
 
 if args.contributors:
-
     # get column names from arbitrary repo
-    URL = "https://api.github.com/repos/kequach/HTML-Examples/contributors"
-    r = requests.get(url=URL, headers=headers)
-    data = r.json()
-    if isinstance(data, list):
+    data = api.repos.list_contributors("kequach", "HTML-Examples")
+    if isinstance(data, L):
         column_headers = list(data[0].keys())
         all_column_headers = ["html_url_repository"] + column_headers
         time.sleep(SLEEP)
@@ -153,39 +202,12 @@ if args.contributors:
 
     # get data
     variables = []
-    for COUNTER, (url, contributor_url) in enumerate(
-            zip(df_repos["html_url"], df_repos["contributors_url"])):
-        REQUEST_SUCCESSFUL = False
-        while not REQUEST_SUCCESSFUL:
-            r = requests.get(url=contributor_url,
-                             headers=headers,
-                             params=params)
-            print(r, contributor_url)
-            if r.status_code == 200:
-                data = r.json()
-                for contributor in data:
-                    entry = [url]
-                    entry.extend(list(contributor.values()))
-                    print(entry[0:2])
-                    variables.append(entry)
-            elif r.status_code == 403:  # timeout
-                print(f"There was a problem: {contributor_url}")
-                print("Sleep for a while.")
-                for i in range(100):
-                    time.sleep(6)
-                    continue
-            elif r.status_code in [204, 404]:  # (non-existing repo)
-                print(f"Repository does not exist: {url}")
-            else:
-                print(
-                    f"Unhandled status code: {r.status_code} - skip repository"
-                )
-
-            REQUEST_SUCCESSFUL = True
-            time.sleep(SLEEP)
-
-            if COUNTER % 10 == 0:
-                print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
+    for COUNTER, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"], df_repos["owner"], df_repos["name"])):
+        variables.extend(get_data_from_api(
+            url, owner, repo_name, "contributors"))
+        if COUNTER % 10 == 0:
+            print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
+        time.sleep(SLEEP)
 
     export_file(variables, all_column_headers, "contributor",
                 args.contributors_output)
@@ -193,36 +215,13 @@ if args.contributors:
 if args.languages:
     # get languages
     variables = []
-    for COUNTER, (url, languages_url) in enumerate(
-            zip(df_repos["html_url"], df_repos["languages_url"])):
-        REQUEST_SUCCESSFUL = False
-        while not REQUEST_SUCCESSFUL:
-            r = requests.get(url=languages_url, headers=headers)
-            print(r, url, languages_url)
-            if r.status_code == 200:
-                data = r.json()
-                for language, num_chars in data.items():
-                    entry = [url]
-                    entry.extend([language, num_chars])
-                    print(entry)
-                    variables.append(entry)
-            elif r.status_code == 403:  # timeout
-                print(f"There was a problem: {languages_url}")
-                print("Sleep for a while.")
-                for i in range(100):
-                    time.sleep(6)
-                    continue
-            elif r.status_code in [204, 404]:  # (non-existing repo)
-                print(f"Repository does not exist: {url}")
-            else:
-                print(
-                    f"Unhandled status code: {r.status_code} - skip repository"
-                )
+    for COUNTER, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"], df_repos["owner"], df_repos["name"])):
+        variables.extend(get_data_from_api(
+            url, owner, repo_name, "languages"))
 
-            REQUEST_SUCCESSFUL = True
-            time.sleep(SLEEP)
-            if COUNTER % 10 == 0:
-                print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
+        if COUNTER % 10 == 0:
+            print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
+        time.sleep(SLEEP)
 
     cols = ["html_url_repository", "language", "num_chars"]
     export_file(variables, cols, "language", args.languages_output)
@@ -233,54 +232,23 @@ if args.jupyter:
     if LANGUAGES is None:
         if args.input_languages is None:
             print(
-                "Please provide a file with languages that can be parsed for jupyter notebooks."
-            )
+                "Please provide a file with languages that can be parsed for jupyter notebooks.")
             sys.exit()
         else:
             LANGUAGES = read_input_file(args.input_languages)
     variables = []
-    COUNTER = 0
     languages_jupyter = LANGUAGES[LANGUAGES["language"] ==
                                   "Jupyter Notebook"].drop(
                                       ["language", "num_chars"], axis=1)
     print(f"Parse {len(languages_jupyter.index)} repos.")
-    for repo_url in languages_jupyter["html_url_repository"]:
-        repo_string = repo_url.split("github.com/")[1]
-        # see: https://stackoverflow.com/a/61656698/5708610
-        api_string = "https://api.github.com/repos/" + \
-            repo_string + "/git/trees/master?recursive=1"
-        REQUEST_SUCCESSFUL = False
-        while not REQUEST_SUCCESSFUL:
-            r = requests.get(url=api_string, headers=headers)
-            print(r, repo_url)
-            if r.status_code == 200:
-                data = r.json()
-                for file in data["tree"]:
-                    if file["type"] == "blob" and ".ipynb" in file["path"]:
-                        entry = [repo_url, file["path"]]
-                        print(entry)
-                        variables.append(entry)
-            elif r.status_code == 403:  # timeout
-                print("There was a problem.")
-                print("Sleep for a while.")
-                for i in range(100):
-                    time.sleep(6)
-                    continue
-            elif r.status_code in [204, 404]:  # (non-existing repo)
-                print(f"Repository does not exist: {repo_url}")
-            else:
-                print(
-                    f"Unhandled status code: {r.status_code} - skip repository"
-                )
-
-            REQUEST_SUCCESSFUL = True
-            COUNTER += 1
-            time.sleep(SLEEP)
-            if COUNTER % 10 == 0:
-                print(
-                    f"Parsed {COUNTER} out of {len(languages_jupyter.index)} repos."
-                )
-
+    for COUNTER, repo_url in enumerate(languages_jupyter["html_url_repository"]):
+        # example repo_url: https://github.com/UtrechtUniversity/SWORDS-UU
+        owner, repo_name = repo_url.split("github.com/")[1].split("/")
+        variables.extend(get_data_from_api(url, owner, repo_name, "languages"))
+        if COUNTER % 10 == 0:
+            print(
+                f"Parsed {COUNTER} out of {len(languages_jupyter.index)} repos.")
+        time.sleep(SLEEP)
     export_file(variables, ["html_url_repository", "path"], "jupyter notebook",
                 args.jupyter_output)
 
@@ -295,71 +263,3 @@ if args.topics:
 
     export_file(variables, ["html_url_repository", "topic"], "topic",
                 args.topics_output)
-
-if args.downloads:
-    from ghapi.all import GhApi
-    import base64
-    load_dotenv()
-    # if unauthorized API is used, rate limit is lower leading to a ban and
-    # waiting time needs to be increased
-    token = os.getenv('GITHUB_TOKEN')
-    api = GhApi(token=token)
-    # https://ghapi.fast.ai/core.html#Content-(git-files)
-
-    if token is not None:  # authentication
-        SLEEP = 2
-    else:  # no authentication
-        SLEEP = 6
-
-    # https://api.github.com/repos/amices/mice/contents
-
-    variables = []
-
-#     for COUNTER, (url, owner, repo_name) in enumerate(
-#             zip(df_repos["html_url"], df_repos["owner"], df_repos["name"])):
-#         REQUEST_SUCCESSFUL = False
-#         while not REQUEST_SUCCESSFUL:
-#             readme = base64.b64decode(api.repos.get_readme(owner, repo_name).content)
-#             # https://cranlogs.r-pkg.org/downloads/total/1996-01-01:2014-01-31/mice example curl request for cranlogs
-
-
-#             print(r, contributor_url)
-#             if r.status_code == 200:
-#                 data = r.json()
-#                 for contributor in data:
-#                     entry = [url]
-#                     entry.extend(list(contributor.values()))
-#                     print(entry[0:2])
-#                     variables.append(entry)
-#             elif r.status_code == 403:  # timeout
-#                 print(f"There was a problem: {contributor_url}")
-#                 print("Sleep for a while.")
-#                 for i in range(100):
-#                     time.sleep(6)
-#                     continue
-#             elif r.status_code in [204, 404]:  # (non-existing repo)
-#                 print(f"Repository does not exist: {url}")
-#             else:
-#                 print(
-#                     f"Unhandled status code: {r.status_code} - skip repository"
-#                 )
-
-#             REQUEST_SUCCESSFUL = True
-#             time.sleep(SLEEP)
-
-#             if COUNTER % 10 == 0:
-#                 print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
-
-#     export_file(variables, all_column_headers, "contributor",
-#                 args.contributors_output)
-
-# def parse_readme(text):
-#     """The function parses a Github README file and returns a string indicating which API to parse for download counts.
-
-#     Args:
-#         text (string): The README file
-#     Returns:
-#         string: "python" or "r" for parsing pepy or cranlogs, respectively.
-#     """
-#     if any(match in text for match in ["cran.r-project.org", "cranlogs.r-pkg.org"]):
-#         pass
