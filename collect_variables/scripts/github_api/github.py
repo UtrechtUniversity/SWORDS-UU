@@ -10,7 +10,6 @@ import argparse
 
 import pandas as pd
 from dotenv import load_dotenv
-import requests
 from ghapi.all import GhApi
 from fastcore.foundation import L
 from fastcore.net import ExceptionsHTTP
