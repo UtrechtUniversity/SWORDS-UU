@@ -75,8 +75,7 @@ parser.add_argument(
 parser.add_argument(
     "--input_languages",
     "-ilang",
-    help=
-    "Optional. Needed if languages are not retrieved but jupyter notebooks are."
+    help="Optional. Needed if languages are not retrieved but jupyter notebooks are."
 )
 
 parser.add_argument("--jupyter_output",
@@ -103,6 +102,16 @@ parser.add_argument("--topics_output",
                     "-tout",
                     help="Optional. Path for topics output",
                     default="output/topics.csv")
+
+parser.add_argument("--downloads",
+                    "-d",
+                    action='store_true',
+                    help="Set this flag if downloads should be retrieved")
+
+parser.add_argument("--downloads_out",
+                    "-dout",
+                    help="Optional. Path for downloads output",
+                    default="output/downloads")
 
 # Read arguments from the command line
 args = parser.parse_args()
@@ -238,7 +247,8 @@ if args.jupyter:
     for repo_url in languages_jupyter["html_url_repository"]:
         repo_string = repo_url.split("github.com/")[1]
         # see: https://stackoverflow.com/a/61656698/5708610
-        api_string = "https://api.github.com/repos/" + repo_string + "/git/trees/master?recursive=1"
+        api_string = "https://api.github.com/repos/" + \
+            repo_string + "/git/trees/master?recursive=1"
         REQUEST_SUCCESSFUL = False
         while not REQUEST_SUCCESSFUL:
             r = requests.get(url=api_string, headers=headers)
@@ -285,3 +295,71 @@ if args.topics:
 
     export_file(variables, ["html_url_repository", "topic"], "topic",
                 args.topics_output)
+
+if args.downloads:
+    from ghapi.all import GhApi
+    import base64
+    load_dotenv()
+    # if unauthorized API is used, rate limit is lower leading to a ban and
+    # waiting time needs to be increased
+    token = os.getenv('GITHUB_TOKEN')
+    api = GhApi(token=token)
+    # https://ghapi.fast.ai/core.html#Content-(git-files)
+
+    if token is not None:  # authentication
+        SLEEP = 2
+    else:  # no authentication
+        SLEEP = 6
+
+    # https://api.github.com/repos/amices/mice/contents
+
+    variables = []
+
+#     for COUNTER, (url, owner, repo_name) in enumerate(
+#             zip(df_repos["html_url"], df_repos["owner"], df_repos["name"])):
+#         REQUEST_SUCCESSFUL = False
+#         while not REQUEST_SUCCESSFUL:
+#             readme = base64.b64decode(api.repos.get_readme(owner, repo_name).content)
+#             # https://cranlogs.r-pkg.org/downloads/total/1996-01-01:2014-01-31/mice example curl request for cranlogs
+
+
+#             print(r, contributor_url)
+#             if r.status_code == 200:
+#                 data = r.json()
+#                 for contributor in data:
+#                     entry = [url]
+#                     entry.extend(list(contributor.values()))
+#                     print(entry[0:2])
+#                     variables.append(entry)
+#             elif r.status_code == 403:  # timeout
+#                 print(f"There was a problem: {contributor_url}")
+#                 print("Sleep for a while.")
+#                 for i in range(100):
+#                     time.sleep(6)
+#                     continue
+#             elif r.status_code in [204, 404]:  # (non-existing repo)
+#                 print(f"Repository does not exist: {url}")
+#             else:
+#                 print(
+#                     f"Unhandled status code: {r.status_code} - skip repository"
+#                 )
+
+#             REQUEST_SUCCESSFUL = True
+#             time.sleep(SLEEP)
+
+#             if COUNTER % 10 == 0:
+#                 print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
+
+#     export_file(variables, all_column_headers, "contributor",
+#                 args.contributors_output)
+
+# def parse_readme(text):
+#     """The function parses a Github README file and returns a string indicating which API to parse for download counts.
+
+#     Args:
+#         text (string): The README file
+#     Returns:
+#         string: "python" or "r" for parsing pepy or cranlogs, respectively.
+#     """
+#     if any(match in text for match in ["cran.r-project.org", "cranlogs.r-pkg.org"]):
+#         pass
