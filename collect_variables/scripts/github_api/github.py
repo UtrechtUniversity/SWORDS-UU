@@ -49,14 +49,84 @@ def export_file(variables_retrieved, columns, var_type, output):
     )
 
 
-def get_data_from_api(url, owner, repo_name, variable_type):
+def get_contributors(contributors_url, contributors_owner, contributors_repo_name):
+    """Retrieves contributors for a Github repository
+
+    Args:
+        contributors_url (string): repository url
+        contributors_owner (string): repository owner
+        contributors_repo_name (string): repository name
+
+    Returns:
+        list: contributors list retrieved from Github
+    """
+    contributors = []
+    contributors_data = api.repos.list_contributors(
+        owner=contributors_owner, repo=contributors_repo_name, anon=1, per_page=100)
+    for contributor in contributors_data:
+        entry = [contributors_url]
+        entry.extend(list(contributor.values()))
+        print(entry[0:2])
+        contributors.append(entry)
+    return contributors
+
+
+def get_languages(languages_url, languages_owner, languages_repo_name):
+    """Retrieves languages for a Github repository
+
+    Args:
+        languages_url (string): repository url
+        languages_owner (string): repository owner
+        languages_repo_name (string): repository name
+
+    Returns:
+        list: languages list retrieved from Github
+    """
+    languages = []
+    languages_data = api.repos.list_languages(
+        owner=languages_owner, repo=languages_repo_name)
+    for language, num_chars in languages_data.items():
+        languages_entry = [languages_url]
+        languages_entry.extend([language, num_chars])
+        print(languages_entry)
+        languages.append(languages_entry)
+    return languages
+
+
+def get_jupyter_notebooks(jupyter_notebooks_url,
+                          jupyter_notebooks_owner, jupyter_notebooks_repo_name):
+    """Retrieves jupyter notebooks for a Github repository
+
+    Args:
+        jupyter_notebooks_url (string): repository url
+        jupyter_notebooks_owner (string): repository owner
+        jupyter_notebooks_repo_name (string): repository name
+
+    Returns:
+        list: jupyter notebooks file name list retrieved from Github
+    """
+    jupyter_notebooks = []
+    jupyter_notebooks_data = api.git.get_tree(
+        owner=jupyter_notebooks_owner, repo=jupyter_notebooks_repo_name,
+        tree_sha="master", recursive=1)
+    for file in jupyter_notebooks_data["tree"]:
+        if file["type"] == "blob" and ".ipynb" in file["path"]:
+            jupyter_notebooks_entry = [jupyter_notebooks_url, file["path"]]
+            print(jupyter_notebooks_entry)
+            jupyter_notebooks.append(jupyter_notebooks_entry)
+    return jupyter_notebooks
+
+
+def get_data_from_api(github_url, github_owner, github_repo_name, variable_type):
     """The function calls the ghapi api to retrieve
 
     Args:
-        url (string): repository url. E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
-        owner (string): repository owner. E.g.: kequach
-        repo_name (string): repository name. E.g.: HTML-Examples
-        variable_type (string): which type of variable should be retrieved. Supported are: contributors, languages, jupyter_notebooks
+        github_url (string): repository url.
+                      E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
+        github_owner (string): repository owner. E.g.: kequach
+        github_repo_name (string): repository name. E.g.: HTML-Examples
+        variable_type (string): which type of variable should be retrieved.
+                                Supported are: contributors, languages, jupyter_notebooks
     Returns:
         list: A list of the retrieved variables
     """
@@ -65,33 +135,19 @@ def get_data_from_api(url, owner, repo_name, variable_type):
     while not request_successful:
         try:
             if variable_type == "contributors":
-                data = api.repos.list_contributors(
-                    owner=owner, repo=repo_name, anon=1, per_page=100)
-                for contributor in data:
-                    entry = [url]
-                    entry.extend(list(contributor.values()))
-                    print(entry[0:2])
-                    retrieved_variables.append(entry)
+                retrieved_variables.extend(
+                    get_contributors(github_url, github_owner, github_repo_name))
             elif variable_type == "languages":
-                data = api.repos.list_languages(owner=owner, repo=repo_name)
-                for language, num_chars in data.items():
-                    entry = [url]
-                    entry.extend([language, num_chars])
-                    print(entry)
-                    retrieved_variables.append(entry)
+                retrieved_variables.extend(
+                    get_languages(github_url, github_owner, github_repo_name))
             elif variable_type == "jupyter_notebooks":
-                data = api.git.get_tree(
-                    owner=owner, repo=repo_name, tree_sha="master", recursive=1)
-                for file in data["tree"]:
-                    if file["type"] == "blob" and ".ipynb" in file["path"]:
-                        entry = [repo_url, file["path"]]
-                        print(entry)
-                        variables.append(entry)
+                retrieved_variables.extend(
+                    get_jupyter_notebooks(github_url, github_owner, github_repo_name))
         except ExceptionsHTTP as e:
             print(f"There was an error: {e}")
             # (non-existing repo)
             if any(status_code in e for status_code in ["204", "404"]):
-                print(f"Repository does not exist: {url}")
+                print(f"Repository does not exist: {github_url}")
             elif "403" in e:  # timeout
                 print("Sleep for a while.")
                 for _ in range(100):
@@ -175,11 +231,6 @@ load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 api = GhApi(token=token)
 
-headers = {'Authorization': 'token ' + token}
-params = {
-    'per_page': 100,
-}
-
 df_repos = read_input_file(args.input)
 df_repos = df_repos.head(10)
 if token is None:
@@ -200,22 +251,24 @@ if args.contributors:
         print("There was an error retrieving column names.")
 
     # get data
-    variables = []
-    for COUNTER, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"], df_repos["owner"], df_repos["name"])):
-        variables.extend(get_data_from_api(
+    contributors_variables = []
+    for COUNTER, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                          df_repos["owner"], df_repos["name"])):
+        contributors_variables.extend(get_data_from_api(
             url, owner, repo_name, "contributors"))
         if COUNTER % 10 == 0:
             print(f"Parsed {COUNTER} out of {len(df_repos.index)} repos.")
         time.sleep(SLEEP)
 
-    export_file(variables, all_column_headers, "contributor",
+    export_file(contributors_variables, all_column_headers, "contributor",
                 args.contributors_output)
 
 if args.languages:
     # get languages
-    variables = []
-    for COUNTER, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"], df_repos["owner"], df_repos["name"])):
-        variables.extend(get_data_from_api(
+    language_variables = []
+    for COUNTER, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                          df_repos["owner"], df_repos["name"])):
+        language_variables.extend(get_data_from_api(
             url, owner, repo_name, "languages"))
 
         if COUNTER % 10 == 0:
@@ -223,9 +276,9 @@ if args.languages:
         time.sleep(SLEEP)
 
     cols = ["html_url_repository", "language", "num_chars"]
-    export_file(variables, cols, "language", args.languages_output)
+    export_file(language_variables, cols, "language", args.languages_output)
     if args.jupyter:  # keep df for parsing jupyter files
-        LANGUAGES = pd.DataFrame(variables, columns=cols)
+        LANGUAGES = pd.DataFrame(language_variables, columns=cols)
 
 if args.jupyter:
     if LANGUAGES is None:
@@ -235,7 +288,7 @@ if args.jupyter:
             sys.exit()
         else:
             LANGUAGES = read_input_file(args.input_languages)
-    variables = []
+    jupyter_variables = []
     languages_jupyter = LANGUAGES[LANGUAGES["language"] ==
                                   "Jupyter Notebook"].drop(
                                       ["language", "num_chars"], axis=1)
@@ -243,22 +296,23 @@ if args.jupyter:
     for COUNTER, repo_url in enumerate(languages_jupyter["html_url_repository"]):
         # example repo_url: https://github.com/UtrechtUniversity/SWORDS-UU
         owner, repo_name = repo_url.split("github.com/")[1].split("/")
-        variables.extend(get_data_from_api(url, owner, repo_name, "languages"))
+        jupyter_variables.extend(get_data_from_api(
+            url, owner, repo_name, "languages"))
         if COUNTER % 10 == 0:
             print(
                 f"Parsed {COUNTER} out of {len(languages_jupyter.index)} repos.")
         time.sleep(SLEEP)
-    export_file(variables, ["html_url_repository", "path"], "jupyter notebook",
+    export_file(jupyter_variables, ["html_url_repository", "path"], "jupyter notebook",
                 args.jupyter_output)
 
 if args.topics:
-    variables = []
+    topics_variables = []
     for (url, topics_str) in zip(df_repos["html_url"], df_repos["topics"]):
         topics = ast.literal_eval(topics_str)
         if len(topics) > 0:
             for topic in topics:
-                entry = [url, topic]
-                variables.append(entry)
+                topic_entry = [url, topic]
+                topics_variables.append(topic_entry)
 
-    export_file(variables, ["html_url_repository", "topic"], "topic",
+    export_file(topics_variables, ["html_url_repository", "topic"], "topic",
                 args.topics_output)
