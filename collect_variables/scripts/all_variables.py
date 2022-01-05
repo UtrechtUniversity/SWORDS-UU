@@ -71,7 +71,7 @@ if __name__ == '__main__':
         data["topics"] = topics
         print(data)
 
-        with open(args.output, 'a') as fp:
+        with open(args.output, 'a', encoding="utf8") as fp:
             json.dump(data, fp)
             fp.write("\n")
         if counter % 10 == 0:
