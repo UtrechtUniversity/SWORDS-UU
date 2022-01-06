@@ -23,7 +23,8 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
                                 Supported are: contributors, languages
         keys (list): A list of the keys for the retrieved data
     Returns:
-        boolean: Whether the request was successful or not. In case of unsuccessful request, skip repository
+        boolean: Whether the request was successful or not.
+        In case of unsuccessful request, skip repository
     """
     data[variable_type] = []
     retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, False)
@@ -69,10 +70,10 @@ if __name__ == '__main__':
         howfairis_keys = ["howfairis_repository", "howfairis_license", "howfairis_registry",
                           "howfairis_citation", "howfairis_checklist"]
 
-        request_successful = add_data_from_api(
+        REQUEST_SUCCESSFUL = add_data_from_api(
             url, owner, repo_name, "contributors", contrib_keys
         )
-        if request_successful:
+        if REQUEST_SUCCESSFUL:
             add_data_from_api(url, owner, repo_name, "languages", lang_keys)
             howfairis_values = parse_repo(url)
             data["howfairis"] = dict(zip(howfairis_keys, howfairis_values[1:]))
