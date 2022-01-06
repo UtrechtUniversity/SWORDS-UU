@@ -1,3 +1,4 @@
 requests==2.24.0
 pandas==1.1.5
 beautifulsoup4==4.10.0
+paperswithcode-client==0.3.1
