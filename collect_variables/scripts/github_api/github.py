@@ -155,9 +155,9 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
         except ExceptionsHTTP as e:
             print(f"There was an error: {e}")
             # (non-existing repo)
-            if any(status_code in e for status_code in ["204", "404"]):
+            if any(status_code in str(e) for status_code in ["204", "404"]):
                 print(f"Repository does not exist: {github_url}")
-            elif "403" in e:  # timeout
+            elif "403" in str(e):  # timeout
                 print("Sleep for a while.")
                 for _ in range(100):
                     time.sleep(6)

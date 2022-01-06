@@ -22,13 +22,18 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
         variable_type (string): which type of variable should be retrieved.
                                 Supported are: contributors, languages
         keys (list): A list of the keys for the retrieved data
+    Returns:
+        boolean: Whether the request was successful or not. In case of unsuccessful request, skip repository
     """
     data[variable_type] = []
-    retrieved_data = get_data_from_api(
-        repo_url, repo_owner, repo, variable_type, False)
-    for entry in retrieved_data:
-        data[variable_type].append(dict(zip(keys, entry[1:])))
+    retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, False)
+    if retrieved_data is not None:
+        for entry in retrieved_data:
+            data[variable_type].append(dict(zip(keys, entry[1:])))
+    else:
+        return False
     time.sleep(2)
+    return True
 
 
 if __name__ == '__main__':
@@ -49,7 +54,8 @@ if __name__ == '__main__':
     # Read arguments from the command line
     args = parser.parse_args()
     df_repos = read_input_file(args.input)
-    current_date = datetime.today().strftime('%Y-%m-%d')
+    df_repos = df_repos[118:]
+    current_date = datetime.today().strftime("%Y-%m-%d")
 
     for counter, (url, owner, repo_name, topics_str) in \
             enumerate(zip(df_repos["html_url"], df_repos["owner"],
@@ -63,16 +69,24 @@ if __name__ == '__main__':
         howfairis_keys = ["howfairis_repository", "howfairis_license", "howfairis_registry",
                           "howfairis_citation", "howfairis_checklist"]
 
-        add_data_from_api(url, owner, repo_name, "contributors", contrib_keys)
-        add_data_from_api(url, owner, repo_name, "languages", lang_keys)
-        howfairis_values = parse_repo(url)
-        data["howfairis"] = dict(zip(howfairis_keys, howfairis_values[1:]))
-        topics = ast.literal_eval(topics_str)
-        data["topics"] = topics
-        print(data)
+        request_successful = add_data_from_api(
+            url, owner, repo_name, "contributors", contrib_keys
+        )
+        if request_successful:
+            add_data_from_api(url, owner, repo_name, "languages", lang_keys)
+            howfairis_values = parse_repo(url)
+            data["howfairis"] = dict(zip(howfairis_keys, howfairis_values[1:]))
+            topics = ast.literal_eval(topics_str)
+            data["topics"] = topics
+            print(data)
 
-        with open(args.output, 'a', encoding="utf8") as fp:
-            json.dump(data, fp)
-            fp.write("\n")
+            with open(args.output, "a", encoding="utf8") as fp:
+                json.dump(data, fp)
+                fp.write("\n")
+        else:
+            print(
+                f"Repository {repo_name} encountered issues, most likely repository does not\
+                 exist anymore or is private. Skipping repository."
+            )
         if counter % 10 == 0:
             print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
