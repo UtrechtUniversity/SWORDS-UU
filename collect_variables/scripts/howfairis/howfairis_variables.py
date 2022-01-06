@@ -1,3 +1,6 @@
+"""
+Retrieves howfairis variables for an input file of retrieved Github repositories.
+"""
 import os
 import time
 from datetime import datetime
@@ -8,11 +11,11 @@ import pandas as pd
 from dotenv import load_dotenv
 
 
-def get_howfairis_compliance(url):
+def get_howfairis_compliance(url_repo):
     """Retrieve howfairis compliance - see https://github.com/fair-software/howfairis
 
     Args:
-        url (string): repository URL
+        url_repo (string): repository URL
     Returns:
         repository (bool): Whether repository is publicly accessible with version control
         license (bool): Whether repository has a license
@@ -20,7 +23,7 @@ def get_howfairis_compliance(url):
         citation (bool): Whether software is citable
         checklist (bool): Whether a software quality checklist is used
     """
-    repo = Repo(url)
+    repo = Repo(url_repo)
     checker = Checker(repo, is_quiet=True)
     compliance = checker.check_five_recommendations()
 
@@ -28,11 +31,20 @@ def get_howfairis_compliance(url):
             compliance.citation, compliance.checklist)
 
 
-def read_pandas_file(file_path):
-    if ("xlsx" in file_path):
-        return pd.read_excel(file_path, engine='openpyxl')
+def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
+    if "xlsx" in file_path:
+        file = pd.read_excel(file_path, engine='openpyxl')
     else:
-        return pd.read_csv(file_path)
+        file = pd.read_csv(file_path)
+    return file
 
 
 # Initiate the parser
@@ -53,39 +65,38 @@ parser.add_argument("--output",
 args = parser.parse_args()
 print(f"Retrieving howfairis variables for the following file: {args.input}")
 
-# if unauthorized API is used, rate limit is lower leading to a ban and waiting time needs to be increased
+# if unauthorized API is used, rate limit is lower,
+# leading to a ban and waiting time needs to be increased
 # see: https://github.com/fair-software/howfairis/#rate-limit
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 user = os.getenv('GITHUB_USER')
 os.environ['APIKEY_GITHUB'] = user + ":" + token
 
-df_repos = read_pandas_file(args.input)
+df_repos = read_input_file(args.input)
 
 howfairis_variables = []
 for counter, url in enumerate(df_repos["html_url"]):
-    request_successful = False
-    while (not request_successful):
+    REQUEST_SUCCESSFUL = False
+    while not REQUEST_SUCCESSFUL:
         try:
             entry = [url]
             result = get_howfairis_compliance(url)
             entry.extend(result)
             print(entry)
             howfairis_variables.append(entry)
-            if (counter % 10 == 0):
-                print("Parsed %d out of %d repos." %
-                      (counter, len(df_repos.index)))
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
             time.sleep(2)
-            request_successful = True
-        except Exception as e:
-            print(
-                "Error occured for %s (most likely timeout issue due to API limitation. Sleep for a while. Error message: %s"
-                % (str(url), str(e)))
-            if ("Something went wrong asking the repo for its default branch"
-                    in str(e)):
+            REQUEST_SUCCESSFUL = True
+        except Exception as e: # pylint: disable=broad-except
+            print(f"Error occured for {url} (most likely timeout issue due"
+                  f" to API limitation. Sleep for a while. Error message: {e}")
+            if "Something went wrong asking the repo for its default branch" in str(
+                    e):
                 print("Skipping repository...")
-                request_successful = True  # skip this repo
-            elif ("TimeoutError" in str(e)):
+                REQUEST_SUCCESSFUL = True  # skip this repo
+            elif "TimeoutError" in str(e):
                 time.sleep(5)
             else:
                 time.sleep(1500)
@@ -103,5 +114,6 @@ df_repo_merged["date"] = current_date
 df_repo_merged.to_csv(args.output, index=False)
 
 print(
-    f"Successfully retrieved howfairis variables for {len(df_howfairis.index)} out of {len(df_repos.index)} repositories. Saved result to {args.output}."
+    f"Successfully retrieved howfairis variables for {len(df_howfairis.index)}"
+    f" out of {len(df_repos.index)} repositories. Saved result to {args.output}."
 )
