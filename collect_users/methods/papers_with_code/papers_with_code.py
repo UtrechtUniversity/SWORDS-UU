@@ -8,6 +8,7 @@ from datetime import datetime
 import pandas as pd
 from paperswithcode import PapersWithCodeClient
 
+
 if __name__ == '__main__':
 
     # Initiate the parser
