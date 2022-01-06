@@ -56,25 +56,18 @@ def get_contributors(contributors_url, contributors_owner, contributors_repo_nam
         contributors_url (string): repository url
         contributors_owner (string): repository owner
         contributors_repo_name (string): repository name
-        verbose (boolean): if True, retrieve all variables from API.
-                           Otherwise, only collect username and contributions
 
     Returns:
         list: contributors list retrieved from Github
     """
     contributors = []
     contributors_data = api.repos.list_contributors(
-        owner=contributors_owner, repo=contributors_repo_name, anon=0, per_page=100)
+        owner=contributors_owner, repo=contributors_repo_name, anon=1, per_page=100)
     for contributor in contributors_data:
         entry = [contributors_url]
-        if verbose:
-            entry.extend(list(contributor.values()))
-        else:
-            entry.extend([contributor.get("login"),
-                         contributor.get("contributions")])
+        entry.extend(list(contributor.values()))
         print(entry[0:2])
         contributors.append(entry)
-
     return contributors
 
 
@@ -124,18 +117,16 @@ def get_jupyter_notebooks(jupyter_notebooks_url,
     return jupyter_notebooks
 
 
-def get_data_from_api(github_url, github_owner, github_repo_name, variable_type, verbose=True):
+def get_data_from_api(github_url, github_owner, github_repo_name, variable_type):
     """The function calls the ghapi api to retrieve
 
     Args:
         github_url (string): repository url.
-            E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
+                      E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
         github_owner (string): repository owner. E.g.: kequach
         github_repo_name (string): repository name. E.g.: HTML-Examples
         variable_type (string): which type of variable should be retrieved.
                                 Supported are: contributors, languages, jupyter_notebooks
-        verbose (boolean): if True, retrieve all variables from API.
-            Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
         list: A list of the retrieved variables
     """
@@ -145,7 +136,7 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
         try:
             if variable_type == "contributors":
                 retrieved_variables.extend(
-                    get_contributors(github_url, github_owner, github_repo_name, verbose))
+                    get_contributors(github_url, github_owner, github_repo_name))
             elif variable_type == "languages":
                 retrieved_variables.extend(
                     get_languages(github_url, github_owner, github_repo_name))
