@@ -232,7 +232,6 @@ token = os.getenv('GITHUB_TOKEN')
 api = GhApi(token=token)
 
 df_repos = read_input_file(args.input)
-df_repos = df_repos.head(10)
 if token is None:
     SLEEP = 6
 else:
