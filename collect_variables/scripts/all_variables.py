@@ -55,7 +55,6 @@ if __name__ == '__main__':
     # Read arguments from the command line
     args = parser.parse_args()
     df_repos = read_input_file(args.input)
-    df_repos = df_repos[1540:]
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     for counter, (url, owner, repo_name, topics_str) in \
