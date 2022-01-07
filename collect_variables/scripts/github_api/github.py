@@ -12,7 +12,6 @@ import pandas as pd
 from dotenv import load_dotenv
 from ghapi.all import GhApi
 from fastcore.foundation import L
-from fastcore.net import ExceptionsHTTP
 
 
 def read_input_file(file_path):
@@ -152,7 +151,7 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
             elif variable_type == "jupyter_notebooks":
                 retrieved_variables.extend(
                     get_jupyter_notebooks(github_url, github_owner, github_repo_name))
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             print(f"There was an error for repository {github_url}: {e}")
             # (non-existing repo)
             if any(status_code in str(e) for status_code in ["204", "404"]):
