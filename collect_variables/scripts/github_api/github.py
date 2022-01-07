@@ -269,8 +269,9 @@ if __name__ == '__main__':
         contributors_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
                                                               df_repos["owner"], df_repos["name"])):
-            contributors_variables.extend(get_data_from_api(
-                url, owner, repo_name, "contributors"))
+            retrieved_data = get_data_from_api(url, owner, repo_name, "contributors")
+            if retrieved_data is not None:
+                contributors_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
             time.sleep(SLEEP)
@@ -283,9 +284,9 @@ if __name__ == '__main__':
         language_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
                                                               df_repos["owner"], df_repos["name"])):
-            language_variables.extend(get_data_from_api(
-                url, owner, repo_name, "languages"))
-
+            retrieved_data = get_data_from_api(url, owner, repo_name, "languages")
+            if retrieved_data is not None:
+                language_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
             time.sleep(SLEEP)
@@ -313,8 +314,9 @@ if __name__ == '__main__':
         for counter, repo_url in enumerate(languages_jupyter["html_url_repository"]):
             # example repo_url: https://github.com/UtrechtUniversity/SWORDS-UU
             owner, repo_name = repo_url.split("github.com/")[1].split("/")
-            jupyter_variables.extend(get_data_from_api(
-                url, owner, repo_name, "languages"))
+            retrieved_data = get_data_from_api(url, owner, repo_name, "jupyter_notebooks")
+            if retrieved_data is not None:
+                jupyter_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(
                     f"Parsed {counter} out of {len(languages_jupyter.index)} repos.")
