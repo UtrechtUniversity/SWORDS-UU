@@ -169,6 +169,7 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
                 print(
                     f"Unhandled status code: {e} - skip repository"
                 )
+            return None
         request_successful = True
         return retrieved_variables
 
