@@ -2,14 +2,6 @@
 
 ![banner](docs/banner.png)
 
-- [SWORDS@UU](#swordsuu)
-  - [About](#about)
-  - [Pipeline](#pipeline)
-  - [Contact](#contact)
-  - [Contributors](#contributors)
-    - [Citation](#citation)
-  - [Attribution](#attribution)
-
 ## About
 
 This repository is the implementation for the Scan and revieW of Open Research Data and Software at Utrecht University (SWORDS@UU). 
