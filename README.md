@@ -22,7 +22,9 @@ For more information about the phases, please look into the corresponding subfol
 
 ## Pipeline
 
-<img src="docs/Complete_pipeline.png" height="1000">
+<p align="center">
+  <img src="docs/Complete_pipeline.png" height="1000">
+</p>
 
 ## Contact
 
