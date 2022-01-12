@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import ast
 import argparse
-import json
+import simplejson as json
 
 from github_api.github import get_data_from_api, read_input_file
 from howfairis_api.howfairis_variables import parse_repo
@@ -20,7 +20,7 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
         repo_owner (string): Repository owner
         repo (string): Repository name
         variable_type (string): which type of variable should be retrieved.
-                                Supported are: contributors, languages
+                                Supported are: contributors, languages, readmes
         keys (list): A list of the keys for the retrieved data
     Returns:
         boolean: Whether the request was successful or not.
@@ -29,8 +29,11 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
     data[variable_type] = []
     retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, False)
     if retrieved_data is not None:
-        for entry in retrieved_data:
-            data[variable_type].append(dict(zip(keys, entry[1:])))
+        if variable_type in ("contributors", "languages"):
+            for entry in retrieved_data:
+                data[variable_type].append(dict(zip(keys, entry[1:])))
+        elif variable_type == "readmes":
+                data[keys[0]] =  retrieved_data
     else:
         return False
     time.sleep(2)
@@ -57,31 +60,36 @@ if __name__ == '__main__':
     df_repos = read_input_file(args.input)
     current_date = datetime.today().strftime("%Y-%m-%d")
 
-    for counter, (url, owner, repo_name, topics_str) in \
-            enumerate(zip(df_repos["html_url"], df_repos["owner"],
-                          df_repos["name"], df_repos["topics"])):
-        general_keys = ["url", "owner", "repository_name", "date"]
-        general_values = [url, owner, repo_name, current_date]
+
+
+
+    for counter, row in df_repos.iterrows():
+        url, owner, repo_name, description = row["html_url"], row["owner"], row["name"], row["description"]
+        topics_str = row["topics"]
+        row.drop(labels="topics", inplace=True) # remove topics from index slice to not have topics twice in the data
+        general_keys = ["url", "owner", "repository_name", "date_all_variable_collection", "description"]
+        general_values = [url, owner, repo_name, current_date, description]
         data = dict(zip(general_keys, general_values))
+        data.update(row[54:78].items()) # add all Github data after the API links
 
         contrib_keys = ["contributor", "contributions"]
         lang_keys = ["language", "num_chars"]
         howfairis_keys = ["howfairis_repository", "howfairis_license", "howfairis_registry",
                           "howfairis_citation", "howfairis_checklist"]
+        readme_key = ["readme"]
 
-        REQUEST_SUCCESSFUL = add_data_from_api(
-            url, owner, repo_name, "contributors", contrib_keys
-        )
+        REQUEST_SUCCESSFUL = add_data_from_api(url, owner, repo_name, "contributors", contrib_keys)
         if REQUEST_SUCCESSFUL:
-            add_data_from_api(url, owner, repo_name, "languages", lang_keys)
             howfairis_values = parse_repo(url)
             data["howfairis"] = dict(zip(howfairis_keys, howfairis_values[1:]))
             topics = ast.literal_eval(topics_str)
             data["topics"] = topics
+            add_data_from_api(url, owner, repo_name, "languages", lang_keys)
+            add_data_from_api(url, owner, repo_name, "readmes", readme_key)
             print(data)
 
             with open(args.output, "a", encoding="utf8") as fp:
-                json.dump(data, fp)
+                json.dump(data, fp, ignore_nan=True)
                 fp.write("\n")
         else:
             print(
