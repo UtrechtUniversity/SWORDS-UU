@@ -1,12 +1,4 @@
-# Variable collection <!-- omit in toc -->
-
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Gather howfairis variables](#gather-howfairis-variables)
-  - [Gather GitHub variables as tidy data](#gather-github-variables-as-tidy-data)
-  - [Data analysis](#data-analysis)
-- [License](#license)
-- [Contact](#contact)
+# Variable collection
 
 <img src="../docs/Phase_3.png" height="500">
 
