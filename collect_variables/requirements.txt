@@ -1,5 +1,6 @@
-pandas==1.1.5
-matplotlib==3.3.1
-seaborn==0.11.0
-scipy==1.5.2
-scikit_learn==1.0.1
+pandas
+matplotlib
+seaborn
+scipy
+scikit_learn
+simplejson
