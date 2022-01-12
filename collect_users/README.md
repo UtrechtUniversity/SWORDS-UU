@@ -2,15 +2,15 @@
 
 <img src="../docs/Phase_1.png" height="500">
 
-This submodule of the SWORDS project is used to collect user profiles from
-GitHub and GitLab that match the given criteria.
+This submodule of the SWORDS framework is used to collect user profiles from
+GitHub and GitLab that are related to the organisation.
 
-Currently, the following collection methods are available:
+Currently, the following user collection methods are available:
 
-- PapersWithCode
-- GitHub Search
-- Pure
-- Utrecht University employee pages
+- **[PapersWithCode](methods/papers_with_code)** The website Papers With Code (https://paperswithcode.com/) highlights Machine Learning research and the code to implement it. 
+- **[GitHub Search](methods/github_search)** Search for users on [GitHub Search](https://github.com/search/advanced) based on tags, users, and repositories given references to the organisation.
+- **[Research Information Management System (RIMS)](methods/pure)** Use the Research Information Management System of the organisation, PURE https://www.elsevier.com/solutions/pure, for collection of research software and code. 
+- **[Employee pages](methods/profile_pages)** Collect user profiles from the Utrecht University website.
 
 The collection method scripts can be found in the subfolder `methods`. Each method has a subfolder `results` where the output will be located.
 
