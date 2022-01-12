@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 import ast
 import argparse
+import base64
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -122,6 +123,22 @@ def get_jupyter_notebooks(jupyter_notebooks_url,
             jupyter_notebooks.append(jupyter_notebooks_entry)
     return jupyter_notebooks
 
+def get_readmes(readmes_url, readmes_owner, readmes_repo_name):
+    """Retrieves languages for a Github repository
+
+    Args:
+        readmes_url (string): repository url
+        readmes_owner (string): repository owner
+        readmes_repo_name (string): repository name
+
+    Returns:
+        string: readme retrieved from Github
+    """
+    readme = base64.b64decode(api.repos.get_readme(readmes_owner, readmes_repo_name).content).decode()
+
+    readme_data = [readmes_url, readme]
+    return readme_data
+
 
 def get_data_from_api(github_url, github_owner, github_repo_name, variable_type, verbose=True):
     """The function calls the ghapi api to retrieve
@@ -132,7 +149,7 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
         github_owner (string): repository owner. E.g.: kequach
         github_repo_name (string): repository name. E.g.: HTML-Examples
         variable_type (string): which type of variable should be retrieved.
-                                Supported are: contributors, languages, jupyter_notebooks
+                                Supported are: contributors, languages, jupyter_notebooks, readmes
         verbose (boolean): if True, retrieve all variables from API.
             Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
@@ -151,6 +168,9 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
             elif variable_type == "jupyter_notebooks":
                 retrieved_variables.extend(
                     get_jupyter_notebooks(github_url, github_owner, github_repo_name))
+            elif variable_type == "readmes":
+                retrieved_variables.extend(
+                    get_readmes(github_url, github_owner, github_repo_name))
         except Exception as e: # pylint: disable=broad-except
             print(f"There was an error for repository {github_url}: {e}")
             # (non-existing repo)
