@@ -21,8 +21,8 @@ pip install -r requirements.txt
 In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. Note: The output concatenates the howfairis variables to the whole repository data. By doing so, it is possible to reuse this file to gather GitHub variables based on this file.
 There are 2 arguments that can be passed. Bold arguments are required:
 
-- --input: The file name of the repositories. Default value: ../collect_repositories/results/repositories_filtered.csv
-- --output: The file name of the output. Default value: output/repositories_howfairis.csv
+- `--input`: The file name of the repositories. Default value: `../collect_repositories/results/repositories_filtered.csv`
+- `--output`: The file name of the output. Default value: `output/repositories_howfairis.csv`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
@@ -37,16 +37,16 @@ python scripts/howfairis/howfairis_variables.py --input ../collect_repositories/
 In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, jupyter notebook file paths and topics in tidy data format. To do this, execute the file **github.py**.
 There are 10 arguments that can be passed. For each of the 4 information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional. In addition, the jupyter notebooks require an additional argument to specify an input file for the languages (output file of languages) in case languages is not also retrieved. See examples.
 
-- --input: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: output/repositories_howfairis.csv
-- --contributors: Set this flag if contributors should be retrieved
-- --contributors_output: Optional. Path for contributors output. Default: output/contributors
-- --jupyter: Set this flag if jupyter notebooks should be retrieved
-- --input_languages: Optional. If languages are not retrieved but jupyter notebooks should be, there needs to be an input file with the languages.
-- --jupyter_output: Optional. Path for jupyter notebooks output. Default: output/jupyter_notebooks
-- --languages: Set this flag if languages should be retrieved
-- --languages_output: Optional. Path for languages output. Default: output/languages
-- --topics: Set this flag if topics should be retrieved
-- --topics_output: Optional. Path for topics output. Default: output/topics
+- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `output/repositories_howfairis.csv`
+- `--contributors`: Set this flag if contributors should be retrieved
+- `--contributors_output`: Optional. Path for contributors output. Default: `output/contributors`
+- `--jupyter`: Set this flag if jupyter notebooks should be retrieved
+- `--input_languages`: Optional. If languages are not retrieved but jupyter notebooks should be, there needs to be an input file with the languages.
+- `--jupyter_output`: Optional. Path for jupyter notebooks output. Default: `output/jupyter_notebooks`
+- `--languages`: Set this flag if languages should be retrieved
+- `--languages_output`: Optional. Path for languages output. Default: `output/languages`
+- `--topics`: Set this flag if topics should be retrieved
+- `--topics_output`: Optional. Path for topics output. Default: `output/topics`
 
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
