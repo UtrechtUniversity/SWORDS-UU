@@ -1,16 +1,4 @@
-# User collection <!-- omit in toc -->
-
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Running whole phase 1 pipeline](#running-whole-phase-1-pipeline)
-  - [Gather GitHub user profiles from data sources](#gather-github-user-profiles-from-data-sources)
-  - [Merge users to CSV file](#merge-users-to-csv-file)
-  - [Enrich users with GitHub data](#enrich-users-with-github-data)
-  - [Prepare filtering](#prepare-filtering)
-  - [Filter users](#filter-users)
-  - [Data analysis](#data-analysis)
-- [License](#license)
-- [Contact](#contact)
+# User collection
 
 <img src="../docs/Phase_1.png" height="500">
 
