@@ -50,8 +50,11 @@ Because there are multiple user collection methods, users can be found with
 multiple methods. Therefore, the collected data is deduplicated after
 collection.
 
-Note that you should create a `.env` file in the root project folder and add the following line:
-```GITHUB_TOKEN = "YOUR_PERSONAL_GITHUB_TOKEN" ```
+Note that you should create a `.env` file in the root project folder and add the following lines:
+```
+GITHUB_TOKEN = "YOUR_PERSONAL_GITHUB_TOKEN" 
+GITHUB_USER = "YOUR_GITHUB_USERNAME" 
+```
 See here on how to create a Github token: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
 Since the Github API is limiting the number of unauthorized requests quite a lot, this is recommended to decrease the runtime. Otherwise the waiting time is much longer.
 
