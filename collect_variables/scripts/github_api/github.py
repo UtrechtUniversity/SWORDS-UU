@@ -134,9 +134,9 @@ def get_readmes(readmes_url, readmes_owner, readmes_repo_name):
     Returns:
         string: readme retrieved from Github
     """
-    readme = base64.b64decode(api.repos.get_readme(readmes_owner, readmes_repo_name).content).decode()
+    readme = base64.b64decode(api.repos.get_readme(readmes_owner, readmes_repo_name).content)
 
-    readme_data = [readmes_url, readme]
+    readme_data = [readmes_url, readme.decode()]
     return readme_data
 
 

@@ -33,7 +33,7 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
             for entry in retrieved_data:
                 data[variable_type].append(dict(zip(keys, entry[1:])))
         elif variable_type == "readmes":
-                data[keys[0]] =  retrieved_data
+            data[keys[0]] =  retrieved_data
     else:
         return False
     time.sleep(2)
@@ -64,13 +64,18 @@ if __name__ == '__main__':
 
 
     for counter, row in df_repos.iterrows():
-        url, owner, repo_name, description = row["html_url"], row["owner"], row["name"], row["description"]
+        url, owner = row["html_url"], row["owner"]
+        repo_name, description = row["name"], row["description"]
         topics_str = row["topics"]
-        row.drop(labels="topics", inplace=True) # remove topics from index slice to not have topics twice in the data
-        general_keys = ["url", "owner", "repository_name", "date_all_variable_collection", "description"]
+        general_keys = ["url", "owner", "repository_name",
+                        "date_all_variable_collection", "description"]
         general_values = [url, owner, repo_name, current_date, description]
         data = dict(zip(general_keys, general_values))
-        data.update(row[54:78].items()) # add all Github data after the API links
+
+        # remove topics from index slice to not have topics twice
+        row.drop(labels="topics", inplace=True)
+        # add all Github data after the API links
+        data.update(row[54:78].items())
 
         contrib_keys = ["contributor", "contributions"]
         lang_keys = ["language", "num_chars"]
