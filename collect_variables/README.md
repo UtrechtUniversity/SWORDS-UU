@@ -2,24 +2,39 @@
 
 <img src="../docs/Phase_3.png" height="500">
 
-This submodule of the SWORDS project is used to collect GitHub repositories from users that were collected in the previous phase. 
+This submodule of the SWORDS project is used to collect GitHub repositories from users that were collected in the previous phase.
 
-## Installation 
+## Installation
 
 The code in this submodule requires Python 3.7+. To install the code dependencies for the data analysis, install the packages in the requirements file. Each variable collection has its own requirements.txt file to allow only necessary dependencies to be installed.
 
 ```console
 pip install -r scripts/github_api/requirements.txt
-pip install -r scripts/howfairis/requirements.txt
+pip install -r scripts/howfairis_api/requirements.txt
 pip install -r requirements.txt
 ```
 
 ## Usage
 
+### Gather all variables as JSON data
+
+This step can be executed in addition to [Gather howfairis variables](#gather-howfairis-variables) and [Gather GitHub variables as tidy data](#gather-github-variables-as-tidy-data). The corresponding script will fetch the same variables in JSON data format such that it can be inserted into Elasticsearch and Kibana for visualization purposes. To do this, execute the file **all_variables.py**.
+
+There are 2 arguments that can be passed.
+
+- --input: The file name of the repositories. Default value: ../collect_repositories/results/repositories_filtered.csv
+- --output: The file name of the output. Default value: output/all_variables.json
+
+Navigate to this folder and execute the script. Adjust parameters as needed. Example:
+
+```console
+python scripts/all_variables.py
+```
+
 ### Gather howfairis variables
 
 In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. Note: The output concatenates the howfairis variables to the whole repository data. By doing so, it is possible to reuse this file to gather GitHub variables based on this file.
-There are 2 arguments that can be passed. Bold arguments are required:
+There are 2 arguments that can be passed.
 
 - `--input`: The file name of the repositories. Default value: `../collect_repositories/results/repositories_filtered.csv`
 - `--output`: The file name of the output. Default value: `output/repositories_howfairis.csv`
@@ -27,9 +42,9 @@ There are 2 arguments that can be passed. Bold arguments are required:
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/howfairis/howfairis_variables.py
-python scripts/howfairis/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv
-python scripts/howfairis/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output output/repositories_howfairis_duplicate
+python scripts/howfairis_api/howfairis_variables.py
+python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv
+python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output output/repositories_howfairis_duplicate
 ```
 
 ### Gather GitHub variables as tidy data
@@ -47,7 +62,6 @@ There are 10 arguments that can be passed. For each of the 4 information types y
 - `--languages_output`: Optional. Path for languages output. Default: `output/languages`
 - `--topics`: Set this flag if topics should be retrieved
 - `--topics_output`: Optional. Path for topics output. Default: `output/topics`
-
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
