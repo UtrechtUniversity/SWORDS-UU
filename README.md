@@ -2,14 +2,6 @@
 
 ![banner](docs/banner.png)
 
-- [SWORDS@UU](#swordsuu)
-  - [About](#about)
-  - [Pipeline](#pipeline)
-  - [Contact](#contact)
-  - [Contributors](#contributors)
-    - [Citation](#citation)
-  - [Attribution](#attribution)
-
 ## About
 
 This repository is the implementation for the Scan and revieW of Open Research Data and Software at Utrecht University (SWORDS@UU). 
@@ -30,7 +22,9 @@ For more information about the phases, please look into the corresponding subfol
 
 ## Pipeline
 
-<img src="docs/Complete_pipeline.png" height="1000">
+<p align="center">
+  <img src="docs/Complete_pipeline.png" height="1000">
+</p>
 
 ## Contact
 
