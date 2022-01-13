@@ -35,7 +35,7 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
             for entry in retrieved_data:
                 data[variable_type].append(dict(zip(keys, entry[1:])))
         elif variable_type == "readmes":
-            data[keys[0]] =  retrieved_data
+            data[keys[0]] = retrieved_data[1]
     else:
         return False
     time.sleep(2)
