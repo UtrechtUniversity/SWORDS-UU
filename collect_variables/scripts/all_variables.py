@@ -26,7 +26,9 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
         boolean: Whether the request was successful or not.
         In case of unsuccessful request, skip repository
     """
-    data[variable_type] = []
+    if variable_type in ("contributors", "languages"):
+        data[variable_type] = []
+    
     retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, False)
     if retrieved_data is not None:
         if variable_type in ("contributors", "languages"):
