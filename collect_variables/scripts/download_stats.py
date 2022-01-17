@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
             try:
                 readme = repo["readme"]
-            except Exception:
+            except KeyError:
                 continue
 
             # python
