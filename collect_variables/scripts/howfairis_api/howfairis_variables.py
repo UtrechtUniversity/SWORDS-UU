@@ -113,7 +113,7 @@ if __name__ == '__main__':
     howfairis_variables = []
 
     for counter, url in enumerate(df_repos["html_url"]):
-        howfairis_variables.extend(parse_repo(url))
+        howfairis_variables.append(parse_repo(url))
         if counter % 10 == 0:
             print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
 

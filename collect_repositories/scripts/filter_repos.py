@@ -48,7 +48,7 @@ df_repos.drop_duplicates(subset='id', inplace=True)
 print(f"Filtered {num_total - len(df_repos.index)} of {num_total}"
       " total repositories by dropping duplicates.")
 #drop forks
-df_repos = df_repos[df_repos['fork'] is False]
+df_repos = df_repos[~df_repos.fork]
 print(f"Filtered {num_total - len(df_repos.index)} of {num_total}"
       " total repositories by dropping forks.")
 df_repos.reset_index(drop=True, inplace=True)
