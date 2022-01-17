@@ -7,7 +7,6 @@ import json
 
 import requests
 import pandas as pd
-from dotenv import load_dotenv
 
 PYPI_STATS = "https://pypistats.org/api/packages/{}/recent"
 CRAN_STATS = "https://cranlogs.r-pkg.org/downloads/total/last-month/{}"
@@ -30,7 +29,7 @@ if __name__ == '__main__':
 
     # d = requests.get(args.input)
 
-    with open(args.input) as f:
+    with open(args.input) as f:  # pylint: disable=unspecified-encoding
 
         result = []
 
@@ -65,7 +64,7 @@ if __name__ == '__main__':
                             "date":
                             str(datetime.date.today())
                         })
-                    except Exception as err:
+                    except Exception as err:  # pylint: disable=broad-except
                         pass
                     break
 
@@ -91,7 +90,7 @@ if __name__ == '__main__':
                             str(datetime.date.today())
                         })
 
-                    except Exception as err:
+                    except Exception as err:  # pylint: disable=broad-except
                         raise err
                     break
 
