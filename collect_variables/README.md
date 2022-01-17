@@ -72,11 +72,22 @@ python scripts/github_api/github.py --input output/repositories_howfairis.csv --
 python scripts/github_api/github.py --input output/repositories_howfairis.csv --jupyter --input_languages output/languages.csv
 ```
 
+### Download statistics
+
+Installation statistics are collected from the PyPi and RStudio CRAN mirror.
+
+```
+python scripts/download_stats.py
+```
+
+- `--input`: The file name of the input dataset with READMES. Default value: `../collect_variables/output/all_variables.json`
+- `--output`: The file name of the output. Default value: `output/download_stats.csv`
+
 ### Data analysis
 
 Interactive data analysis can be found in the [Jupyter Notebook analyse_metrics.ipynb](analyse_metrics.ipynb). As mentioned in the phase diagram, it is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
 
-This notebook analyzes the information of the retrieved variables. The notebook contains analysis of licenses, programming languages, howfairis scores and other variables present in github repositories.  
+This notebook analyzes the information of the retrieved variables. The notebook contains analysis of licenses, programming languages, howfairis scores and other variables present in github repositories.
 
 ## License
 
