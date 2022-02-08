@@ -43,7 +43,7 @@ The SWORDS framework consists of three mostly-independent steps. Each step is de
   <img src="docs/SWORDS_basic_flow.drawio.png">
 </p>
 
-The SWORDS framework is written in Python 3.6+. The SWORDS framework implements the reproducible project structure as proposed by XXX(XXXX) for each step of the framework. For more information about the phases, please look into the corresponding subfolders for further information on installation and usage. All output data is stored in output folders. There is also a corresponding interactive data analysis jupyter notebook file in each step. This notebook can be used for results. 
+The SWORDS framework is written in Python 3.6+. The SWORDS framework implements the reproducible project structure as proposed by [Wilson et al. (2017)](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510) for each step of the framework. For more information about the phases, please look into the corresponding subfolders for further information on installation and usage. All output data is stored in output folders. There is also a corresponding interactive data analysis jupyter notebook file in each step. This notebook can be used for results. 
 
 ## Results
 
