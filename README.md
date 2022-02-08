@@ -50,13 +50,13 @@ The SWORDS framework is written in Python 3.6+. The SWORDS framework implements 
 The results of the three steps of the SWORDS framework can be found in each of the subfolders of the project. Each step contains a Jupyter notebook with results, code, and narrative. Output data files can be found in the output folder in each step.  
 
 Results of step 1: **Find user profiles associated to organisation**
-- :open_book: [Analysis (Jupyter notebook)](collect_users/analyse_users.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_users/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_users/output) 
+- :open_book: [Analysis (Jupyter notebook)](collect_users/analyse_users.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_users/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_users/results) 
 
 Results of step 2: **Collect relevant repositories**
-- :open_book: [Analysis (Jupyter notebook)](collect_repositories/analyse_repositories.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_repositories/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_repositories/output) 
+- :open_book: [Analysis (Jupyter notebook)](collect_repositories/analyse_repositories.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_repositories/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_repositories/results) 
 
 Results of step 3: **Study and analyze repositories**
-- :open_book: [Analysis (Jupyter notebook)](collect_variables/analyse_metrics.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_variables/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_variables/output) 
+- :open_book: [Analysis (Jupyter notebook)](collect_variables/analyse_metrics.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_variables/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_variables/results) 
 
 ## Dashboard
 
@@ -71,7 +71,7 @@ After following their documentation or these steps, the dashboard with the relat
 
 ## Usage
 
-WIP
+In the normal use case, you start with phase 1 and go through each phase as the output of phase 1 can be used for phase 2. However, if you already have collected a list of users for example, you can skip phase 1 and use that collected list as input for phase 2. Since the phases are independent of each other, this approach is possible. For details on how to execute each phase, look into the corresponding subfolder.
 
 ## Citation
 
@@ -91,13 +91,13 @@ year = {2021}
 To cite the SWORDS project and the SWORDS template, use 
 
 ```
-@software{de_Bruin_Scan_and_revieW_2021,
+@software{de_Bruin_Scan_and_revieW_2022,
 author = {de Bruin, Jonathan and Quach, Keven and Slewe, Christopher and Lamprecht, Anna-Lena},
-month = {9},
+month = {2},
 title = {{Template of Scan and revieW of Open Research Data and Software}},
 url = {https://github.com/UtrechtUniversity/SWORDS-template},
 version = {1.0.0},
-year = {2021}
+year = {2022}
 }
 ```
 
