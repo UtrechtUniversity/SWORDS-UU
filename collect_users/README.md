@@ -129,4 +129,4 @@ See [/LICENSE](../LICENSE).
 
 ## Contact
 
-See https://github.com/UtrechtUniversity/SWORDS-UU.
+See [here](../README.md#contact).
