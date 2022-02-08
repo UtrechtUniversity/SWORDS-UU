@@ -15,7 +15,7 @@ This repository implements for the [**S**can and revie**W** of **O**pen **R**ese
 </p>
 
 <p align="center">
-  <img src="your_logo.svg">
+  <img src="docs/your_logo.png">
 </p>
 
 ## Background
@@ -40,7 +40,7 @@ The SWORDS framework consists of three mostly-independent steps. Each step is de
 3. **[Study and analyze repositories](collect_variables/)**. In this step, further variables of research repositories are gathered. These are then examined and studied on various quantitiative and qualitative properties. One can think about quality assesments, documentation availablity, FAIRness scores. 
 
 <p align="center">
-  <img src="SWORDS_basic_flow.drawio.png">
+  <img src="docs/SWORDS_basic_flow.drawio.png">
 </p>
 
 The SWORDS framework is written in Python 3.6+. The SWORDS framework implements the reproducible project structure as proposed by XXX(XXXX) for each step of the framework. For more information about the phases, please look into the corresponding subfolders for further information on installation and usage. All output data is stored in output folders. There is also a corresponding interactive data analysis jupyter notebook file in each step. This notebook can be used for results. 
