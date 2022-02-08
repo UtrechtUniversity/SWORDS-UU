@@ -212,7 +212,7 @@ if __name__ == '__main__':
     parser.add_argument("--input",
                         "-i",
                         help="The file name of the repositories data.",
-                        default="output/repositories_howfairis.csv")
+                        default="results/repositories_howfairis.csv")
 
     parser.add_argument("--contributors",
                         "-c",
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     parser.add_argument("--contributors_output",
                         "-cout",
                         help="Optional. Path for contributors output",
-                        default="output/contributors.csv")
+                        default="results/contributors.csv")
 
     parser.add_argument(
         "--jupyter",
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     parser.add_argument("--jupyter_output",
                         "-jout",
                         help="Optional. Path for jupyter notebooks output",
-                        default="output/jupyter_notebooks.csv")
+                        default="results/jupyter_notebooks.csv")
 
     parser.add_argument("--languages",
                         "-l",
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     parser.add_argument("--languages_output",
                         "-lout",
                         help="Optional. Path for languages output",
-                        default="output/languages.csv")
+                        default="results/languages.csv")
 
     parser.add_argument("--topics",
                         "-t",
@@ -259,7 +259,7 @@ if __name__ == '__main__':
     parser.add_argument("--topics_output",
                         "-tout",
                         help="Optional. Path for topics output",
-                        default="output/topics.csv")
+                        default="results/topics.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()

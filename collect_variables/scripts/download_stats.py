@@ -19,10 +19,10 @@ if __name__ == '__main__':
     parser.add_argument(
         "--input",
         help="The file name of the repositories data.",
-        default="../collect_variables/output/all_variables.json")
+        default="../collect_variables/results/all_variables.json")
     parser.add_argument("--output",
                         help="The file name to export the data to.",
-                        default="output/download_stats.csv")
+                        default="results/download_stats.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()

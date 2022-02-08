@@ -23,7 +23,7 @@ This step can be executed in addition to [Gather howfairis variables](#gather-ho
 There are 2 arguments that can be passed.
 
 - --input: The file name of the repositories. Default value: ../collect_repositories/results/repositories_filtered.csv
-- --output: The file name of the output. Default value: output/all_variables.json
+- --output: The file name of the output. Default value: results/all_variables.json
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
@@ -37,14 +37,14 @@ In this step, howfairis variables are retrieved. To do this, execute the file **
 There are 2 arguments that can be passed.
 
 - `--input`: The file name of the repositories. Default value: `../collect_repositories/results/repositories_filtered.csv`
-- `--output`: The file name of the output. Default value: `output/repositories_howfairis.csv`
+- `--output`: The file name of the output. Default value: `results/repositories_howfairis.csv`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
 python scripts/howfairis_api/howfairis_variables.py
 python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv
-python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output output/repositories_howfairis_duplicate
+python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output results/repositories_howfairis_duplicate
 ```
 
 ### Gather GitHub variables as tidy data
@@ -52,24 +52,24 @@ python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositor
 In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, jupyter notebook file paths and topics in tidy data format. To do this, execute the file **github.py**.
 There are 10 arguments that can be passed. For each of the 4 information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional. In addition, the jupyter notebooks require an additional argument to specify an input file for the languages (output file of languages) in case languages is not also retrieved. See examples.
 
-- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `output/repositories_howfairis.csv`
+- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `results/repositories_howfairis.csv`
 - `--contributors`: Set this flag if contributors should be retrieved
-- `--contributors_output`: Optional. Path for contributors output. Default: `output/contributors`
+- `--contributors_output`: Optional. Path for contributors output. Default: `results/contributors`
 - `--jupyter`: Set this flag if jupyter notebooks should be retrieved
 - `--input_languages`: Optional. If languages are not retrieved but jupyter notebooks should be, there needs to be an input file with the languages.
-- `--jupyter_output`: Optional. Path for jupyter notebooks output. Default: `output/jupyter_notebooks`
+- `--jupyter_output`: Optional. Path for jupyter notebooks output. Default: `results/jupyter_notebooks`
 - `--languages`: Set this flag if languages should be retrieved
-- `--languages_output`: Optional. Path for languages output. Default: `output/languages`
+- `--languages_output`: Optional. Path for languages output. Default: `results/languages`
 - `--topics`: Set this flag if topics should be retrieved
-- `--topics_output`: Optional. Path for topics output. Default: `output/topics`
+- `--topics_output`: Optional. Path for topics output. Default: `results/topics`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
 python scripts/github_api/github.py --jupyter --contributors --languages --topics
-python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output output/contributors.csv
+python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output results/contributors.csv
 python scripts/github_api/github.py --input output/repositories_howfairis.csv --contributors --languages --jupyter --topics
-python scripts/github_api/github.py --input output/repositories_howfairis.csv --jupyter --input_languages output/languages.csv
+python scripts/github_api/github.py --input output/repositories_howfairis.csv --jupyter --input_languages results/languages.csv
 ```
 
 ### Download statistics
@@ -80,8 +80,8 @@ Installation statistics are collected from the PyPi and RStudio CRAN mirror.
 python scripts/download_stats.py
 ```
 
-- `--input`: The file name of the input dataset with READMES. Default value: `../collect_variables/output/all_variables.json`
-- `--output`: The file name of the output. Default value: `output/download_stats.csv`
+- `--input`: The file name of the input dataset with READMES. Default value: `../collect_variables/results/all_variables.json`
+- `--output`: The file name of the output. Default value: `results/download_stats.csv`
 
 ### Data analysis
 
