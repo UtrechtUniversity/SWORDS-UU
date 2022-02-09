@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 ### Running whole phase 1 pipeline
 
-There is a shell script **run_pipeline.sh** available that will run all the necessary steps. Otherwise you can execute each of them on its own, allowing more control over the arguments.
+There is a shell script **run_pipeline.sh** available that will run all the necessary steps. Otherwise you can execute each of them on its own. Please note that you can change the arguments in the shell script to your needs.
 
 To use it, navigate to this folder and run the file. On windows, you can use Git Bash to execute it.
 
@@ -121,7 +121,7 @@ The filtering of users is done manually. It is recommended to turn the resulting
 
 ### Data analysis
 
-Interactive data analysis can be found in the [Jupyter Notebook analyse_users.ipynb](analyse_users.ipynb.ipynb). This notebook explores the data sources that were used to collect the repositories.
+Interactive data analysis can be found in the [Jupyter Notebook analyze_users.ipynb](analyze_users.ipynb). This notebook explores the data sources that were used to collect the repositories.
 
 ## License
 
@@ -129,4 +129,4 @@ See [/LICENSE](../LICENSE).
 
 ## Contact
 
-See https://github.com/UtrechtUniversity/SWORDS-UU.
+See [here](../README.md#contact).

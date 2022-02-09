@@ -56,7 +56,7 @@ Currently, the script only filters out *github.io* repositories, as these are us
 
 ### Data analysis
 
-Interactive data analysis can be found in the [Jupyter Notebook analyse_repositories.ipynb](analyse_repositories.ipynb). It is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
+Interactive data analysis can be found in the [Jupyter Notebook analyze_repositories.ipynb](analyze_repositories.ipynb). It is possible to optionally filter the analysis for research groups or private users only. This is elaborated in the Jupyter notebook.
 
 This notebook analyzes the information of the retrieved repositories. The notebook contains analysis of open science mentions, stargazers, watchers, issues, forks, branches, homepages and commits.
 
@@ -66,4 +66,4 @@ See [/LICENSE](../LICENSE).
 
 ## Contact 
 
-See https://github.com/UtrechtUniversity/SWORDS-UU.
+See [here](../README.md#contact).

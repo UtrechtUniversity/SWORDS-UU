@@ -99,7 +99,7 @@ if __name__ == '__main__':
     parser.add_argument("--output",
                         "-o",
                         help="The file name of the filtered repositories.",
-                        default="output/repositories_howfairis.csv")
+                        default="results/repositories_howfairis.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()

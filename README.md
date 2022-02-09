@@ -2,29 +2,61 @@
 
 ![banner](docs/banner.png)
 
-## About
 
-This repository is the implementation for the Scan and revieW of Open Research Data and Software at Utrecht University (SWORDS@UU). 
+This repository implements for the [**S**can and revie**W** of **O**pen **R**esearch **D**ata and **S**oftware (SWORDS)](https://github.com/UtrechtUniversity/SWORDS-template) framework. SWORDS is a powerful tool to gain insights in the open source activities of your, but not limited to, university or research institute. Studies show that open source contributions can be very benificial for organisations and society. SWORDS is divided into 3 stages that can be exectued and analyzed standalone: finding user profiles associated to your organisation, extract relevant repositories, and study the contents of the respositories. 
 
-- This project is a collaboration of the Research IT and ICS Department, supported by the Open Science Platform. ​In order to promote open science, Utrecht University has launched the Open Science Programme. To add focus to specific topics, there are four tracks within the Programme: Open access, FAIR data and software, Public engagement, Recognition and rewards. Within the track of FAIR data and software, a research project regarding the Scan and revieW of Open Research Data and Software at Utrecht University (SWORDS@UU) has been conducted.  
+<p align="center">
+  This repository is an implementation of SWORDS for <b>Utrecht University</b>.
+   <!-- For example Utrecht University -->
+</p>
+<p align="center">
+  <b>SWORDS@UU</b>
+  <!-- For example SWORDS@UU -->
+</p>
+
+<p align="center">
+  <img src="docs/your_logo.png">
+</p>
+
+## Background
+
+Conducting science in an open and collaborative way is very important for greater scientific and societal impact (https://www.nwo.nl/en/open-science). The Open Science movement is therefore actively promoting and advancing openness in academic publications, data, software, and other types of output. Major steps have been taken in the last years, however, there is still a lot to improve and win. A result of this movement towards more open research output is the increase of code and software published by researchers on online platforms. The use and reuse of open source (research) software and code is widespread nowadays. 
+
+For (research) organisations, it can be interesting to have insights into the contributions and activities in open source software projects. Especially because activities of members, researchers, or employees can be divided over multiple user profiles and platforms (e.g. GitHub and GitLab). Having an overview of the activity, contents, and quality can be useful for various reasons like connecting initiatives, improve quality, and reward and recognize contributions. The SWORDS framework was introduced to help with collecting insights and assessing quality. 
+
+<!-- Introduce FAIR -->
+
+## The SWORDS framework
+
 
 - Its goal is to analyze the FAIRness of GitHub repositories of Utrecht University researchers and see how they develop and manage software. While the analysis and data collection is done for Utrecht University researchers only, the purpose of this research is to serve as a template for other researchers to scan and review repositories for their university as well.
 
-The project is split into 3 phases that correspond to the folder structure. The following hyperlinks lead to the detailed readme of each phase.
 
-1. [User collection](collect_users/README.md)
-2. [Repository collection](collect_repositories/README.md)
-3. [Variable collection](collect_variables/README.md)
 
-Each phase consists of several Python scripts and file outputs, mainly in .csv format. There is also a corresponding interactive data analysis jupyter notebook file in each phase. You can find the whole pipeline as a diagram under [Pipeline](#flowchart).
+The SWORDS framework consists of three mostly-independent steps. Each step is described below and detailed information and instructions can be found in the links. 
 
-For more information about the phases, please look into the corresponding subfolders for further information on installation and usage. Note that every .csv output has a datestamp column named **date**.
-
-## Pipeline
+1. **[Find user profiles associated to organisation](collect_users/)**. In this first step of the framework, multiple strategies are available to find users on GitHub and GitLab that are members or employees of your organisation. By using multiple collection strategies, the recall is considered to be high. The findability of members or employees is one of the output variables of this step. A structured list of users is used as input for the next step.
+2. **[Collect relevant repositories](collect_repositories/)**. In the second step, the repositories of the users collected in the previous step are collected and filtered. Not all repositories are research output. These repositories are filted out automatically and/or manually.
+3. **[Study and analyze repositories](collect_variables/)**. In this step, further variables of research repositories are gathered. These are then examined and studied on various quantitiative and qualitative properties. One can think about quality assesments, documentation availablity, FAIRness scores. 
 
 <p align="center">
-  <img src="docs/Complete_pipeline.png" height="1000">
+  <img src="docs/SWORDS_basic_flow.drawio.png">
 </p>
+
+The SWORDS framework is written in Python 3.6+. The SWORDS framework implements the reproducible project structure as proposed by [Wilson et al. (2017)](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510) for each step of the framework. For more information about the phases, please look into the corresponding subfolders for further information on installation and usage. All output data is stored in output folders. There is also a corresponding interactive data analysis jupyter notebook file in each step. This notebook can be used for results. 
+
+## Results
+
+The results of the three steps of the SWORDS framework can be found in each of the subfolders of the project. Each step contains a Jupyter notebook with results, code, and narrative. Output data files can be found in the output folder in each step.  
+
+Results of step 1: **Find user profiles associated to organisation**
+- :open_book: [Analysis (Jupyter notebook)](collect_users/analyse_users.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_users/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_users/results) 
+
+Results of step 2: **Collect relevant repositories**
+- :open_book: [Analysis (Jupyter notebook)](collect_repositories/analyse_repositories.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_repositories/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_repositories/results) 
+
+Results of step 3: **Study and analyze repositories**
+- :open_book: [Analysis (Jupyter notebook)](collect_variables/analyse_metrics.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_variables/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_variables/results) 
 
 ## Dashboard
 
@@ -37,17 +69,14 @@ A Kibana dashboard has been implemented to work with the data in addition to the
 
 After following their documentation or these steps, the dashboard with the related data in the indices *repos* and *users* should be loaded.
 
-## Contact
+## Usage
 
-For technical questions, you contact either [Keven Quach](https://github.com/kequach) or [Jonathan de Bruin](https://github.com/J535D165) or open an issue on GitHub.
+In the normal use case, you start with phase 1 and go through each phase as the output of phase 1 can be used for phase 2. However, if you already have collected a list of users for example, you can skip phase 1 and use that collected list as input for phase 2. Since the phases are independent of each other, this approach is possible. For details on how to execute each phase, look into the corresponding subfolder.
 
-## Contributors
-
-This project was implemented by de Bruin, J., Quach, K., Slewe, C., & Lamprecht, A. (2021).
-
-### Citation
+## Citation
 
 Use this citation for citing the SWORDS implementation of Utrecht University.
+
 ```
 @software{de_Bruin_Scan_and_revieW_2021,
 author = {de Bruin, Jonathan and Quach, Keven and Slewe, Christopher and Lamprecht, Anna-Lena},
@@ -59,18 +88,29 @@ year = {2021}
 }
 ```
 
-Use this citation for citing the SWORDS template.
+To cite the SWORDS project and the SWORDS template, use 
+
 ```
-@software{de_Bruin_Scan_and_revieW_2021,
+@software{de_Bruin_Scan_and_revieW_2022,
 author = {de Bruin, Jonathan and Quach, Keven and Slewe, Christopher and Lamprecht, Anna-Lena},
-month = {9},
+month = {2},
 title = {{Template of Scan and revieW of Open Research Data and Software}},
 url = {https://github.com/UtrechtUniversity/SWORDS-template},
 version = {1.0.0},
-year = {2021}
+year = {2022}
 }
 ```
 
-## Attribution
+## License
 
-<div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+The SWORDS project template is published under the [MIT License](/license).
+
+Icons of the banner are made by [Freepik](https://www.freepik.com "Freepik") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon").
+
+## Contact
+
+For contact about this implementation of the SWORDS project, SWORDS@UU, post an issue on the [issue tracker](../../issues) or contact [Jonathan de Bruin](https://github.com/J535D165) or [Keven Quach](https://github.com/kequach). 
+
+For general questions and remarks about the SWORDS project and the template can be posted on the [issue tracker of the SWORDS template](https://github.com/UtrechtUniversity/SWORDS-template/issues). You can also contact either [Jonathan de Bruin](https://github.com/J535D165) or [Keven Quach](https://github.com/kequach). 
+
+The SWORDS project is an idea of the FAIR Data and Software working group of the [Utrecht University Open Science Programme](https://www.uu.nl/en/research/open-science).
