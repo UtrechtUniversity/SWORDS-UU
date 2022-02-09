@@ -60,12 +60,12 @@ Results of step 3: **Study and analyze repositories**
 
 ## Dashboard
 
-A Kibana dashboard has been implemented to work with the data in addition to the Jupyter notebooks. The exported dashboard can be found in the subfolder kibana_dashboard/[data-dashboard.ndjson](kibana_dashboard/data-dashboard.ndjson). In order to run the dashboard on your local machine, first install ElasticSearch and Kibana as stated [on their website](https://www.elastic.co/start). To import the data and dashboard, follow [their documentation](https://www.elastic.co/guide/en/kibana/current/saved-objects-api-import.html). Alternatively, there is an easier method of importing in version 7.16:
+A Kibana dashboard has been implemented to work with the data in addition to the Jupyter notebooks. The exported dashboard can be found in the subfolder [`kibana_dashboard/data-dashboard.ndjson`](kibana_dashboard/data-dashboard.ndjson). In order to run the dashboard on your local machine, first install ElasticSearch and Kibana as stated [on the Elastic website](https://www.elastic.co/start). To import the data and dashboard, follow [the documentation](https://www.elastic.co/guide/en/kibana/current/saved-objects-api-import.html). Alternatively, there is an easier method of importing in version 7.16:
 
 1. Open the *hamburger menu*
 2. Scroll down to Management --> click *Stack management*
 3. Under Kibana, click on *Saved Objects*
-4. Click on the *import* button and select the file [data-dashboard.ndjson](kibana_dashboard/data-dashboard.ndjson).
+4. Click on the *import* button and select the file [`data-dashboard.ndjson`](kibana_dashboard/data-dashboard.ndjson).
 
 After following their documentation or these steps, the dashboard with the related data in the indices *repos* and *users* should be loaded.
 
