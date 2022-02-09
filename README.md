@@ -15,7 +15,7 @@ This repository implements for the [**S**can and revie**W** of **O**pen **R**ese
 </p>
 
 <p align="center">
-  <img src="docs/your_logo.png">
+  <img src="https://github.com/UtrechtUniversity/.github/raw/main/profile/ubd-afsluiting-logo-pay-off-eng.png?raw=true">
 </p>
 
 ## Background
