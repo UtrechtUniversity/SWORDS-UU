@@ -101,7 +101,7 @@ def get_languages(languages_url, languages_owner, languages_repo_name):
 
 
 def get_jupyter_notebooks(jupyter_notebooks_url,
-                          jupyter_notebooks_owner, jupyter_notebooks_repo_name):
+                          jupyter_notebooks_owner, jupyter_notebooks_repo_name, branch):
     """Retrieves jupyter notebooks for a Github repository
 
     Args:
@@ -115,7 +115,7 @@ def get_jupyter_notebooks(jupyter_notebooks_url,
     jupyter_notebooks = []
     jupyter_notebooks_data = api.git.get_tree(
         owner=jupyter_notebooks_owner, repo=jupyter_notebooks_repo_name,
-        tree_sha="master", recursive=1)
+        tree_sha=branch, recursive=1)
     for file in jupyter_notebooks_data["tree"]:
         if file["type"] == "blob" and ".ipynb" in file["path"]:
             jupyter_notebooks_entry = [jupyter_notebooks_url, file["path"]]
@@ -140,7 +140,43 @@ def get_readmes(readmes_url, readmes_owner, readmes_repo_name):
     return readme_data
 
 
-def get_data_from_api(github_url, github_owner, github_repo_name, variable_type, verbose=True):
+def get_coc(coc_url, coc_owner, coc_repo_name, branch):
+    """Retrieves languages for a Github repository
+
+    Args:
+        coc_url (string): repository url
+        coc_owner (string): repository owner
+        coc_repo_name (string): repository name
+
+    Returns:
+        string: code of conduct retrieved from Github
+    """
+    coc = []
+    content = api.git.get_tree(owner=coc_owner, repo=coc_repo_name, tree_sha=branch, recursive=1)
+    for file in content["tree"]:
+        if "code_of_conduct.md" in file.path.lower():
+            coc = [coc_url, file["path"]]
+    return coc
+            
+    # api.codes_of_conduct.get_for_repo()
+
+
+    # jupyter_notebooks_data = api.git.get_tree(
+    #     owner=jupyter_notebooks_owner, repo=jupyter_notebooks_repo_name,
+    #     tree_sha=branch, recursive=1)
+    # for file in jupyter_notebooks_data["tree"]:
+    #     if file["type"] == "blob" and ".ipynb" in file["path"]:
+    #         jupyter_notebooks_entry = [jupyter_notebooks_url, file["path"]]
+    #         print(jupyter_notebooks_entry)
+    #         jupyter_notebooks.append(jupyter_notebooks_entry)
+    # return jupyter_notebooks
+    # # readme = base64.b64decode(api.repos.get_readme(readmes_owner, readmes_repo_name).content)
+
+    # # readme_data = [readmes_url, readme.decode()]
+    # return readme_data
+
+
+def get_data_from_api(github_url, github_owner, github_repo_name, variable_type, branch="main", verbose=True):
     """The function calls the ghapi api to retrieve
 
     Args:
@@ -149,7 +185,7 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
         github_owner (string): repository owner. E.g.: kequach
         github_repo_name (string): repository name. E.g.: HTML-Examples
         variable_type (string): which type of variable should be retrieved.
-                                Supported are: contributors, languages, jupyter_notebooks, readmes
+                                Supported are: contributors, languages, jupyter_notebooks, readmes, coc
         verbose (boolean): if True, retrieve all variables from API.
             Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
@@ -167,12 +203,15 @@ def get_data_from_api(github_url, github_owner, github_repo_name, variable_type,
                     get_languages(github_url, github_owner, github_repo_name))
             elif variable_type == "jupyter_notebooks":
                 retrieved_variables.extend(
-                    get_jupyter_notebooks(github_url, github_owner, github_repo_name))
+                    get_jupyter_notebooks(github_url, github_owner, github_repo_name, branch))
             elif variable_type == "readmes":
                 retrieved_variables.extend(
                     get_readmes(github_url, github_owner, github_repo_name))
+            elif variable_type == "coc":
+                retrieved_variables.extend(
+                    get_coc(github_url, github_owner, github_repo_name, branch))
         except Exception as e: # pylint: disable=broad-except
-            print(f"There was an error for repository {github_url}: {e}")
+            print(f"There was an error for repository {github_url} : {e}")
             # (non-existing repo)
             if any(status_code in str(e) for status_code in ["204", "404"]):
                 print(f"Repository does not exist: {github_url}")
@@ -261,6 +300,26 @@ if __name__ == '__main__':
                         help="Optional. Path for topics output",
                         default="results/topics.csv")
 
+    parser.add_argument("--readmes",
+                        "-r",
+                        action='store_true',
+                        help="Set this flag if readmes should be retrieved")
+
+    parser.add_argument("--readmes_output",
+                        "-rout",
+                        help="Optional. Path for readmes output",
+                        default="results/readmes.csv")
+
+    parser.add_argument("--coc",
+                        "-coc",
+                        action='store_true',
+                        help="Set this flag if code of conducts should be retrieved")
+
+    parser.add_argument("--coc_output",
+                        "-cocout",
+                        help="Optional. Path for code of conduct output",
+                        default="results/coc.csv")
+
     # Read arguments from the command line
     args = parser.parse_args()
     print(
@@ -268,7 +327,9 @@ if __name__ == '__main__':
     print(f"Retrieving contributors? {args.contributors}"
           f"\nRetrieving jupyter notebooks? {args.jupyter}"
           f"\nRetrieving languages? {args.languages}"
-          f"\nRetrieving topics? {args.topics}")
+          f"\nRetrieving topics? {args.topics}"
+          f"\nRetrieving readmes? {args.readmes}"
+          f"\nRetrieving code of conducts? {args.coc}")
 
     df_repos = read_input_file(args.input)
 
@@ -354,3 +415,35 @@ if __name__ == '__main__':
 
         export_file(topics_variables, ["html_url_repository", "topic"], "topic",
                     args.topics_output)
+
+    if args.readmes:
+        # get data
+        readmes_variables = []
+        for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                              df_repos["owner"], df_repos["name"])):
+            retrieved_data = get_data_from_api(url, owner, repo_name, "readmes")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                readmes_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+            time.sleep(SLEEP)
+
+        export_file(readmes_variables, ["html_url_repository", "readme"], "readme",
+                    args.readmes_output)
+
+    if args.coc:
+        # get data
+        coc_variables = []
+        for counter, (url, owner, repo_name, branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"], 
+                                                                      df_repos["name"], df_repos["default_branch"])):
+            retrieved_data = get_data_from_api(url, owner, repo_name, "coc", branch=branch)
+            print(retrieved_data)
+            if retrieved_data is not None:
+                coc_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+            time.sleep(SLEEP)
+
+        export_file(coc_variables, ["html_url_repository", "coc"], "coc",
+                    args.coc_output)

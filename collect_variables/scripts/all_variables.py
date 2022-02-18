@@ -29,7 +29,7 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
     # for nested data only, otherwise key can be directly used
     if variable_type in ("contributors", "languages"):
         data[variable_type] = []
-    retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, False)
+    retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, verbose=False)
     if retrieved_data is not None:
         if variable_type in ("contributors", "languages"):
             for entry in retrieved_data:

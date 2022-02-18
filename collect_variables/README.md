@@ -62,6 +62,10 @@ There are 10 arguments that can be passed. For each of the 4 information types y
 - `--languages_output`: Optional. Path for languages output. Default: `results/languages`
 - `--topics`: Set this flag if topics should be retrieved
 - `--topics_output`: Optional. Path for topics output. Default: `results/topics`
+- `--readmes`: Set this flag if readmes should be retrieved
+- `--readmes_output`: Optional. Path for readmes output. Default: `results/readmes`
+- `--coc`: Set this flag if code of conduct should be retrieved
+- `--coc_output`: Optional. Path for coc output. Default: `results/coc`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
@@ -70,6 +74,7 @@ python scripts/github_api/github.py --jupyter --contributors --languages --topic
 python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output results/contributors.csv
 python scripts/github_api/github.py --input output/repositories_howfairis.csv --contributors --languages --jupyter --topics
 python scripts/github_api/github.py --input output/repositories_howfairis.csv --jupyter --input_languages results/languages.csv
+python scripts/github_api/github.py --readmes --coc
 ```
 
 ### Download statistics
