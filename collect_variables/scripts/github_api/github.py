@@ -157,7 +157,7 @@ def get_coc(coc_url, coc_owner, coc_repo_name, coc_branch):
                                tree_sha=coc_branch, recursive=1)
     for file in content["tree"]:
         if "code_of_conduct.md" in file.path.lower():
-            coc.append([coc_url, file["path"]])
+            coc.extend([coc_url, file["path"]])
     return coc
 
 
@@ -411,7 +411,7 @@ if __name__ == '__main__':
             retrieved_data = get_data_from_api(url, owner, repo_name, "readmes")
             print(retrieved_data)
             if retrieved_data is not None:
-                readmes_variables.extend(retrieved_data)
+                readmes_variables.append(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
             time.sleep(SLEEP)
@@ -428,7 +428,7 @@ if __name__ == '__main__':
             retrieved_data = get_data_from_api(url, owner, repo_name, "coc", github_branch=branch)
             print(retrieved_data)
             if retrieved_data is not None:
-                coc_variables.extend(retrieved_data)
+                coc_variables.append(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
             time.sleep(SLEEP)
