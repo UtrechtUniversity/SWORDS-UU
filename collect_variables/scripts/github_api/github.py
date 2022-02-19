@@ -380,8 +380,11 @@ if __name__ == '__main__':
         print(f"Parse {len(languages_jupyter.index)} repos.")
         for counter, repo_url in enumerate(languages_jupyter["html_url_repository"]):
             # example repo_url: https://github.com/UtrechtUniversity/SWORDS-UU
+            row = df_repos.loc[df_repos['html_url'] == repo_url]
+            branch = row["default_branch"].values[0]
             owner, repo_name = repo_url.split("github.com/")[1].split("/")
-            retrieved_data = get_data_from_api(url, owner, repo_name, "jupyter_notebooks")
+            retrieved_data = get_data_from_api(repo_url, owner, repo_name,
+                                               "jupyter_notebooks", github_branch=branch)
             if retrieved_data is not None:
                 jupyter_variables.extend(retrieved_data)
             if counter % 10 == 0:
