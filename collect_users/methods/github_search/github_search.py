@@ -48,7 +48,7 @@ def get_users_from_repos(repos):
     """Retrieves the user from repositories data.
 
     Args:
-        repos (DataFrame): Repositories retrieved from Github API
+        repos (L): Repositories retrieved from Github API
 
     Returns:
         L: list of users
@@ -63,7 +63,7 @@ def get_users_from_users(users):
     """Retrieves the user from users data.
 
     Args:
-        users (DataFrame): Users retrieved from Github API
+        users (L): Users retrieved from Github API
 
     Returns:
         L: list of users
@@ -73,6 +73,9 @@ def get_users_from_users(users):
         result.append([SERVICE, current_date, user["login"]])
     return result
 
+SERVICE = "github.com"
+current_date = datetime.today().strftime('%Y-%m-%d')
+columns = ["service", "date", "user_id"]
 
 if __name__ == '__main__':
     # Initiate the parser
@@ -87,9 +90,6 @@ if __name__ == '__main__':
 
     api = GhApi()
 
-    SERVICE = "github.com"
-    current_date = datetime.today().strftime('%Y-%m-%d')
-    columns = ["service", "date", "user_id"]
     try:
         if args.topic:
             print(f"Searching topics for {args.topic}...")
