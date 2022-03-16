@@ -2,12 +2,16 @@
 Tests for retrieval methods in user collection
 """
 import pytest
+from unittest.mock import MagicMock, Mock
 
 from fastcore.foundation import L, AttrDict
-from ghapi.all import GhApi, pages
+from ghapi.all import GhApi
 
-from collect_users.methods.github_search.github_search import get_complete_query_result, get_users_from_repos, get_users_from_users
+from collect_users.methods.github_search.github_search import get_complete_query_result, get_users_from_repos, get_users_from_users, Service
 
+@pytest.fixture
+def service():
+    return Service(api=GhApi())
 
 @pytest.fixture
 def repos():
@@ -23,8 +27,8 @@ def users():
 
     return users
 
-def test_get_users_from_repos(repos):
-    users_list = get_users_from_repos(repos)
+def test_get_users_from_repos(repos, service):
+    users_list = get_users_from_repos(repos, service)
     expected_result = ["kequach", "123"]
 
     actual_result = []
@@ -34,8 +38,8 @@ def test_get_users_from_repos(repos):
     assert expected_result == actual_result
 
 
-def test_get_users_from_users(users):
-    users_list = get_users_from_users(users)
+def test_get_users_from_users(users, service):
+    users_list = get_users_from_users(users, service)
     expected_result = ["kequach", "123"]
 
     actual_result = []
@@ -45,15 +49,15 @@ def test_get_users_from_users(users):
     assert expected_result == actual_result
 
 
-def test_get_complete_query_result_repos(monkeypatch):
-    def mock_get(url):
-        return [AttrDict(total_count=2,
+def test_get_complete_query_result_repos():
+    def mock_get(*args, **kwargs):
+        return AttrDict(total_count=2,
                           incomplete_results=False,
                           items=L(AttrDict(login="kequach"),
-                                  AttrDict(login="kequach1")))]
+                                  AttrDict(login="test_user2")))
 
-    # api = GhApi()
-    # monkeypatch.setattr(api.search, 'repos', mock_get)
-    monkeypatch.setattr(GhApi.search, 'repos', mock_get)
-    result = get_complete_query_result("test_query", "SEARCH_REPOS") 
-    assert result[0]["items"]["login"] == "kequach"
+    service = MagicMock()
+    service.api.search.repos.side_effect = mock_get
+    service.api.last_page = Mock(return_value=0)
+    result = get_complete_query_result("test_query", "SEARCH_REPOS", service) 
+    assert result[0]["login"] == "kequach"
