@@ -11,6 +11,15 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi
 
 
+class Service:
+    """
+    Common variables used in functions bundled in Service class.
+    """
+    def __init__(self, api: GhApi, sleep):
+        self.api = api
+        self.current_date = datetime.today().strftime('%Y-%m-%d')
+        self.sleep = sleep
+
 def read_input_file(file_path):
     """reads in the input file through Pandas
 
@@ -27,11 +36,12 @@ def read_input_file(file_path):
     return file
 
 
-def get_userdata(user_list):
+def get_userdata(user_list, service: Service):
     """Retrieves Github userdata from a list of users
 
     Args:
         user_list (list): list of Github usernames
+        service (Service): Service object with API connection and metadata vars
 
     Returns:
         DataFrame: Complete dataframe with enriched users
@@ -39,10 +49,9 @@ def get_userdata(user_list):
     github_data = []
     for index, user_id in enumerate(user_list):
         try:
-            user = dict(api.users.get_by_username(user_id))
-            if len(
-                    user
-            ) > 32:  # if the authenticated user is retrieved, there will be extra variables
+            user = dict(service.api.users.get_by_username(user_id))
+            # if the authenticated user is retrieved, there will be extra variables
+            if len(user) > 32:
                 entries_to_remove = ('private_gists', 'total_private_repos',
                                      'owned_private_repos', 'disk_usage',
                                      'collaborators',
@@ -55,7 +64,7 @@ def get_userdata(user_list):
             print(e)
         if index % 10 == 0:
             print(f"Processed {index} out of {len(user_list)} users.")
-        time.sleep(SLEEP)
+        time.sleep(service.sleep)
     return pd.DataFrame(github_data)
 
 
@@ -144,12 +153,13 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower leading to a ban and
     # waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
-    api = GhApi(token=token)
-
     if token is not None:  # authentication
         SLEEP = 2
     else:  # no authentication
         SLEEP = 6
+    service = Service(api=GhApi(token=token), sleep=SLEEP)
+
+
 
     if 'new_user' in df_users.columns:  # updating users
         if UPDATE_EVERYTHING is True:
@@ -159,7 +169,7 @@ if __name__ == '__main__':
                 df_users_annotated,
                 on="user_id",
                 how="outer")
-            results_github_user_api = get_userdata(df_users_all["user_id"])
+            results_github_user_api = get_userdata(df_users_all["user_id"], service)
 
         else:  # only add new users
             df_users_update = pd.merge(df_users[df_users["new_user"] is True],
@@ -167,12 +177,12 @@ if __name__ == '__main__':
                                        left_on="user_id",
                                        right_on="user_id",
                                        how="left")
-            results_github_user_api = get_userdata(df_users_update["user_id"])
+            results_github_user_api = get_userdata(df_users_update["user_id"], service)
 
         df_users_enriched = update_users(df_users_annotated,
                                          results_github_user_api)
     else:  # first time collecting data
-        results_github_user_api = get_userdata(df_users["user_id"])
+        results_github_user_api = get_userdata(df_users["user_id"], service)
         results_github_user_api["login"] = results_github_user_api[
             "login"].str.lower(
             )  # key to merge is lowercase so this needs to be lowercase as well
@@ -182,8 +192,7 @@ if __name__ == '__main__':
                                            how="left")
         df_users_enriched.drop(["login"], axis=1, inplace=True)
 
-    current_date = datetime.today().strftime('%Y-%m-%d')
-    df_users_enriched["date"] = current_date
+    df_users_enriched["date"] = service.current_date
     if "xlsx" in args.output:
         df_users_enriched.to_excel(args.output, index=False)
     else:

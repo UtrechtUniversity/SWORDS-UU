@@ -12,7 +12,8 @@ from ghapi.all import GhApi, pages
 
 
 class Service:
-    """Common variables used in functions bundled in Service class.
+    """
+    Common variables used in functions bundled in Service class.
     """
     def __init__(self, api: GhApi):
         self.api = api
