@@ -12,12 +12,21 @@ import pandas as pd
 from dotenv import load_dotenv
 
 
-def get_repos(user_id):
-    """retrieves complete repositories (exluding forked ones) from a specified user_id
+class Service:
+    """
+    Common variables used in functions bundled in Service class.
+    """
+    def __init__(self, api: GhApi):
+        self.api = api
+        self.current_date = datetime.today().strftime('%Y-%m-%d')
+
+
+def get_repos(user_id, service):
+    """retrieves complete repositories from a specified user_id
 
     Args:
-        api (GhApi object): standard Api object from GhApi
         user_id (string): user id which is named as "login" from the GitHub Api
+        service (Service): Service object with API connection and metadata vars
 
     Returns:
         L: fastcore list of repositories
@@ -26,7 +35,7 @@ def get_repos(user_id):
         # do first request to store last page variable in api object.
         # If more than one page is available, another request needs to be made.
         print(f"Fetching repos for user '{user_id}'")
-        query_result = api.repos.list_for_user(user_id, per_page=100)
+        query_result = service.api.repos.list_for_user(user_id, per_page=100)
     except Exception as e: # pylint: disable=broad-except
         print(
             f"There was a problem with fetching repositories for user {user_id}"
@@ -34,9 +43,9 @@ def get_repos(user_id):
         print(e)
         return None
     result = L()
-    num_pages = api.last_page()
+    num_pages = service.api.last_page()
     if num_pages > 0:
-        query_result = pages(api.repos.list_for_user, num_pages, user_id)
+        query_result = pages(service.api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
             result.append(page)
         time.sleep(2)
@@ -101,7 +110,7 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower,
     # leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
-    api = GhApi(token=token)
+    service = Service(api=GhApi(token=token))
     df_users = read_input_file(args.users)
 
     # drop filtered users
@@ -110,7 +119,7 @@ if __name__ == '__main__':
     result_repos = []
     COUNTER = 0
     for user in df_users["user_id"]:
-        repos = get_repos(user)
+        repos = get_repos(user, service)
         if repos is not None:
             repos_formatted = get_repos_formatted(repos)
             result_repos.extend(repos_formatted)
@@ -134,8 +143,7 @@ if __name__ == '__main__':
                     result_repos[i][key] = result_repos[i][key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)
-    current_date = datetime.today().strftime('%Y-%m-%d')
-    df_result_repos["date"] = current_date
+    df_result_repos["date"] = service.current_date
     df_result_repos.to_csv(args.output, index=False)
 
     print(
