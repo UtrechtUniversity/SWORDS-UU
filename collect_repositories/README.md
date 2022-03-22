@@ -35,6 +35,7 @@ Navigate to this folder and execute the script. Adjust parameters as needed. Exa
 ```console
 python scripts/repositories.py --users ../collect_users/results/unique_users_annotated.xlsx --output results/repositories.csv
 python scripts/repositories.py --users ../collect_users/results/users_enriched.csv
+python scripts/repositories.py
 ```
 
 ### Filter repositories
