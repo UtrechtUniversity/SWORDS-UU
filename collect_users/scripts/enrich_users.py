@@ -157,7 +157,7 @@ if __name__ == '__main__':
         SLEEP = 2
     else:  # no authentication
         SLEEP = 6
-    service = Service(api=GhApi(token=token), sleep=SLEEP)
+    serv = Service(api=GhApi(token=token), sleep=SLEEP)
 
 
 
@@ -169,7 +169,7 @@ if __name__ == '__main__':
                 df_users_annotated,
                 on="user_id",
                 how="outer")
-            results_github_user_api = get_userdata(df_users_all["user_id"], service)
+            results_github_user_api = get_userdata(df_users_all["user_id"], serv)
 
         else:  # only add new users
             df_users_update = pd.merge(df_users[df_users["new_user"] is True],
@@ -177,12 +177,12 @@ if __name__ == '__main__':
                                        left_on="user_id",
                                        right_on="user_id",
                                        how="left")
-            results_github_user_api = get_userdata(df_users_update["user_id"], service)
+            results_github_user_api = get_userdata(df_users_update["user_id"], serv)
 
         df_users_enriched = update_users(df_users_annotated,
                                          results_github_user_api)
     else:  # first time collecting data
-        results_github_user_api = get_userdata(df_users["user_id"], service)
+        results_github_user_api = get_userdata(df_users["user_id"], serv)
         results_github_user_api["login"] = results_github_user_api[
             "login"].str.lower(
             )  # key to merge is lowercase so this needs to be lowercase as well
@@ -192,7 +192,7 @@ if __name__ == '__main__':
                                            how="left")
         df_users_enriched.drop(["login"], axis=1, inplace=True)
 
-    df_users_enriched["date"] = service.current_date
+    df_users_enriched["date"] = serv.current_date
     if "xlsx" in args.output:
         df_users_enriched.to_excel(args.output, index=False)
     else:

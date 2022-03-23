@@ -91,7 +91,7 @@ def get_users_from_users(users, service: Service):
 
 
 if __name__ == '__main__':
-    service = Service(GhApi(token=os.getenv('GITHUB_TOKEN')))
+    serv = Service(GhApi(token=os.getenv('GITHUB_TOKEN')))
 
     # Initiate the parser
     parser = argparse.ArgumentParser()
@@ -108,9 +108,9 @@ if __name__ == '__main__':
         if args.topic:
             print(f"Searching topics for {args.topic}...")
             topic_repos = get_complete_query_result(f"topic:{args.topic}",
-                                                    "SEARCH_REPOS", service)
-            ids_topic_repos = get_users_from_repos(topic_repos, service)
-            pd.DataFrame(ids_topic_repos, columns=service.columns).to_csv(Path(
+                                                    "SEARCH_REPOS", serv)
+            ids_topic_repos = get_users_from_repos(topic_repos, serv)
+            pd.DataFrame(ids_topic_repos, columns=serv.columns).to_csv(Path(
                 "results", "github_search_topic.csv"),index=False)
             print("Searching topics done")
         else:
@@ -121,17 +121,17 @@ if __name__ == '__main__':
         if args.search:
             print(f"Searching repos for {args.search}...")
             search_repos = get_complete_query_result(args.search,
-                                                     "SEARCH_REPOS", service)
-            ids_search_repos = get_users_from_repos(search_repos, service)
-            pd.DataFrame(ids_search_repos, columns=service.columns).to_csv(Path(
+                                                     "SEARCH_REPOS", serv)
+            ids_search_repos = get_users_from_repos(search_repos, serv)
+            pd.DataFrame(ids_search_repos, columns=serv.columns).to_csv(Path(
                 "results", "github_search_repos.csv"),index=False)
             print("Searching repos done")
 
             print(f"Searching users for {args.search}...")
             search_users = get_complete_query_result(args.search,
-                                                     "SEARCH_USERS", service)
-            ids_search_users = get_users_from_users(search_users, service)
-            pd.DataFrame(ids_search_users, columns=service.columns).to_csv(Path(
+                                                     "SEARCH_USERS", serv)
+            ids_search_users = get_users_from_users(search_users, serv)
+            pd.DataFrame(ids_search_users, columns=serv.columns).to_csv(Path(
                 "results", "github_search_users.csv"),index=False)
             print("Searching users done")
         else:

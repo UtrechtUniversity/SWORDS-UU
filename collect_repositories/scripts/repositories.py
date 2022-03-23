@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower,
     # leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
-    service = Service(api=GhApi(token=token))
+    serv = Service(api=GhApi(token=token))
     df_users = read_input_file(args.users)
 
     # drop filtered users
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     result_repos = []
     COUNTER = 0
     for user in df_users["user_id"]:
-        repos = get_repos(user, service)
+        repos = get_repos(user, serv)
         if repos is not None:
             repos_formatted = get_repos_formatted(repos)
             result_repos.extend(repos_formatted)
@@ -143,7 +143,7 @@ if __name__ == '__main__':
                     result_repos[i][key] = result_repos[i][key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)
-    df_result_repos["date"] = service.current_date
+    df_result_repos["date"] = serv.current_date
     df_result_repos.to_csv(args.output, index=False)
 
     print(
