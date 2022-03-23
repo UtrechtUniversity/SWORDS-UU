@@ -15,6 +15,34 @@ from ghapi.all import GhApi
 from fastcore.foundation import L
 
 
+class Service:
+    """
+    Common variables used in functions bundled in Service class.
+    """
+
+    def __init__(self, api: GhApi):
+        self.api = api
+        self.current_date = datetime.today().strftime('%Y-%m-%d')
+
+
+class Repo:
+    """
+    Repository variables bundled together.
+
+    url (string): repository url.
+        E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
+    owner (string): repository owner. E.g.: kequach
+    repo_name (string): repository name. E.g.: HTML-Examples
+    branch (string): repository default branch. E.g.: main / master
+    """
+
+    def __init__(self, repo_url, repo_owner, repo_repo_name, repo_branch="main"):
+        self.url = repo_url
+        self.owner = repo_owner
+        self.repo_name = repo_repo_name
+        self.branch = repo_branch
+
+
 def read_input_file(file_path):
     """reads in the input file through Pandas
 
@@ -49,13 +77,12 @@ def export_file(variables_retrieved, columns, var_type, output):
     )
 
 
-def get_contributors(contributors_url, contributors_owner, contributors_repo_name, verbose):
+def get_contributors(service: Service, repo: Repo, verbose):
     """Retrieves contributors for a Github repository
 
     Args:
-        contributors_url (string): repository url
-        contributors_owner (string): repository owner
-        contributors_repo_name (string): repository name
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
         verbose (boolean): if True, retrieve all variables from API.
                            Otherwise, only collect username and contributions
 
@@ -63,10 +90,10 @@ def get_contributors(contributors_url, contributors_owner, contributors_repo_nam
         list: contributors list retrieved from Github
     """
     contributors = []
-    contributors_data = api.repos.list_contributors(
-        owner=contributors_owner, repo=contributors_repo_name, anon=0, per_page=100)
+    contributors_data = service.api.repos.list_contributors(
+        owner=repo.owner, repo=repo.repo_name, anon=0, per_page=100)
     for contributor in contributors_data:
-        entry = [contributors_url]
+        entry = [repo.url]
         if verbose:
             entry.extend(list(contributor.values()))
         else:
@@ -78,98 +105,92 @@ def get_contributors(contributors_url, contributors_owner, contributors_repo_nam
     return contributors
 
 
-def get_languages(languages_url, languages_owner, languages_repo_name):
+def get_languages(service: Service, repo: Repo):
     """Retrieves languages for a Github repository
 
     Args:
-        languages_url (string): repository url
-        languages_owner (string): repository owner
-        languages_repo_name (string): repository name
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
 
     Returns:
         list: languages list retrieved from Github
     """
     languages = []
-    languages_data = api.repos.list_languages(
-        owner=languages_owner, repo=languages_repo_name)
+    languages_data = service.api.repos.list_languages(
+        owner=repo.owner, repo=repo.repo_name)
     for language, num_chars in languages_data.items():
-        languages_entry = [languages_url]
+        languages_entry = [repo.url]
         languages_entry.extend([language, num_chars])
         print(languages_entry)
         languages.append(languages_entry)
     return languages
 
 
-def get_jupyter_notebooks(jupyter_notebooks_url, jupyter_notebooks_owner,
-                          jupyter_notebooks_repo_name, jupyter_notebooks_branch):
+def get_jupyter_notebooks(service: Service, repo: Repo):
     """Retrieves jupyter notebooks for a Github repository
 
     Args:
-        jupyter_notebooks_url (string): repository url
-        jupyter_notebooks_owner (string): repository owner
-        jupyter_notebooks_repo_name (string): repository name
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
 
     Returns:
         list: jupyter notebooks file name list retrieved from Github
     """
     jupyter_notebooks = []
-    jupyter_notebooks_data = api.git.get_tree(
-        owner=jupyter_notebooks_owner, repo=jupyter_notebooks_repo_name,
-        tree_sha=jupyter_notebooks_branch, recursive=1)
+    jupyter_notebooks_data = service.api.git.get_tree(
+        owner=repo.owner, repo=repo.repo_name,
+        tree_sha=repo.branch, recursive=1)
     for file in jupyter_notebooks_data["tree"]:
         if file["type"] == "blob" and ".ipynb" in file["path"]:
-            jupyter_notebooks_entry = [jupyter_notebooks_url, file["path"]]
+            jupyter_notebooks_entry = [repo.url, file["path"]]
             print(jupyter_notebooks_entry)
             jupyter_notebooks.append(jupyter_notebooks_entry)
     return jupyter_notebooks
 
-def get_readmes(readmes_url, readmes_owner, readmes_repo_name):
+
+def get_readmes(service: Service, repo: Repo):
     """Retrieves languages for a Github repository
 
     Args:
-        readmes_url (string): repository url
-        readmes_owner (string): repository owner
-        readmes_repo_name (string): repository name
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
 
     Returns:
         string: readme retrieved from Github
     """
-    readme = base64.b64decode(api.repos.get_readme(readmes_owner, readmes_repo_name).content)
+    readme = base64.b64decode(service.api.repos.get_readme(
+        repo.owner, repo.repo_name).content)
 
-    readme_data = [readmes_url, readme.decode()]
+    readme_data = [repo.url, readme.decode()]
     return readme_data
 
 
-def get_coc(coc_url, coc_owner, coc_repo_name, coc_branch):
+def get_coc(service: Service, repo: Repo):
     """Retrieves code of conduct file locations for a Github repository.
     There are also functions to retrieve a code of conduct in ghapi but they seem deprecated.
 
     Args:
-        coc_url (string): repository url
-        coc_owner (string): repository owner
-        coc_repo_name (string): repository name
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
 
     Returns:
         string: code of conduct retrieved from Github
     """
     coc = []
-    content = api.git.get_tree(owner=coc_owner, repo=coc_repo_name,
-                               tree_sha=coc_branch, recursive=1)
+    content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
+                                       tree_sha=repo.branch, recursive=1)
     for file in content["tree"]:
         if "code_of_conduct.md" in file.path.lower():
-            coc.extend([coc_url, file["path"]])
+            coc.extend([repo.url, file["path"]])
     return coc
 
 
-def get_data_from_api(github_url, github_owner, github_repo_name,
-                      variable_type, github_branch="main", verbose=True):
+def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True):
     """The function calls the ghapi api to retrieve
 
     Args:
-        github_url (string): repository url.
-            E.g.: https://api.github.com/repos/kequach/HTML-Examples/contributors
-        github_owner (string): repository owner. E.g.: kequach
-        github_repo_name (string): repository name. E.g.: HTML-Examples
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
         variable_type (string): which type of variable should be retrieved. Supported are:
                                 contributors, languages, jupyter_notebooks, readmes, coc
         verbose (boolean): if True, retrieve all variables from API.
@@ -183,30 +204,28 @@ def get_data_from_api(github_url, github_owner, github_repo_name,
         try:
             if variable_type == "contributors":
                 retrieved_variables.extend(
-                    get_contributors(github_url, github_owner, github_repo_name, verbose))
+                    get_contributors(service, repo, verbose))
             elif variable_type == "languages":
-                retrieved_variables.extend(
-                    get_languages(github_url, github_owner, github_repo_name))
+                retrieved_variables.extend(get_languages(service, repo))
             elif variable_type == "jupyter_notebooks":
                 retrieved_variables.extend(
-                    get_jupyter_notebooks(github_url, github_owner,
-                                          github_repo_name, github_branch))
+                    get_jupyter_notebooks(service, repo))
             elif variable_type == "readmes":
                 retrieved_variables.extend(
-                    get_readmes(github_url, github_owner, github_repo_name))
+                    get_readmes(service, repo))
             elif variable_type == "coc":
                 retrieved_variables.extend(
-                    get_coc(github_url, github_owner, github_repo_name, github_branch))
-        except Exception as e: # pylint: disable=broad-except
-            print(f"There was an error for repository {github_url} : {e}")
+                    get_coc(service, repo))
+        except Exception as e:  # pylint: disable=broad-except
+            print(f"There was an error for repository {repo.url} : {e}")
             # (non-existing repo)
             if any(status_code in str(e) for status_code in ["204", "404"]):
-                print(f"Repository does not exist: {github_url}")
+                print(f"Repository does not exist: {repo.url}")
             elif "403" in str(e):  # timeout
                 print("Github seems to have issues with users that are accessing API data from"
-                " an organization they are part of. It is not possible to distinguish between this"
-                "error and a timeout issue. In case this is an issue for you, you can create a new"
-                " Github account and generate a new token.")
+                      " an organization they are part of. It is not possible to distinguish"
+                      " between this error and a timeout issue. In case this is an issue for"
+                      " you, you can create a new Github account and generate a new token.")
                 print("Sleep for a while.")
                 for _ in range(100):
                     time.sleep(6)
@@ -220,17 +239,16 @@ def get_data_from_api(github_url, github_owner, github_repo_name,
         return retrieved_variables
 
 
-# if unauthorized API is used, rate limit is lower,
-# leading to a ban and waiting time needs to be increased
-load_dotenv()
-token = os.getenv('GITHUB_TOKEN')
-api = GhApi(token=token)
-if token is None:
-    SLEEP = 6
-else:
-    SLEEP = 2
-
 if __name__ == '__main__':
+    # if unauthorized API is used, rate limit is lower,
+    # leading to a ban and waiting time needs to be increased
+    load_dotenv()
+    token = os.getenv('GITHUB_TOKEN')
+    serv = Service(api=GhApi(token=token))
+    if token is None:
+        SLEEP = 6
+    else:
+        SLEEP = 2
     # Initiate the parser
     parser = argparse.ArgumentParser()
 
@@ -324,7 +342,7 @@ if __name__ == '__main__':
 
     if args.contributors:
         # get column names from arbitrary repo
-        data = api.repos.list_contributors("kequach", "HTML-Examples")
+        data = serv.api.repos.list_contributors("kequach", "HTML-Examples")
         if isinstance(data, L):
             column_headers = list(data[0].keys())
             all_column_headers = ["html_url_repository"] + column_headers
@@ -336,7 +354,9 @@ if __name__ == '__main__':
         contributors_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
                                                               df_repos["owner"], df_repos["name"])):
-            retrieved_data = get_data_from_api(url, owner, repo_name, "contributors")
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(
+                serv, repository, "contributors")
             if retrieved_data is not None:
                 contributors_variables.extend(retrieved_data)
             if counter % 10 == 0:
@@ -351,7 +371,8 @@ if __name__ == '__main__':
         language_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
                                                               df_repos["owner"], df_repos["name"])):
-            retrieved_data = get_data_from_api(url, owner, repo_name, "languages")
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "languages")
             if retrieved_data is not None:
                 language_variables.extend(retrieved_data)
             if counter % 10 == 0:
@@ -378,13 +399,14 @@ if __name__ == '__main__':
                                       "Jupyter Notebook"].drop(
             ["language", "num_chars"], axis=1)
         print(f"Parse {len(languages_jupyter.index)} repos.")
-        for counter, repo_url in enumerate(languages_jupyter["html_url_repository"]):
-            # example repo_url: https://github.com/UtrechtUniversity/SWORDS-UU
-            row = df_repos.loc[df_repos['html_url'] == repo_url]
+        for counter, url in enumerate(languages_jupyter["html_url_repository"]):
+            # example url: https://github.com/UtrechtUniversity/SWORDS-UU
+            row = df_repos.loc[df_repos['html_url'] == url]
             branch = row["default_branch"].values[0]
-            owner, repo_name = repo_url.split("github.com/")[1].split("/")
-            retrieved_data = get_data_from_api(repo_url, owner, repo_name,
-                                               "jupyter_notebooks", github_branch=branch)
+            owner, repo_name = url.split("github.com/")[1].split("/")
+            repository = Repo(url, owner, repo_name, branch)
+            retrieved_data = get_data_from_api(
+                serv, repository, "jupyter_notebooks")
             if retrieved_data is not None:
                 jupyter_variables.extend(retrieved_data)
             if counter % 10 == 0:
@@ -411,7 +433,8 @@ if __name__ == '__main__':
         readmes_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
                                                               df_repos["owner"], df_repos["name"])):
-            retrieved_data = get_data_from_api(url, owner, repo_name, "readmes")
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "readmes")
             print(retrieved_data)
             if retrieved_data is not None:
                 readmes_variables.append(retrieved_data)
@@ -428,7 +451,8 @@ if __name__ == '__main__':
         for counter, (url, owner, repo_name,
                       branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
                                                df_repos["name"], df_repos["default_branch"])):
-            retrieved_data = get_data_from_api(url, owner, repo_name, "coc", github_branch=branch)
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "coc")
             print(retrieved_data)
             if retrieved_data is not None:
                 coc_variables.append(retrieved_data)
