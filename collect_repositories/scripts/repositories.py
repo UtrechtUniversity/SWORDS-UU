@@ -16,6 +16,7 @@ class Service:
     """
     Common variables used in functions bundled in Service class.
     """
+
     def __init__(self, api: GhApi):
         self.api = api
         self.current_date = datetime.today().strftime('%Y-%m-%d')
@@ -36,7 +37,7 @@ def get_repos(user_id, service):
         # If more than one page is available, another request needs to be made.
         print(f"Fetching repos for user '{user_id}'")
         query_result = service.api.repos.list_for_user(user_id, per_page=100)
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(
             f"There was a problem with fetching repositories for user {user_id}"
         )
@@ -45,7 +46,8 @@ def get_repos(user_id, service):
     result = L()
     num_pages = service.api.last_page()
     if num_pages > 0:
-        query_result = pages(service.api.repos.list_for_user, num_pages, user_id)
+        query_result = pages(
+            service.api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
             result.append(page)
         time.sleep(2)

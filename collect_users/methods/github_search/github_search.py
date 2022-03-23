@@ -15,6 +15,7 @@ class Service:
     """
     Common variables used in functions bundled in Service class.
     """
+
     def __init__(self, api: GhApi):
         self.api = api
         self.api_service = "github.com"
@@ -38,7 +39,8 @@ def get_complete_query_result(query, query_type, service: Service):
     if query_type == "SEARCH_REPOS":
         service.api.search.repos(query, per_page=100)
         if service.api.last_page() > 0:
-            query_result = pages(service.api.search.repos, service.api.last_page(), query)
+            query_result = pages(service.api.search.repos,
+                                 service.api.last_page(), query)
         else:
             # if there is only one page, last_page() will return 0.
             # This will return nothing, so we need to use 1
@@ -46,7 +48,8 @@ def get_complete_query_result(query, query_type, service: Service):
     elif query_type == "SEARCH_USERS":
         service.api.search.users(query, per_page=100)
         if service.api.last_page() > 0:
-            query_result = pages(service.api.search.users, service.api.last_page(), query)
+            query_result = pages(service.api.search.users,
+                                 service.api.last_page(), query)
         else:
             # if there is only one page, last_page() will return 0.
             # This will return nothing, so we need to use 1
@@ -69,7 +72,8 @@ def get_users_from_repos(repos, service: Service):
     """
     result = L()
     for repo in repos:
-        result.append([service.api_service, service.current_date, repo["owner"]["login"]])
+        result.append(
+            [service.api_service, service.current_date, repo["owner"]["login"]])
     return result
 
 
@@ -85,9 +89,9 @@ def get_users_from_users(users, service: Service):
     """
     result = L()
     for user in users:
-        result.append([service.api_service, service.current_date, user["login"]])
+        result.append(
+            [service.api_service, service.current_date, user["login"]])
     return result
-
 
 
 if __name__ == '__main__':
@@ -103,7 +107,6 @@ if __name__ == '__main__':
     # Read arguments from the command line
     args = parser.parse_args()
 
-
     try:
         if args.topic:
             print(f"Searching topics for {args.topic}...")
@@ -111,7 +114,7 @@ if __name__ == '__main__':
                                                     "SEARCH_REPOS", serv)
             ids_topic_repos = get_users_from_repos(topic_repos, serv)
             pd.DataFrame(ids_topic_repos, columns=serv.columns).to_csv(Path(
-                "results", "github_search_topic.csv"),index=False)
+                "results", "github_search_topic.csv"), index=False)
             print("Searching topics done")
         else:
             print(
@@ -124,7 +127,7 @@ if __name__ == '__main__':
                                                      "SEARCH_REPOS", serv)
             ids_search_repos = get_users_from_repos(search_repos, serv)
             pd.DataFrame(ids_search_repos, columns=serv.columns).to_csv(Path(
-                "results", "github_search_repos.csv"),index=False)
+                "results", "github_search_repos.csv"), index=False)
             print("Searching repos done")
 
             print(f"Searching users for {args.search}...")
@@ -132,13 +135,13 @@ if __name__ == '__main__':
                                                      "SEARCH_USERS", serv)
             ids_search_users = get_users_from_users(search_users, serv)
             pd.DataFrame(ids_search_users, columns=serv.columns).to_csv(Path(
-                "results", "github_search_users.csv"),index=False)
+                "results", "github_search_users.csv"), index=False)
             print("Searching users done")
         else:
             print(
                 "No search argument provided. If you want to retrieve general results and "
                 "users, please provide the argument as --search")
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(f"Error occured: {e}")
         if "403" in str(e):
             print("A HTTP Error 403 indicates that rate limits are reached. "

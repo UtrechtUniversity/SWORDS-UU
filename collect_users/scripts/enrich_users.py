@@ -15,10 +15,12 @@ class Service:
     """
     Common variables used in functions bundled in Service class.
     """
+
     def __init__(self, api: GhApi, sleep):
         self.api = api
         self.current_date = datetime.today().strftime('%Y-%m-%d')
         self.sleep = sleep
+
 
 def read_input_file(file_path):
     """reads in the input file through Pandas
@@ -59,7 +61,7 @@ def get_userdata(user_list, service: Service):
                 for k in entries_to_remove:
                     user.pop(k, None)
             github_data.append(user)
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             print(f"User {user_id} encountered an error.")
             print(e)
         if index % 10 == 0:
@@ -111,14 +113,12 @@ if __name__ == '__main__':
         "--update",
         "-u",
         action='store_true',
-        help=
-        "Update everything including existing users or only add new ones. Default is False"
+        help="Update everything including existing users or only add new ones. Default is False"
     )
     parser.add_argument(
         "--fileupdate",
         "-fu",
-        help=
-        "If you want to update an existing file, provide a file name in this argument."
+        help="If you want to update an existing file, provide a file name in this argument."
     )
     parser.add_argument("--output",
                         "-o",
@@ -159,8 +159,6 @@ if __name__ == '__main__':
         SLEEP = 6
     serv = Service(api=GhApi(token=token), sleep=SLEEP)
 
-
-
     if 'new_user' in df_users.columns:  # updating users
         if UPDATE_EVERYTHING is True:
             df_users_all = pd.merge(
@@ -169,7 +167,8 @@ if __name__ == '__main__':
                 df_users_annotated,
                 on="user_id",
                 how="outer")
-            results_github_user_api = get_userdata(df_users_all["user_id"], serv)
+            results_github_user_api = get_userdata(
+                df_users_all["user_id"], serv)
 
         else:  # only add new users
             df_users_update = pd.merge(df_users[df_users["new_user"] is True],
@@ -177,7 +176,8 @@ if __name__ == '__main__':
                                        left_on="user_id",
                                        right_on="user_id",
                                        how="left")
-            results_github_user_api = get_userdata(df_users_update["user_id"], serv)
+            results_github_user_api = get_userdata(
+                df_users_update["user_id"], serv)
 
         df_users_enriched = update_users(df_users_annotated,
                                          results_github_user_api)
@@ -185,7 +185,7 @@ if __name__ == '__main__':
         results_github_user_api = get_userdata(df_users["user_id"], serv)
         results_github_user_api["login"] = results_github_user_api[
             "login"].str.lower(
-            )  # key to merge is lowercase so this needs to be lowercase as well
+        )  # key to merge is lowercase so this needs to be lowercase as well
         df_users_enriched = df_users.merge(results_github_user_api,
                                            left_on="user_id",
                                            right_on="login",
