@@ -77,7 +77,7 @@ def export_file(variables_retrieved, columns, var_type, output):
     )
 
 
-def get_contributors(service: Service, repo: Repo, verbose):
+def get_contributors(service: Service, repo: Repo, verbose=True):
     """Retrieves contributors for a Github repository
 
     Args:
