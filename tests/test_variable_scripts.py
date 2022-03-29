@@ -2,10 +2,10 @@
 Tests for methods in variable collection
 """
 import pytest
-from unittest.mock import MagicMock, Mock
-import os
+from unittest.mock import MagicMock
 
 from fastcore.foundation import AttrDict, L
+from howfairis import Compliance
 
 from collect_variables.scripts.github_api.github import (get_data_from_api,
                                                          get_coc,
@@ -15,10 +15,8 @@ from collect_variables.scripts.github_api.github import (get_data_from_api,
                                                          get_readmes,
                                                          Repo)
 
-
-@pytest.fixture
-def path():
-    return os.path.dirname(__file__)
+from collect_variables.scripts.howfairis_api.howfairis_variables import (get_howfairis_compliance,
+                                                                         parse_repo)
 
 
 @pytest.fixture
@@ -27,8 +25,47 @@ def mock_repo(*args, **kwargs):
 
 
 """
+Tests for howfairis.py
+"""
+
+
+def test_parse_repo(mock_repo, monkeypatch):
+    def mock_get(*args, **kwargs):
+        return (True, True, True, True, False)
+    monkeypatch.setattr(
+        "collect_variables.scripts.howfairis_api.howfairis_variables.get_howfairis_compliance", mock_get)
+
+    result = parse_repo(mock_repo.url)
+    assert "asreview-covid19" in result[0] and True == result[1] 
+
+
+def test_get_howfairis_compliance(mock_repo, monkeypatch):
+    def mock_get(*args, **kwargs):
+        return Compliance(repository=True,
+                          license_=True,
+                          registry=True,
+                          citation=True,
+                          checklist=False)
+    monkeypatch.setattr(
+        "howfairis.Checker.check_five_recommendations", mock_get)
+
+    result = get_howfairis_compliance(mock_repo.url)
+    assert True == result[1] 
+
+
+"""
+Compliance(repository=self.check_repository(),
+                          license_=self.check_license(),
+                          registry=self.check_registry(),
+                          citation=self.check_citation(),
+                          checklist=self.check_checklist())
+                          
+"""
+
+"""
 Tests for github.py
 """
+
 
 def test_get_data_from_api(mock_repo):
     def mock_get(*args, **kwargs):
