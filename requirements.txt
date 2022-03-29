@@ -4,6 +4,7 @@ ghapi
 howfairis
 jupyterlab
 matplotlib
+openpyxl
 pandas
 paperswithcode-client
 python-dotenv
