@@ -2,23 +2,24 @@
 This file retrieves all variables in JSON format. Used for Kibana dashboard visualization.
 """
 import time
-from datetime import datetime
+import os
 import ast
 import argparse
 import simplejson as json
+from dotenv import load_dotenv
+from ghapi.all import GhApi
 
-from github_api.github import get_data_from_api, read_input_file
+from github_api.github import get_data_from_api, read_input_file, Service, Repo
 from howfairis_api.howfairis_variables import parse_repo
 
 
-def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
+def add_data_from_api(service, repo, variable_type, keys):
     """Retrieves Github API data. Utilizes the function from github_api/github.py to do so.
     This function adds the retrieved variables directly to the data dictionary.
 
     Args:
-        repo_url (string): Repository url
-        repo_owner (string): Repository owner
-        repo (string): Repository name
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
         variable_type (string): which type of variable should be retrieved.
                                 Supported are: contributors, languages, readmes
         keys (list): A list of the keys for the retrieved data
@@ -29,7 +30,7 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
     # for nested data only, otherwise key can be directly used
     if variable_type in ("contributors", "languages"):
         data[variable_type] = []
-    retrieved_data = get_data_from_api(repo_url, repo_owner, repo, variable_type, verbose=False)
+    retrieved_data = get_data_from_api(service, repo, variable_type, verbose=False)
     if retrieved_data is not None:
         if variable_type in ("contributors", "languages"):
             for entry in retrieved_data:
@@ -43,6 +44,9 @@ def add_data_from_api(repo_url, repo_owner, repo, variable_type, keys):
 
 
 if __name__ == '__main__':
+    load_dotenv()
+    token = os.getenv('GITHUB_TOKEN')
+    serv = Service(api=GhApi(token=token))
     # Initiate the parser
     parser = argparse.ArgumentParser()
 
@@ -60,7 +64,6 @@ if __name__ == '__main__':
     # Read arguments from the command line
     args = parser.parse_args()
     df_repos = read_input_file(args.input)
-    current_date = datetime.today().strftime("%Y-%m-%d")
 
 
 
@@ -68,10 +71,11 @@ if __name__ == '__main__':
     for counter, row in df_repos.iterrows():
         url, owner = row["html_url"], row["owner"]
         repo_name, description = row["name"], row["description"]
+        branch = row["default_branch"]
         topics_str = row["topics"]
         general_keys = ["url", "owner", "repository_name",
                         "date_all_variable_collection", "description"]
-        general_values = [url, owner, repo_name, current_date, description]
+        general_values = [url, owner, repo_name, serv.current_date, description]
         data = dict(zip(general_keys, general_values))
 
         # remove topics from index slice to not have topics twice
@@ -85,14 +89,19 @@ if __name__ == '__main__':
                           "howfairis_citation", "howfairis_checklist"]
         readme_key = ["readme"]
 
-        REQUEST_SUCCESSFUL = add_data_from_api(url, owner, repo_name, "contributors", contrib_keys)
+        repository = Repo(repo_url = url, 
+                          repo_owner = owner,
+                          repo_repo_name=repo_name,
+                          repo_branch=branch)
+
+        REQUEST_SUCCESSFUL = add_data_from_api(serv, repository, "contributors", contrib_keys)
         if REQUEST_SUCCESSFUL:
             howfairis_values = parse_repo(url)
             data["howfairis"] = dict(zip(howfairis_keys, howfairis_values[1:]))
             topics = ast.literal_eval(topics_str)
             data["topics"] = topics
-            add_data_from_api(url, owner, repo_name, "languages", lang_keys)
-            add_data_from_api(url, owner, repo_name, "readmes", readme_key)
+            add_data_from_api(serv, repository, "languages", lang_keys)
+            add_data_from_api(serv, repository, "readmes", readme_key)
             print(data)
 
             with open(args.output, "a", encoding="utf8") as fp:
