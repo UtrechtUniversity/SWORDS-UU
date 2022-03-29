@@ -89,7 +89,7 @@ if __name__ == '__main__':
                           "howfairis_citation", "howfairis_checklist"]
         readme_key = ["readme"]
 
-        repository = Repo(repo_url = url, 
+        repository = Repo(repo_url = url,
                           repo_owner = owner,
                           repo_repo_name=repo_name,
                           repo_branch=branch)
