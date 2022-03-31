@@ -3,18 +3,11 @@ Tests for retrieval methods in user collection
 """
 import pytest
 from unittest.mock import MagicMock, Mock
-import os
 
 from fastcore.foundation import AttrDict, L
 
 from collect_repositories.scripts.repositories import get_repos, get_repos_formatted
 
-
-
-
-@pytest.fixture
-def path():
-    return os.path.dirname(__file__)
 
 @pytest.fixture
 def mock_repos(*args, **kwargs):
@@ -51,8 +44,5 @@ def test_get_repos():
     assert result[0]["name"] == "MyAnimeList-Analysis"
 
 def test_get_repos_formatted(mock_repos):
-
-
     result = get_repos_formatted(mock_repos) 
-    print(result[1])
     assert result[0]["name"] == "MyAnimeList-Analysis"

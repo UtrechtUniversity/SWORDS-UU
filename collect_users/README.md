@@ -88,7 +88,7 @@ There are 4 arguments that can be passed.
 
 - `--input`: The file name of the input. Default: `results/users_merged.csv`
 - `--update`: Boolean flag. Update everything including existing users or only add new users. Only relevant if fileupdate argument is provided. This is false by default.
-- `--fileupdate`: If you want to update an existing file, provide a file name in this argument. Example: `results/unique_users_annotated.xlsx`
+- `--fileupdate`: If you want to update an existing file, provide a file name in this argument. Example: `results/users_enriched.csv`
 - `--output`: The file name of the enriched output. Default: `results/users_enriched.csv`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Examples:
@@ -97,6 +97,7 @@ Navigate to this folder and execute the script. Adjust parameters as needed. Exa
 python scripts/enrich_users.py --input results/users_merged.csv --output results/users_enriched.csv
 python scripts/enrich_users.py --input results/users_merged.csv --fileupdate results/users_enriched.csv
 python scripts/enrich_users.py --input results/users_merged.csv --update --fileupdate results/users_enriched.csv --output results/users_enriched_updated.csv
+python scripts/enrich_users.py --input results/users_merged.csv --update --fileupdate results/users_enriched_summer2021.xlsx --output results/users_enriched_updated.csv
 ```
 
 ### Prepare filtering

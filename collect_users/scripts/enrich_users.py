@@ -16,8 +16,9 @@ class Service:
     Common variables used in functions bundled in Service class.
     """
 
-    def __init__(self, api: GhApi, sleep):
+    def __init__(self, api: GhApi, sleep=6):
         self.api = api
+        self.api_service = "github.com"
         self.current_date = datetime.today().strftime('%Y-%m-%d')
         self.sleep = sleep
 
@@ -145,7 +146,7 @@ if __name__ == '__main__':
             print("No file with annotated user data yet available.")
         try:
             print("New users:")
-            print(df_users[df_users["new_user"] is True])
+            print(df_users[df_users["new_user"]])
         except KeyError:
             print("No new users.")
 
@@ -160,9 +161,9 @@ if __name__ == '__main__':
     serv = Service(api=GhApi(token=token), sleep=SLEEP)
 
     if 'new_user' in df_users.columns:  # updating users
-        if UPDATE_EVERYTHING is True:
+        if UPDATE_EVERYTHING:
             df_users_all = pd.merge(
-                df_users[df_users["new_user"] is True].drop(["source"],
+                df_users[df_users["new_user"]].drop(["source"],
                                                             axis=1),
                 df_users_annotated,
                 on="user_id",
@@ -171,7 +172,7 @@ if __name__ == '__main__':
                 df_users_all["user_id"], serv)
 
         else:  # only add new users
-            df_users_update = pd.merge(df_users[df_users["new_user"] is True],
+            df_users_update = pd.merge(df_users[df_users["new_user"]],
                                        df_users_annotated,
                                        left_on="user_id",
                                        right_on="user_id",
