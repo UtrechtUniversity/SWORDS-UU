@@ -17,9 +17,10 @@ class Service:
     Common variables used in functions bundled in Service class.
     """
 
-    def __init__(self, api: GhApi):
+    def __init__(self, api: GhApi, sleep=6):
         self.api = api
         self.current_date = datetime.today().strftime('%Y-%m-%d')
+        self.sleep = sleep
 
 
 def get_repos(user_id, service):
@@ -50,7 +51,7 @@ def get_repos(user_id, service):
             service.api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
             result.append(page)
-        time.sleep(2)
+        time.sleep(serv.sleep)
     else:
         result.extend(query_result)
     return result
@@ -112,7 +113,7 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower,
     # leading to a ban and waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
-    serv = Service(api=GhApi(token=token))
+    serv = Service(api=GhApi(token=token), sleep=2)
     df_users = read_input_file(args.users)
 
     # drop filtered users
