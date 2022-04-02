@@ -1,4 +1,4 @@
-name: Tests
+name: Unit tests
 
 on: [push, pull_request]
 
@@ -23,5 +23,5 @@ jobs:
         pip install pytest
     - name: Run tests
       run: 
-        pytest
+        pytest tests/unit
 
