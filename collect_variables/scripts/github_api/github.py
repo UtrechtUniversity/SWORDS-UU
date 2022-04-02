@@ -20,9 +20,10 @@ class Service:
     Common variables used in functions bundled in Service class.
     """
 
-    def __init__(self, api: GhApi):
+    def __init__(self, api: GhApi, sleep=6):
         self.api = api
         self.current_date = datetime.today().strftime('%Y-%m-%d')
+        self.sleep = sleep
 
 
 class Repo:
@@ -236,6 +237,7 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                 )
             return None
         request_successful = True
+        time.sleep(service.sleep)
         return retrieved_variables
 
 
@@ -244,11 +246,11 @@ if __name__ == '__main__':
     # leading to a ban and waiting time needs to be increased
     load_dotenv()
     token = os.getenv('GITHUB_TOKEN')
-    serv = Service(api=GhApi(token=token))
     if token is None:
         SLEEP = 6
     else:
         SLEEP = 2
+    serv = Service(api=GhApi(token=token), sleep=SLEEP)
     # Initiate the parser
     parser = argparse.ArgumentParser()
 
@@ -330,8 +332,8 @@ if __name__ == '__main__':
     print(
         f"Retrieving howfairis variables for the following file: {args.input}")
     print(f"Retrieving contributors? {args.contributors}"
-          f"\nRetrieving jupyter notebooks? {args.jupyter}"
           f"\nRetrieving languages? {args.languages}"
+          f"\nRetrieving jupyter notebooks? {args.jupyter}"
           f"\nRetrieving topics? {args.topics}"
           f"\nRetrieving readmes? {args.readmes}"
           f"\nRetrieving code of conducts? {args.coc}")
@@ -346,7 +348,7 @@ if __name__ == '__main__':
         if isinstance(data, L):
             column_headers = list(data[0].keys())
             all_column_headers = ["html_url_repository"] + column_headers
-            time.sleep(SLEEP)
+            time.sleep(serv.sleep)
         else:
             print("There was an error retrieving column names.")
 
@@ -361,7 +363,6 @@ if __name__ == '__main__':
                 contributors_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
-            time.sleep(SLEEP)
 
         export_file(contributors_variables, all_column_headers, "contributor",
                     args.contributors_output)
@@ -377,7 +378,6 @@ if __name__ == '__main__':
                 language_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
-            time.sleep(SLEEP)
 
         cols = ["html_url_repository", "language", "num_chars"]
         export_file(language_variables, cols,
@@ -412,7 +412,6 @@ if __name__ == '__main__':
             if counter % 10 == 0:
                 print(
                     f"Parsed {counter} out of {len(languages_jupyter.index)} repos.")
-            time.sleep(SLEEP)
         export_file(jupyter_variables, ["html_url_repository", "path"], "jupyter notebook",
                     args.jupyter_output)
 
@@ -440,7 +439,6 @@ if __name__ == '__main__':
                 readmes_variables.append(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
-            time.sleep(SLEEP)
 
         export_file(readmes_variables, ["html_url_repository", "readme"], "readme",
                     args.readmes_output)
@@ -458,7 +456,6 @@ if __name__ == '__main__':
                 coc_variables.append(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
-            time.sleep(SLEEP)
 
         export_file(coc_variables, ["html_url_repository", "coc"], "coc",
                     args.coc_output)
