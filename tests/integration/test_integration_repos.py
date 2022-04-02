@@ -4,13 +4,12 @@ Tests for retrieval methods in user collection
 import pytest
 
 from ghapi.all import GhApi
-import os
 import time
 
-from collect_repositories.scripts.repositories import get_repos, get_repos_formatted, Service, read_input_file
+from collect_repositories.scripts.repositories import get_repos, get_repos_formatted, Service
 
 """
-Tests for github_search.py
+Tests for repositories.py
 """
 
 
