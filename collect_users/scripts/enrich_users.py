@@ -11,6 +11,18 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi
 
 
+class Service:
+    """
+    Common variables used in functions bundled in Service class.
+    """
+
+    def __init__(self, api: GhApi, sleep=6):
+        self.api = api
+        self.api_service = "github.com"
+        self.current_date = datetime.today().strftime('%Y-%m-%d')
+        self.sleep = sleep
+
+
 def read_input_file(file_path):
     """reads in the input file through Pandas
 
@@ -27,11 +39,12 @@ def read_input_file(file_path):
     return file
 
 
-def get_userdata(user_list):
+def get_userdata(user_list, service: Service):
     """Retrieves Github userdata from a list of users
 
     Args:
         user_list (list): list of Github usernames
+        service (Service): Service object with API connection and metadata vars
 
     Returns:
         DataFrame: Complete dataframe with enriched users
@@ -39,10 +52,9 @@ def get_userdata(user_list):
     github_data = []
     for index, user_id in enumerate(user_list):
         try:
-            user = dict(api.users.get_by_username(user_id))
-            if len(
-                    user
-            ) > 32:  # if the authenticated user is retrieved, there will be extra variables
+            user = dict(service.api.users.get_by_username(user_id))
+            # if the authenticated user is retrieved, there will be extra variables
+            if len(user) > 32:
                 entries_to_remove = ('private_gists', 'total_private_repos',
                                      'owned_private_repos', 'disk_usage',
                                      'collaborators',
@@ -50,12 +62,12 @@ def get_userdata(user_list):
                 for k in entries_to_remove:
                     user.pop(k, None)
             github_data.append(user)
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             print(f"User {user_id} encountered an error.")
             print(e)
         if index % 10 == 0:
             print(f"Processed {index} out of {len(user_list)} users.")
-        time.sleep(SLEEP)
+        time.sleep(service.sleep)
     return pd.DataFrame(github_data)
 
 
@@ -102,14 +114,12 @@ if __name__ == '__main__':
         "--update",
         "-u",
         action='store_true',
-        help=
-        "Update everything including existing users or only add new ones. Default is False"
+        help="Update everything including existing users or only add new ones. Default is False"
     )
     parser.add_argument(
         "--fileupdate",
         "-fu",
-        help=
-        "If you want to update an existing file, provide a file name in this argument."
+        help="If you want to update an existing file, provide a file name in this argument."
     )
     parser.add_argument("--output",
                         "-o",
@@ -136,7 +146,7 @@ if __name__ == '__main__':
             print("No file with annotated user data yet available.")
         try:
             print("New users:")
-            print(df_users[df_users["new_user"] is True])
+            print(df_users[df_users["new_user"]])
         except KeyError:
             print("No new users.")
 
@@ -144,46 +154,46 @@ if __name__ == '__main__':
     # if unauthorized API is used, rate limit is lower leading to a ban and
     # waiting time needs to be increased
     token = os.getenv('GITHUB_TOKEN')
-    api = GhApi(token=token)
-
     if token is not None:  # authentication
         SLEEP = 2
     else:  # no authentication
         SLEEP = 6
+    serv = Service(api=GhApi(token=token), sleep=SLEEP)
 
     if 'new_user' in df_users.columns:  # updating users
-        if UPDATE_EVERYTHING is True:
+        if UPDATE_EVERYTHING:
             df_users_all = pd.merge(
-                df_users[df_users["new_user"] is True].drop(["source"],
+                df_users[df_users["new_user"]].drop(["source"],
                                                             axis=1),
                 df_users_annotated,
                 on="user_id",
                 how="outer")
-            results_github_user_api = get_userdata(df_users_all["user_id"])
+            results_github_user_api = get_userdata(
+                df_users_all["user_id"], serv)
 
         else:  # only add new users
-            df_users_update = pd.merge(df_users[df_users["new_user"] is True],
+            df_users_update = pd.merge(df_users[df_users["new_user"]],
                                        df_users_annotated,
                                        left_on="user_id",
                                        right_on="user_id",
                                        how="left")
-            results_github_user_api = get_userdata(df_users_update["user_id"])
+            results_github_user_api = get_userdata(
+                df_users_update["user_id"], serv)
 
         df_users_enriched = update_users(df_users_annotated,
                                          results_github_user_api)
     else:  # first time collecting data
-        results_github_user_api = get_userdata(df_users["user_id"])
+        results_github_user_api = get_userdata(df_users["user_id"], serv)
         results_github_user_api["login"] = results_github_user_api[
             "login"].str.lower(
-            )  # key to merge is lowercase so this needs to be lowercase as well
+        )  # key to merge is lowercase so this needs to be lowercase as well
         df_users_enriched = df_users.merge(results_github_user_api,
                                            left_on="user_id",
                                            right_on="login",
                                            how="left")
         df_users_enriched.drop(["login"], axis=1, inplace=True)
 
-    current_date = datetime.today().strftime('%Y-%m-%d')
-    df_users_enriched["date"] = current_date
+    df_users_enriched["date"] = serv.current_date
     if "xlsx" in args.output:
         df_users_enriched.to_excel(args.output, index=False)
     else:

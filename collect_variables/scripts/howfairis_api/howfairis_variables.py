@@ -84,7 +84,8 @@ def parse_repo(repo_url):
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 user = os.getenv('GITHUB_USER')
-os.environ['APIKEY_GITHUB'] = user + ":" + token
+if token is not None and user is not None:
+    os.environ['APIKEY_GITHUB'] = user + ":" + token
 
 if __name__ == '__main__':
     # Initiate the parser
