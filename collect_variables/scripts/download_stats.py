@@ -10,6 +10,7 @@ import pandas as pd
 
 PYPI_STATS = "https://pypistats.org/api/packages/{}/recent"
 CRAN_STATS = "https://cranlogs.r-pkg.org/downloads/total/last-month/{}"
+NPM_STATS = "https://api.npmjs.org/downloads/point/last-month/{}"
 
 if __name__ == '__main__':
     # Initiate the parser
@@ -45,11 +46,11 @@ if __name__ == '__main__':
                 continue
 
             # python
-            matches = re.finditer(r"pip install (.*?)[\\\s]", str(readme))
+            matches = re.finditer(r"pip install( -+.*)* (.*?)[\\\s]", str(readme))
 
             for match in matches:
 
-                if name == match.group(1):
+                if name == match.group(2):
                     print(f"Download stats for Python module '{name}'")
                     try:
                         stats = requests.get(PYPI_STATS.format(name))
@@ -67,7 +68,6 @@ if __name__ == '__main__':
                     except Exception as err:  # pylint: disable=broad-except
                         pass
                     break
-
             # R
             matches = re.finditer(r"install\.packages\([\"\'](.*?)[\"\']\)",
                                   str(readme))
@@ -94,7 +94,35 @@ if __name__ == '__main__':
                         raise err
                     break
 
-        df_stats = pd.DataFrame(result)
+            # JS
+            matches = re.finditer(r"npm (i|install)( -+.*)* (.*)",
+                                  str(readme))
+
+            for match in matches:
+                if name in match.group(3):
+                    print(f"Download stats for npm package '{name}'")
+                    try:
+                        if "@" in match.group(3):
+                            stats = requests.get(NPM_STATS.format(match.group(3)))
+                        else:
+                            stats = requests.get(NPM_STATS.format(name))
+                        print(stats.json()["downloads"])
+                        result.append({
+                            "repository_name":
+                            name,
+                            "owner":
+                            repo["owner"],
+                            "last_month":
+                            stats.json()["downloads"],
+                            "date":
+                            str(datetime.date.today())
+                        })
+
+                    except Exception as err:  # pylint: disable=broad-except
+                        print("Repository does not exist")
+                    break
+
+        df_stats = pd.DataFrame(result).sort_values(["owner", "repository_name"], inplace=True)
         print(df_stats)
 
         df_stats.to_csv(args.output, index=None)
