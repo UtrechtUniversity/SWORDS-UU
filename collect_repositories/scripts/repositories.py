@@ -51,7 +51,7 @@ def get_repos(user_id, service):
             service.api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
             result.append(page)
-        time.sleep(serv.sleep)
+        time.sleep(service.sleep)
     else:
         result.extend(query_result)
     return result
