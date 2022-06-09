@@ -135,15 +135,15 @@ if __name__ == '__main__':
 
     print("Finished processing users. Flattening nested structures...")
     # Flatten nested structures
-    for repo in result_repos:
-        for key in repo.keys():
-            if isinstance(repo[key], AttrDict):
+    for result_repo in result_repos:
+        for key in result_repo.keys():
+            if isinstance(result_repo[key], AttrDict):
                 if key == "owner":
-                    repo[key] = repo[key]["login"]
+                    result_repo[key] = result_repo[key]["login"]
                 elif key == "permissions":
-                    repo[key] = ""
+                    result_repo[key] = ""
                 elif key == "license":
-                    repo[key] = repo[key]["name"]
+                    result_repo[key] = result_repo[key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)
     df_result_repos["date"] = serv.current_date
