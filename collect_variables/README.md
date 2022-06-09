@@ -51,7 +51,7 @@ python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositor
 
 In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, file paths, readme content and topics in tidy data format. To do this, execute the file **github.py**.
 There are several arguments that can be passed. For each of the information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional.
-For file locations, sepcify a comma separated string for file names that should be searched. Note that the file names work as a substring so you can also match any `.ipynb` file for example. This can include folder names. The query `test` will also match folders that are named `tests`. See examples.
+For file locations, specify a list of comma separated strings for file or folder names that should be searched. Note that the names work as a substring so you can also match any `.ipynb` file for example. See examples.
 
 - `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `results/repositories_howfairis.csv`
 - `--contributors`: Set this flag if contributors should be retrieved
