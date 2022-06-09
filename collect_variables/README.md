@@ -49,39 +49,38 @@ python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositor
 
 ### Gather GitHub variables as tidy data
 
-In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, jupyter notebook file paths and topics in tidy data format. To do this, execute the file **github.py**.
-There are 10 arguments that can be passed. For each of the 4 information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional. In addition, the jupyter notebooks require an additional argument to specify an input file for the languages (output file of languages) in case languages is not also retrieved. See examples.
+In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, file paths, readme content and topics in tidy data format. To do this, execute the file **github.py**.
+There are several arguments that can be passed. For each of the information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional.
+For file locations, sepcify a comma separated string for file names that should be searched. Note that the file names work as a substring so you can also match any `.ipynb` file for example. This can include folder names. The query `test` will also match folders that are named `tests`. See examples.
 
 - `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `results/repositories_howfairis.csv`
 - `--contributors`: Set this flag if contributors should be retrieved
 - `--contributors_output`: Optional. Path for contributors output. Default: `results/contributors`
-- `--jupyter`: Set this flag if jupyter notebooks should be retrieved
-- `--input_languages`: Optional. If languages are not retrieved but jupyter notebooks should be, there needs to be an input file with the languages.
-- `--jupyter_output`: Optional. Path for jupyter notebooks output. Default: `results/jupyter_notebooks`
 - `--languages`: Set this flag if languages should be retrieved
 - `--languages_output`: Optional. Path for languages output. Default: `results/languages`
 - `--topics`: Set this flag if topics should be retrieved
 - `--topics_output`: Optional. Path for topics output. Default: `results/topics`
 - `--readmes`: Set this flag if readmes should be retrieved
 - `--readmes_output`: Optional. Path for readmes output. Default: `results/readmes`
-- `--coc`: Set this flag if code of conduct should be retrieved
-- `--coc_output`: Optional. Path for coc output. Default: `results/coc`
+- `--files`: A comma separated string of file names that should be searched. This can also include folder names. Can be used to see if there is a code of conduct or a tests folder for example.
+- `--files_output`: Optional. Path for files output. Default: `results/files`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/github_api/github.py --jupyter --contributors --languages --topics --readmes --coc
+python scripts/github_api/github.py --contributors --languages --topics --readmes --files "CONTRIBUTING,code_of_conduct,test"
 python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output results/contributors.csv
-python scripts/github_api/github.py --input results/repositories_howfairis.csv --contributors --languages --jupyter --topics
-python scripts/github_api/github.py --input results/repositories_howfairis.csv --jupyter --input_languages results/languages.csv
-python scripts/github_api/github.py --readmes --coc
+python scripts/github_api/github.py --input results/repositories_howfairis.csv --contributors --languages --topics
+python scripts/github_api/github.py --input results/repositories_howfairis.csv --input_languages results/languages.csv
+python scripts/github_api/github.py --readmes
+python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct,test"
 ```
 
 ### Download statistics
 
-Installation statistics are collected from the PyPi and RStudio CRAN mirror.
+Installation statistics are collected from the registries PyPi, npm and RStudio CRAN mirror. Assumes JSON format as input.
 
-```
+```console
 python scripts/download_stats.py
 ```
 
