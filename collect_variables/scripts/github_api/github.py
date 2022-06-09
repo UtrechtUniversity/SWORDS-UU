@@ -152,7 +152,7 @@ def get_file_locations(service: Service, repo: Repo, file_names):
     Args:
         service    (Service): Service object with API connection and metadata vars
         repo       (Repo)   : Repository variables bundled together
-        file_names (list)   : List of file names that should be searched. 
+        file_names (list)   : List of file names that should be searched.
                               Examples: ".ipynb", "CONTRIBUTING"
 
     Returns:
@@ -161,7 +161,7 @@ def get_file_locations(service: Service, repo: Repo, file_names):
     content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
                                        tree_sha=repo.branch, recursive=1)
     for file in content["tree"]:
-        if any(file_name.lower() in file.path.lower() for file_name in file_names):  
+        if any(file_name.lower() in file.path.lower() for file_name in file_names):
             file_names_entry = [repo.url, file["path"]]
             print(file_names_entry)
             file_names.append(file_names_entry)
