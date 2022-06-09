@@ -339,7 +339,6 @@ if __name__ == '__main__':
           f"\nRetrieving test locations? {args.tests}")
 
     df_repos = read_input_file(args.input)
-    df_repos = df_repos.head(100)
 
     if args.contributors:
         # get column names from arbitrary repo
