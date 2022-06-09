@@ -2,7 +2,6 @@
 This file retrieves Github API variables for an input file with repositories.
 """
 import os
-import sys
 import time
 from datetime import datetime
 import ast
@@ -153,7 +152,8 @@ def get_file_locations(service: Service, repo: Repo, file_names):
     Args:
         service    (Service): Service object with API connection and metadata vars
         repo       (Repo)   : Repository variables bundled together
-        file_names (list)   : List of file names that should be searched. Examples: ".ipynb", "CONTRIBUTING"
+        file_names (list)   : List of file names that should be searched. 
+                              Examples: ".ipynb", "CONTRIBUTING"
 
     Returns:
         list: file name list retrieved from Github
