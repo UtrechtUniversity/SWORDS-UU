@@ -76,10 +76,10 @@ def test_get_data_from_api(mock_repo):
 
     service = MagicMock()
     service.api.git.get_tree.side_effect = mock_get
-    service.file_list.side_effect = ["code_of_conduct"]
+    service.file_list = ["code_of_conduct"]
 
     result = get_data_from_api(service, mock_repo, "files")
-    assert result[0] == "code_of_conduct.md"
+    assert result[0][1] == "code_of_conduct.md"
 
 
 def test_get_contributors(mock_repo):

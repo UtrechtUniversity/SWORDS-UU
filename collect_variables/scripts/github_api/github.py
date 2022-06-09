@@ -158,14 +158,15 @@ def get_file_locations(service: Service, repo: Repo, file_names):
     Returns:
         list: file name list retrieved from Github
     """
+    result = []
     content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
                                        tree_sha=repo.branch, recursive=1)
     for file in content["tree"]:
         if any(file_name.lower() in file.path.lower() for file_name in file_names):
             file_names_entry = [repo.url, file["path"]]
             print(file_names_entry)
-            file_names.append(file_names_entry)
-    return file_names
+            result.append(file_names_entry)
+    return result
 
 
 
