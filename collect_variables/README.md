@@ -64,6 +64,8 @@ For file locations, sepcify a comma separated string for file names that should 
 - `--readmes_output`: Optional. Path for readmes output. Default: `results/readmes`
 - `--files`: A comma separated string of file names that should be searched. This can also include folder names. Can be used to see if there is a code of conduct or a tests folder for example.
 - `--files_output`: Optional. Path for files output. Default: `results/files`
+- `--tests`: Set this flag if test folder locations should be retrieved. This only retrieves the first result that is matched during recursive search. One matching result means that a test folder exists.
+- `--tests_output`: Optional. Path for test folder output. Default: `results/test_paths`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
@@ -73,7 +75,9 @@ python scripts/github_api/github.py --input ../collect_repositories/results/repo
 python scripts/github_api/github.py --input results/repositories_howfairis.csv --contributors --languages --topics
 python scripts/github_api/github.py --input results/repositories_howfairis.csv --input_languages results/languages.csv
 python scripts/github_api/github.py --readmes
-python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct,test"
+python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct"
+python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct" --tests
+python scripts/github_api/github.py --tests
 ```
 
 ### Download statistics

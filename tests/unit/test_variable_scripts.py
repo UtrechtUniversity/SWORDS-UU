@@ -12,6 +12,7 @@ from collect_variables.scripts.github_api.github import (get_data_from_api,
                                                          get_languages,
                                                          get_readmes,
                                                          get_file_locations,
+                                                         get_test_location,
                                                          Repo)
 
 from collect_variables.scripts.howfairis_api.howfairis_variables import (get_howfairis_compliance,
@@ -109,6 +110,20 @@ def test_get_files(mock_repo):
     result = get_file_locations(service, mock_repo, [".ipynb"])
     assert result[0][1] == "analysis_notebook.ipynb"
 
+
+def test_get_test_location(mock_repo):
+    def mock_get(*args, **kwargs):
+        return AttrDict(url="https://api.github.com/repos/kequach/MyAnimeList-Analysis/git/trees/ef0ab1f473fea05a46ffdafdf08a4acf6ddfa6f4",
+                        tree=L(AttrDict(path="tests",
+                                        type="tree"),
+                               AttrDict(path="analysis_notebook.ipynb",
+                                        type="blob")))
+
+    service = MagicMock()
+    service.api.git.get_tree.side_effect = mock_get
+
+    result = get_test_location(service, mock_repo)
+    assert result[0][1] == "tests"
 
 def test_get_languages(mock_repo):
     def mock_get(*args, **kwargs):

@@ -69,3 +69,10 @@ def test_get_file_variables(repo, service):
     repository = repo
     retrieved_data = get_data_from_api(serv, repository, "files")
     assert len(retrieved_data[0]) == 2
+
+
+def test_get_test_variables(repo, service):
+    serv = service
+    repository = repo
+    retrieved_data = get_data_from_api(serv, repository, "tests")
+    assert len(retrieved_data[0]) == 2

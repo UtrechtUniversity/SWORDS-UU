@@ -168,6 +168,28 @@ def get_file_locations(service: Service, repo: Repo, file_names):
             result.append(file_names_entry)
     return result
 
+def get_test_location(service: Service, repo: Repo):
+    """Retrieves test folder locations for a Github repository.
+
+    Args:
+        service    (Service): Service object with API connection and metadata vars
+        repo       (Repo)   : Repository variables bundled together
+
+    Returns:
+        list: test folder list retrieved from Github
+    """
+    result = []
+    content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
+                                       tree_sha=repo.branch, recursive=1)
+    for file in content["tree"]:
+        if "test" in file.path.lower() and file.type == "tree":
+            folder_names_entry = [repo.url, file["path"]]
+            print(folder_names_entry)
+            result.append(folder_names_entry)
+            # if there is one positive result we can conclude that there are tests
+            return result
+    return result
+
 
 
 def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True):
@@ -198,6 +220,9 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
             elif variable_type == "files":
                 retrieved_variables.extend(
                     get_file_locations(service, repo, service.file_list))
+            elif variable_type == "tests":
+                retrieved_variables.extend(
+                    get_test_location(service, repo))
         except Exception as e:  # pylint: disable=broad-except
             print(f"There was an error for repository {repo.url} : {e}")
             # (non-existing repo)
@@ -292,6 +317,16 @@ if __name__ == '__main__':
                         help="Optional. Path for file location output",
                         default="results/files.csv")
 
+    parser.add_argument("--tests",
+                        "-tests",
+                        action='store_true',
+                        help="Set this flag if test folder paths should be retrieved")
+
+    parser.add_argument("--tests_output",
+                        "-tests_out",
+                        help="Optional. Path for file location output",
+                        default="results/test_paths.csv")
+
     # Read arguments from the command line
     args = parser.parse_args()
     print(
@@ -300,9 +335,11 @@ if __name__ == '__main__':
           f"\nRetrieving languages? {args.languages}"
           f"\nRetrieving topics? {args.topics}"
           f"\nRetrieving readmes? {args.readmes}"
-          f"\nRetrieving file locations: {args.files}")
+          f"\nRetrieving file locations: {args.files}"
+          f"\nRetrieving test locations? {args.tests}")
 
     df_repos = read_input_file(args.input)
+    df_repos = df_repos.head(100)
 
     if args.contributors:
         # get column names from arbitrary repo
@@ -390,3 +427,21 @@ if __name__ == '__main__':
 
         export_file(file_variables, ["html_url_repository", "file_location"], "files",
                     args.files_output)
+
+
+    if args.tests:
+        # get data
+        file_variables = []
+        for counter, (url, owner, repo_name,
+                      branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
+                                               df_repos["name"], df_repos["default_branch"])):
+            repository = Repo(url, owner, repo_name, branch)
+            retrieved_data = get_data_from_api(serv, repository, "tests")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                file_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+
+        export_file(file_variables, ["html_url_repository", "file_location"], "tests",
+                    args.tests_output)
