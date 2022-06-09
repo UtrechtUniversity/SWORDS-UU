@@ -380,7 +380,7 @@ if __name__ == '__main__':
         for counter, (url, owner, repo_name,
                       branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
                                                df_repos["name"], df_repos["default_branch"])):
-            repository = Repo(url, owner, repo_name)
+            repository = Repo(url, owner, repo_name, branch)
             retrieved_data = get_data_from_api(serv, repository, "files")
             print(retrieved_data)
             if retrieved_data is not None:
