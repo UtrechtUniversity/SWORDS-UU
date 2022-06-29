@@ -147,8 +147,11 @@ if __name__ == '__main__':
 
     df_result_repos = pd.DataFrame(result_repos)
     df_result_repos["date"] = serv.current_date
-    df_result_repos.to_csv(args.output, index=False)
 
+    if "xlsx" in args.output:
+        df_result_repos.to_excel(args.output, index=False)
+    else:
+        df_result_repos.to_csv(args.output, index=False)
     print(
         f"Successfully retrieved user repositories. Saved result to {args.output}."
     )
