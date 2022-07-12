@@ -40,7 +40,7 @@ def test_get_howfairis_variables(repo):
     assert len(result) == 6
 
 
-def test_get_language_variables(repo, service):
+def test_get_contributor_variables(repo, service):
     serv = service
     repository = repo
     retrieved_data = get_data_from_api(serv, repository, "contributors")
@@ -55,13 +55,6 @@ def test_get_language_variables(repo, service):
     assert len(retrieved_data[0]) == 3
 
 
-def test_get_jupyter_notebooks_variables(repo, service):
-    serv = service
-    repository = repo
-    retrieved_data = get_data_from_api(serv, repository, "jupyter_notebooks")
-    assert len(retrieved_data[0]) == 2
-
-
 def test_get_readme(repo, service):
     serv = service
     repository = repo
@@ -70,8 +63,16 @@ def test_get_readme(repo, service):
     assert "Scan and revieW of Open Research Data and Software" in retrieved_data[1]
 
 
-def test_get_coc(repo_coc, service):
+def test_get_file_variables(repo, service):
     serv = service
-    repository = repo_coc
-    retrieved_data = get_data_from_api(serv, repository, "coc")
-    assert len(retrieved_data) == 2
+    serv.file_list = ["readme"]
+    repository = repo
+    retrieved_data = get_data_from_api(serv, repository, "files")
+    assert len(retrieved_data[0]) == 2
+
+
+def test_get_test_variables(repo, service):
+    serv = service
+    repository = repo
+    retrieved_data = get_data_from_api(serv, repository, "tests")
+    assert len(retrieved_data[0]) == 2

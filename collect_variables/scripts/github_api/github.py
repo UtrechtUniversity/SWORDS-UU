@@ -2,7 +2,6 @@
 This file retrieves Github API variables for an input file with repositories.
 """
 import os
-import sys
 import time
 from datetime import datetime
 import ast
@@ -24,6 +23,7 @@ class Service:
         self.api = api
         self.current_date = datetime.today().strftime('%Y-%m-%d')
         self.sleep = sleep
+        self.file_list = None
 
 
 class Repo:
@@ -127,26 +127,6 @@ def get_languages(service: Service, repo: Repo):
     return languages
 
 
-def get_jupyter_notebooks(service: Service, repo: Repo):
-    """Retrieves jupyter notebooks for a Github repository
-
-    Args:
-        service (Service): Service object with API connection and metadata vars
-        repo    (Repo)   : Repository variables bundled together
-
-    Returns:
-        list: jupyter notebooks file name list retrieved from Github
-    """
-    jupyter_notebooks = []
-    jupyter_notebooks_data = service.api.git.get_tree(
-        owner=repo.owner, repo=repo.repo_name,
-        tree_sha=repo.branch, recursive=1)
-    for file in jupyter_notebooks_data["tree"]:
-        if file["type"] == "blob" and ".ipynb" in file["path"]:
-            jupyter_notebooks_entry = [repo.url, file["path"]]
-            print(jupyter_notebooks_entry)
-            jupyter_notebooks.append(jupyter_notebooks_entry)
-    return jupyter_notebooks
 
 
 def get_readmes(service: Service, repo: Repo):
@@ -166,24 +146,50 @@ def get_readmes(service: Service, repo: Repo):
     return readme_data
 
 
-def get_coc(service: Service, repo: Repo):
-    """Retrieves code of conduct file locations for a Github repository.
-    There are also functions to retrieve a code of conduct in ghapi but they seem deprecated.
+def get_file_locations(service: Service, repo: Repo, file_names):
+    """Retrieves file locations of a file name search for a Github repository.
 
     Args:
-        service (Service): Service object with API connection and metadata vars
-        repo    (Repo)   : Repository variables bundled together
+        service    (Service): Service object with API connection and metadata vars
+        repo       (Repo)   : Repository variables bundled together
+        file_names (list)   : List of file names that should be searched.
+                              Examples: ".ipynb", "CONTRIBUTING"
 
     Returns:
-        string: code of conduct retrieved from Github
+        list: file name list retrieved from Github
     """
-    coc = []
+    result = []
     content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
                                        tree_sha=repo.branch, recursive=1)
     for file in content["tree"]:
-        if "code_of_conduct.md" in file.path.lower():
-            coc.extend([repo.url, file["path"]])
-    return coc
+        if any(file_name.lower() in file.path.lower() for file_name in file_names):
+            file_names_entry = [repo.url, file["path"]]
+            print(file_names_entry)
+            result.append(file_names_entry)
+    return result
+
+def get_test_location(service: Service, repo: Repo):
+    """Retrieves test folder locations for a Github repository.
+
+    Args:
+        service    (Service): Service object with API connection and metadata vars
+        repo       (Repo)   : Repository variables bundled together
+
+    Returns:
+        list: test folder list retrieved from Github
+    """
+    result = []
+    content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
+                                       tree_sha=repo.branch, recursive=1)
+    for file in content["tree"]:
+        if "test" in file.path.lower() and file.type == "tree":
+            folder_names_entry = [repo.url, file["path"]]
+            print(folder_names_entry)
+            result.append(folder_names_entry)
+            # if there is one positive result we can conclude that there are tests
+            return result
+    return result
+
 
 
 def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True):
@@ -193,7 +199,7 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
         service (Service): Service object with API connection and metadata vars
         repo    (Repo)   : Repository variables bundled together
         variable_type (string): which type of variable should be retrieved. Supported are:
-                                contributors, languages, jupyter_notebooks, readmes, coc
+                                contributors, languages, readmes, files
         verbose (boolean): if True, retrieve all variables from API.
             Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
@@ -208,15 +214,15 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                     get_contributors(service, repo, verbose))
             elif variable_type == "languages":
                 retrieved_variables.extend(get_languages(service, repo))
-            elif variable_type == "jupyter_notebooks":
-                retrieved_variables.extend(
-                    get_jupyter_notebooks(service, repo))
             elif variable_type == "readmes":
                 retrieved_variables.extend(
                     get_readmes(service, repo))
-            elif variable_type == "coc":
+            elif variable_type == "files":
                 retrieved_variables.extend(
-                    get_coc(service, repo))
+                    get_file_locations(service, repo, service.file_list))
+            elif variable_type == "tests":
+                retrieved_variables.extend(
+                    get_test_location(service, repo))
         except Exception as e:  # pylint: disable=broad-except
             print(f"There was an error for repository {repo.url} : {e}")
             # (non-existing repo)
@@ -235,6 +241,7 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                 print(
                     f"Unhandled status code: {e} - skip repository"
                 )
+            time.sleep(service.sleep)
             return None
         request_successful = True
         time.sleep(service.sleep)
@@ -270,23 +277,6 @@ if __name__ == '__main__':
                         help="Optional. Path for contributors output",
                         default="results/contributors.csv")
 
-    parser.add_argument(
-        "--jupyter",
-        "-j",
-        action='store_true',
-        help="Set this flag if jupyter notebooks should be retrieved")
-
-    parser.add_argument(
-        "--input_languages",
-        "-ilang",
-        help="Optional. Needed if languages are not retrieved but jupyter notebooks are."
-    )
-
-    parser.add_argument("--jupyter_output",
-                        "-jout",
-                        help="Optional. Path for jupyter notebooks output",
-                        default="results/jupyter_notebooks.csv")
-
     parser.add_argument("--languages",
                         "-l",
                         action='store_true',
@@ -317,15 +307,25 @@ if __name__ == '__main__':
                         help="Optional. Path for readmes output",
                         default="results/readmes.csv")
 
-    parser.add_argument("--coc",
-                        "-coc",
-                        action='store_true',
-                        help="Set this flag if code of conducts should be retrieved")
+    parser.add_argument("--files",
+                        "-f",
+                        type=str,
+                        help="Delimited list of file (sub)strings that should be searched")
 
-    parser.add_argument("--coc_output",
-                        "-cocout",
-                        help="Optional. Path for code of conduct output",
-                        default="results/coc.csv")
+    parser.add_argument("--files_output",
+                        "-fout",
+                        help="Optional. Path for file location output",
+                        default="results/files.csv")
+
+    parser.add_argument("--tests",
+                        "-tests",
+                        action='store_true',
+                        help="Set this flag if test folder paths should be retrieved")
+
+    parser.add_argument("--tests_output",
+                        "-tests_out",
+                        help="Optional. Path for file location output",
+                        default="results/test_paths.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()
@@ -333,14 +333,12 @@ if __name__ == '__main__':
         f"Retrieving howfairis variables for the following file: {args.input}")
     print(f"Retrieving contributors? {args.contributors}"
           f"\nRetrieving languages? {args.languages}"
-          f"\nRetrieving jupyter notebooks? {args.jupyter}"
           f"\nRetrieving topics? {args.topics}"
           f"\nRetrieving readmes? {args.readmes}"
-          f"\nRetrieving code of conducts? {args.coc}")
+          f"\nRetrieving file locations: {args.files}"
+          f"\nRetrieving test locations? {args.tests}")
 
     df_repos = read_input_file(args.input)
-
-    LANGUAGES = None
 
     if args.contributors:
         # get column names from arbitrary repo
@@ -382,38 +380,6 @@ if __name__ == '__main__':
         cols = ["html_url_repository", "language", "num_chars"]
         export_file(language_variables, cols,
                     "language", args.languages_output)
-        if args.jupyter:  # keep df for parsing jupyter files
-            LANGUAGES = pd.DataFrame(language_variables, columns=cols)
-
-    if args.jupyter:
-        if LANGUAGES is None:
-            if args.input_languages is None:
-                print(
-                    "Please provide a file with languages that can be parsed for "
-                    "jupyter notebooks.")
-                sys.exit()
-            else:
-                LANGUAGES = read_input_file(args.input_languages)
-        jupyter_variables = []
-        languages_jupyter = LANGUAGES[LANGUAGES["language"] ==
-                                      "Jupyter Notebook"].drop(
-            ["language", "num_chars"], axis=1)
-        print(f"Parse {len(languages_jupyter.index)} repos.")
-        for counter, url in enumerate(languages_jupyter["html_url_repository"]):
-            # example url: https://github.com/UtrechtUniversity/SWORDS-UU
-            row = df_repos.loc[df_repos['html_url'] == url]
-            branch = row["default_branch"].values[0]
-            owner, repo_name = url.split("github.com/")[1].split("/")
-            repository = Repo(url, owner, repo_name, branch)
-            retrieved_data = get_data_from_api(
-                serv, repository, "jupyter_notebooks")
-            if retrieved_data is not None:
-                jupyter_variables.extend(retrieved_data)
-            if counter % 10 == 0:
-                print(
-                    f"Parsed {counter} out of {len(languages_jupyter.index)} repos.")
-        export_file(jupyter_variables, ["html_url_repository", "path"], "jupyter notebook",
-                    args.jupyter_output)
 
     if args.topics:
         topics_variables = []
@@ -443,19 +409,38 @@ if __name__ == '__main__':
         export_file(readmes_variables, ["html_url_repository", "readme"], "readme",
                     args.readmes_output)
 
-    if args.coc:
+    if args.files:
         # get data
-        coc_variables = []
+        serv.file_list = args.files.split(",")
+        file_variables = []
         for counter, (url, owner, repo_name,
                       branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
                                                df_repos["name"], df_repos["default_branch"])):
-            repository = Repo(url, owner, repo_name)
-            retrieved_data = get_data_from_api(serv, repository, "coc")
+            repository = Repo(url, owner, repo_name, branch)
+            retrieved_data = get_data_from_api(serv, repository, "files")
             print(retrieved_data)
             if retrieved_data is not None:
-                coc_variables.append(retrieved_data)
+                file_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
 
-        export_file(coc_variables, ["html_url_repository", "coc"], "coc",
-                    args.coc_output)
+        export_file(file_variables, ["html_url_repository", "file_location"], "files",
+                    args.files_output)
+
+
+    if args.tests:
+        # get data
+        file_variables = []
+        for counter, (url, owner, repo_name,
+                      branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
+                                               df_repos["name"], df_repos["default_branch"])):
+            repository = Repo(url, owner, repo_name, branch)
+            retrieved_data = get_data_from_api(serv, repository, "tests")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                file_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+
+        export_file(file_variables, ["html_url_repository", "file_location"], "tests",
+                    args.tests_output)

@@ -122,7 +122,8 @@ if __name__ == '__main__':
                         print("Repository does not exist")
                     break
 
-        df_stats = pd.DataFrame(result).sort_values(["owner", "repository_name"], inplace=True)
+        df_stats = pd.DataFrame(result)
+        df_stats.sort_values(["owner", "repository_name"], inplace=True)
         print(df_stats)
 
         df_stats.to_csv(args.output, index=None)

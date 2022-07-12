@@ -31,6 +31,74 @@ def get_employees_url(faculty_number):
         return None
 
 
+    
+def parse_string_list_for_github_name(words):
+    """Gathers all github names from a list of strings
+
+    Args:
+        words (list): a list of strings.
+        Example: ["<p>I'm", 'a', 'community', 'organizer', 'and', 'research', 'engineer']
+
+    Returns:
+        List: GitHub names
+    """
+    matches = []
+    for word in words:
+        if "github.com" in word:
+            split = word.split("github.com/")
+            # get value after "github.com/" and split after the next
+            # slash, then the first value of that split will be the
+            # username
+            user = split[1].split("/")[0]
+            # sometimes, there is still some tokens after the username
+            # due to the href format of the links. This is migated by
+            # splitting on a " and using the first word
+            user = user.split('"')[0]
+            matches.append(user)
+        elif "github.io" in word:
+            githubio_split = word.split(".")
+            try:
+                user = githubio_split[0].split("://")[1]
+            except Exception as e: # pylint: disable=broad-except
+                user = githubio_split[0]
+            # sometimes, there is still some tokens after the username
+            # due to the href format of the links. This is migated by
+            # splitting on a " and using the first word
+            user = user.split('"')[0]
+            matches.append(user)
+    return matches
+
+
+def parse_urls_for_github_name(employee_urls):
+    """Gathers all github names from the social media links of an employee
+
+    Args:
+        employee_urls (list): a list of dicts containing info about links.
+        Example: [{'Name': 'Github', 'Url': 'https://github.com/kequach'}]
+
+    Returns:
+        List: GitHub names
+    """
+    matches = []
+    for link_dict in employee_urls:
+        link = link_dict["Url"]
+        if link:
+            if "github.com" in link:
+                split = link.split("github.com/")
+                # get value after "github.com/" and split after the
+                # next slash, then the first value of that split will
+                # be the username
+                user = split[1].split("/")[0]
+                matches.append(user)
+            elif "github.io" in link:
+                githubio_split = link.split(".")
+                try:
+                    user = githubio_split[0].split("://")[1]
+                except Exception as e: # pylint: disable=broad-except
+                    user = githubio_split[0]
+                matches.append(user)
+    return matches
+    
 def get_all_employee_github_links(url):
     """Gathers all github links from a URL
 
@@ -49,79 +117,25 @@ def get_all_employee_github_links(url):
         if "CV" in api_json["Employee"].keys() and api_json["Employee"]["CV"]:
             employee_profile = api_json["Employee"]['CV']
             split_employee_profile = employee_profile.split()
-            for word in split_employee_profile:
-                if "github.com" in word:
-                    split = word.split("github.com/")
-                    # get value after "github.com/" and split after the next
-                    # slash, then the first value of that split will be the
-                    # username
-                    user = split[1].split("/")[0]
-                    # sometimes, there is still some tokens after the username
-                    # due to the href format of the links. This is migated by
-                    # splitting on a " and using the first word
-                    user = user.split('"')[0]
-                    git_link_list.append(user)
-                elif "github.io" in word:
-                    githubio_split = word.split(".")
-                    try:
-                        user = githubio_split[0].split("://")[1]
-                    except Exception as e: # pylint: disable=broad-except
-                        user = githubio_split[0]
-                    # sometimes, there is still some tokens after the username
-                    # due to the href format of the links. This is migated by
-                    # splitting on a " and using the first word
-                    user = user.split('"')[0]
-                    git_link_list.append(user)
+            github_names = parse_string_list_for_github_name(split_employee_profile)
+            if github_names:
+                git_link_list.extend(github_names)
 
-        if "Profile" in api_json["Employee"].keys(
-        ) and api_json["Employee"]["Profile"]:
+        if "Profile" in api_json["Employee"].keys() and api_json["Employee"]["Profile"]:
             employee_profile = api_json["Employee"]['Profile']
             split_employee_profile = employee_profile.split()
-            for word in split_employee_profile:
-                if "github.com" in word:
-                    split = word.split("github.com/")
-                    # get value after "github.com/" and split after the next
-                    # slash, then the first value of that split will be the
-                    # username
-                    user = split[1].split("/")[0]
-                    # sometimes, there is still some tokens after the username
-                    # due to the href format of the links. This is migated by
-                    # splitting on a " and using the first word
-                    user = user.split('"')[0]
-                    git_link_list.append(user)
-                elif "github.io" in word:
-                    githubio_split = word.split(".")
-                    try:
-                        user = githubio_split[0].split("://")[1]
-                    except Exception as e: # pylint: disable=broad-except
-                        user = githubio_split[0]
-                    # sometimes, there is still some tokens after the username
-                    # due to the href format of the links. This is migated by
-                    # splitting on a " and using the first word
-                    user = user.split('"')[0]
-                    git_link_list.append(user)
-        if "Links" in api_json["Employee"].keys(
-        ) and api_json["Employee"]['Links']:
-            employee_link_list = api_json["Employee"]['Links']
-            for link_dict in employee_link_list:
-                link = link_dict["Url"]
-                if link:
-                    if "github.com" in link:
-                        split = link.split("github.com/")
-                        # get value after "github.com/" and split after the
-                        # next slash, then the first value of that split will
-                        # be the username
-                        user = split[1].split("/")[0]
-                        git_link_list.append(user)
-                    elif "github.io" in link:
-                        githubio_split = link.split(".")
-                        try:
-                            user = githubio_split[0].split("://")[1]
-                        except Exception as e: # pylint: disable=broad-except
-                            user = githubio_split[0]
-                        git_link_list.append(user)
+            github_names = parse_string_list_for_github_name(split_employee_profile)
+            if github_names:
+                git_link_list.extend(github_names)
+                
+        if "Links" in api_json["Employee"].keys() and api_json["Employee"]['LinksSocialMedia']:
+            links_social_media = api_json["Employee"]['LinksSocialMedia']
+            github_names = parse_urls_for_github_name(links_social_media)
+            if github_names:
+                git_link_list.extend(github_names)
+
         if len(git_link_list) != 0:
-            return git_link_list
+            return list(set(git_link_list))
         else:
             return None
     except Exception as e: # pylint: disable=broad-except
@@ -131,6 +145,7 @@ def get_all_employee_github_links(url):
 
 if __name__ == '__main__':
 
+    counter = 0
     employee_github_from_links = []
     employee_github_from_profile = []
     employee_github_from_cv = []
@@ -147,12 +162,14 @@ if __name__ == '__main__':
     for i in range(99):
         try:
             faculty_url = list(get_employees_url(i))
-            print(i)
+            print(f"Parsing faculty number {i}")
             try:
                 for url in faculty_url:
                     github_user_names = get_all_employee_github_links(url)
                     if github_user_names:
                         for github_user_name in github_user_names:
+                            counter += 1
+                            print(f"Found user: {github_user_name}. Total: {counter}")
                             employee_github.append(
                                 [SERVICE, current_date, github_user_name])
             except Exception as e: # pylint: disable=broad-except

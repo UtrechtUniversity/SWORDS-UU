@@ -50,13 +50,13 @@ The SWORDS framework is written in Python 3.6+. The SWORDS framework implements 
 The results of the three steps of the SWORDS framework can be found in each of the subfolders of the project. Each step contains a Jupyter notebook with results, code, and narrative. Output data files can be found in the output folder in each step.  
 
 Results of step 1: **Find user profiles associated to organisation**
-- :open_book: [Analysis (Jupyter notebook)](collect_users/analyse_users.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_users/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_users/results) 
+- :open_book: [Analysis (Jupyter notebook)](collect_users/analyze_users.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_users/methods) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_users/results) 
 
 Results of step 2: **Collect relevant repositories**
-- :open_book: [Analysis (Jupyter notebook)](collect_repositories/analyse_repositories.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_repositories/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_repositories/results) 
+- :open_book: [Analysis (Jupyter notebook)](collect_repositories/analyze_repositories.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_users/results) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_repositories/results) 
 
 Results of step 3: **Study and analyze repositories**
-- :open_book: [Analysis (Jupyter notebook)](collect_variables/analyse_metrics.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_variables/data) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_variables/results) 
+- :open_book: [Analysis (Jupyter notebook)](collect_variables/analyze_metrics.ipynb) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :inbox_tray: [Input data](collect_repositories/results) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :outbox_tray: [Results (data)](collect_variables/results) 
 
 ## Dashboard
 
