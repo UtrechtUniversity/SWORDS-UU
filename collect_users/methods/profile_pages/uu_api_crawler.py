@@ -146,9 +146,6 @@ def get_all_employee_github_links(url):
 if __name__ == '__main__':
 
     counter = 0
-    employee_github_from_links = []
-    employee_github_from_profile = []
-    employee_github_from_cv = []
     employee_github = []
     SERVICE = "github.com"
     current_date = datetime.today().strftime('%Y-%m-%d')
@@ -169,9 +166,9 @@ if __name__ == '__main__':
                     if github_user_names:
                         for github_user_name in github_user_names:
                             counter += 1
-                            print(f"Found user: {github_user_name}. Total: {counter}")
+                            print(f"Found user: '{github_user_name}'. Staff ID: '{url}'. Total: {counter}")
                             employee_github.append(
-                                [SERVICE, current_date, github_user_name])
+                                [SERVICE, current_date, github_user_name, url])
             except Exception as e: # pylint: disable=broad-except
                 print(f"couldn't loop through urls. Error: {e}")
                 continue
@@ -180,7 +177,7 @@ if __name__ == '__main__':
             continue
     print("Finished looping through faculties.")
     employee_github_pd = pd.DataFrame(employee_github,
-                                      columns=["service", "date", "user_id"])
+                                      columns=["service", "date", "user_id", "UU_id"])
 
     employee_github_pd = employee_github_pd.dropna()
 
