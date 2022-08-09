@@ -107,10 +107,7 @@ if __name__ == '__main__':
     print(f"Retrieving howfairis variables for the following file: {args.input}")
 
 
-
     df_repos = read_input_file(args.input)
-
-
     howfairis_variables = []
 
     for counter, url in enumerate(df_repos["html_url"]):
@@ -124,11 +121,10 @@ if __name__ == '__main__':
                                     "howfairis_license", "howfairis_registry",
                                     "howfairis_citation", "howfairis_checklist"
                                 ])
-    df_repo_merged = pd.merge(df_repos, df_howfairis, how="left", on='html_url')
 
     current_date = datetime.today().strftime('%Y-%m-%d')
-    df_repo_merged["date"] = current_date
-    df_repo_merged.to_csv(args.output, index=False)
+    df_howfairis["date"] = current_date
+    df_howfairis.to_csv(args.output, index=False)
 
     print(
         f"Successfully retrieved howfairis variables for {len(df_howfairis.index)}"

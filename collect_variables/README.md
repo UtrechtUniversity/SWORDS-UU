@@ -33,8 +33,7 @@ python scripts/all_variables.py
 
 ### Gather howfairis variables
 
-In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. Note: The output concatenates the howfairis variables to the whole repository data. By doing so, it is possible to reuse this file to gather GitHub variables based on this file.
-There are 2 arguments that can be passed.
+In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. There are 2 arguments that can be passed.
 
 - `--input`: The file name of the repositories. Default value: `../collect_repositories/results/repositories_filtered.csv`
 - `--output`: The file name of the output. Default value: `results/repositories_howfairis.csv`
@@ -53,7 +52,7 @@ In this step, additional variables from repositories are retrieved. These includ
 There are several arguments that can be passed. For each of the information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional.
 For file locations, specify a list of comma separated strings for file or folder names that should be searched. Note that the names work as a substring so you can also match any `.ipynb` file for example. See examples.
 
-- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `results/repositories_howfairis.csv`
+- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `../collect_repositories/results/repositories_filtered.csv`
 - `--contributors`: Set this flag if contributors should be retrieved
 - `--contributors_output`: Optional. Path for contributors output. Default: `results/contributors`
 - `--languages`: Set this flag if languages should be retrieved
@@ -72,8 +71,8 @@ Navigate to this folder and execute the script. Adjust parameters as needed. Exa
 ```console
 python scripts/github_api/github.py --contributors --languages --topics --readmes --files "CONTRIBUTING,code_of_conduct,test"
 python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output results/contributors.csv
-python scripts/github_api/github.py --input results/repositories_howfairis.csv --contributors --languages --topics
-python scripts/github_api/github.py --input results/repositories_howfairis.csv --input_languages results/languages.csv
+python scripts/github_api/github.py --input results/repositories_labeled.xlsx --contributors --languages --topics
+python scripts/github_api/github.py --input results/repositories_labeled.xlsx --input_languages results/languages.csv
 python scripts/github_api/github.py --readmes
 python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct"
 python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct" --tests

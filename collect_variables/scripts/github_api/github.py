@@ -265,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument("--input",
                         "-i",
                         help="The file name of the repositories data.",
-                        default="results/repositories_howfairis.csv")
+                        default="../collect_repositories/results/repositories_filtered.csv")
 
     parser.add_argument("--contributors",
                         "-c",
@@ -335,7 +335,7 @@ if __name__ == '__main__':
           f"\nRetrieving languages? {args.languages}"
           f"\nRetrieving topics? {args.topics}"
           f"\nRetrieving readmes? {args.readmes}"
-          f"\nRetrieving file locations: {args.files}"
+          f"\nRetrieving file locations for the following files: {args.files}"
           f"\nRetrieving test locations? {args.tests}")
 
     df_repos = read_input_file(args.input)
