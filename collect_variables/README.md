@@ -52,6 +52,8 @@ In this step, additional variables from repositories are retrieved. These includ
 There are several arguments that can be passed. For each of the information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional.
 For file locations, specify a list of comma separated strings for file or folder names that should be searched. Note that the names work as a substring so you can also match any `.ipynb` file for example. See examples.
 
+Note: Some variables were derived based on existing literature. They have been referenced accordingly.
+
 - `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `../collect_repositories/results/repositories_filtered.csv`
 - `--contributors`: Set this flag if contributors should be retrieved
 - `--contributors_output`: Optional. Path for contributors output. Default: `results/contributors`
@@ -65,6 +67,8 @@ For file locations, specify a list of comma separated strings for file or folder
 - `--files_output`: Optional. Path for files output. Default: `results/files`
 - `--tests`: Set this flag if test folder locations should be retrieved. This only retrieves the first result that is matched during recursive search. One matching result means that a test folder exists.
 - `--tests_output`: Optional. Path for test folder output. Default: `results/test_paths`
+- `--commits`: Set this flag if commit-related variables should be retrieved. These include correct version control usage (was everything committed within a day?) [1], life span of the repository measured as days between first and last commit [1,2], and whether the repository is still active (was there a commit within the last 365 days?) [2]
+- `--commits_output`: Optional. Path for commit variables output. Default: `results/commits`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
@@ -77,6 +81,7 @@ python scripts/github_api/github.py --readmes
 python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct"
 python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct" --tests
 python scripts/github_api/github.py --tests
+python scripts/github_api/github.py --commits
 ```
 
 ### Download statistics
@@ -103,3 +108,9 @@ See [/LICENSE](../LICENSE).
 ## Contact
 
 See [here](../README.md#contact).
+
+## References
+
+[1] Russell PH, Johnson RL, Ananthan S, Harnke B, Carlson NE (2018) A large-scale analysis of bioinformatics code on GitHub. PLOS ONE 13(10): e0205898. https://doi.org/10.1371/journal.pone.0205898
+
+[2] W. Hasselbring, L. Carr, S. Hettrick, H. Packer and T. Tiropanis, "Open Source Research Software," in Computer, vol. 53, no. 8, pp. 84-88, Aug. 2020, doi: 10.1109/MC.2020.2998235.

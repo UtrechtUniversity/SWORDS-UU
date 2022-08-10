@@ -3,14 +3,14 @@ This file retrieves Github API variables for an input file with repositories.
 """
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import ast
 import argparse
 import base64
 
 import pandas as pd
 from dotenv import load_dotenv
-from ghapi.all import GhApi
+from ghapi.all import GhApi, paged
 from fastcore.foundation import L
 
 
@@ -127,8 +127,6 @@ def get_languages(service: Service, repo: Repo):
     return languages
 
 
-
-
 def get_readmes(service: Service, repo: Repo):
     """Retrieves languages for a Github repository
 
@@ -168,6 +166,34 @@ def get_file_locations(service: Service, repo: Repo, file_names):
             result.append(file_names_entry)
     return result
 
+
+def get_commit_variables(service: Service, repo: Repo):
+    """Retrieves commit dates of a repository.
+    Design decision to use slower sequential pagination to do less requests.
+    Parallel pages retrieval required an additional request.
+
+    Args:
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
+
+    Returns:
+        list: list with datetime objects
+    """
+    commit_pages = paged(service.api.repos.list_commits, owner=repo.owner,
+                         repo=repo.repo_name, per_page=100)
+    commit_dates = []
+    result = []
+    for page in commit_pages:
+        for commit in page:
+            commit_dates.append(datetime.strptime(commit["commit"]["author"]["date"],
+                                                  "%Y-%m-%dT%H:%M:%SZ"))
+    vcs_usage = commit_dates[0].date() == commit_dates[-1].date()
+    life_span = (commit_dates[0].date() - commit_dates[-1].date()).days
+    repo_active = (datetime.today().date() - commit_dates[0].date()) < timedelta(days=365)
+    result.append([repo.url, vcs_usage, life_span, repo_active])
+    return result
+
+
 def get_test_location(service: Service, repo: Repo):
     """Retrieves test folder locations for a Github repository.
 
@@ -199,7 +225,7 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
         service (Service): Service object with API connection and metadata vars
         repo    (Repo)   : Repository variables bundled together
         variable_type (string): which type of variable should be retrieved. Supported are:
-                                contributors, languages, readmes, files
+                                contributors, languages, readmes, files, commits
         verbose (boolean): if True, retrieve all variables from API.
             Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
@@ -223,6 +249,9 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
             elif variable_type == "tests":
                 retrieved_variables.extend(
                     get_test_location(service, repo))
+            elif variable_type == "commits":
+                retrieved_variables.extend(
+                    get_commit_variables(service, repo))
         except Exception as e:  # pylint: disable=broad-except
             print(f"There was an error for repository {repo.url} : {e}")
             # (non-existing repo)
@@ -327,6 +356,16 @@ if __name__ == '__main__':
                         help="Optional. Path for file location output",
                         default="results/test_paths.csv")
 
+    parser.add_argument("--commits",
+                        "-commits",
+                        action='store_true',
+                        help="Set this flag if commit-related variables should be retrieved")
+
+    parser.add_argument("--commits_output",
+                        "-commit_out",
+                        help="Optional. Path for file location output",
+                        default="results/commits.csv")
+
     # Read arguments from the command line
     args = parser.parse_args()
     print(
@@ -336,7 +375,8 @@ if __name__ == '__main__':
           f"\nRetrieving topics? {args.topics}"
           f"\nRetrieving readmes? {args.readmes}"
           f"\nRetrieving file locations for the following files: {args.files}"
-          f"\nRetrieving test locations? {args.tests}")
+          f"\nRetrieving test locations? {args.tests}"
+          f"\nRetrieving commit variables? {args.commits}")
 
     df_repos = read_input_file(args.input)
 
@@ -349,7 +389,6 @@ if __name__ == '__main__':
             time.sleep(serv.sleep)
         else:
             print("There was an error retrieving column names.")
-
         # get data
         contributors_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
@@ -444,3 +483,21 @@ if __name__ == '__main__':
 
         export_file(file_variables, ["html_url_repository", "file_location"], "tests",
                     args.tests_output)
+
+
+    if args.commits:
+        # get data
+        commit_variables = []
+        for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                              df_repos["owner"], df_repos["name"])):
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "commits")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                commit_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+            print(commit_variables)
+
+        export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span",
+                    "repo_active"], "commits", args.commits_output)
