@@ -177,7 +177,10 @@ def get_commit_variables(service: Service, repo: Repo):
         repo    (Repo)   : Repository variables bundled together
 
     Returns:
-        list: list with datetime objects
+        list: list with url and three variables:
+            correct version control usage (was everything committed within a day?),
+            life span of the repository measured as days between first and last commit,
+            whether the repository is still active (was there a commit within the last 365 days?)
     """
     commit_pages = paged(service.api.repos.list_commits, owner=repo.owner,
                          repo=repo.repo_name, per_page=100)
