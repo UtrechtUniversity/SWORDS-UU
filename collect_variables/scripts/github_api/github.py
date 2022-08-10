@@ -225,7 +225,8 @@ def get_version_identifiability(service: Service, repo: Repo):
     All tags must follow the scheme: X.X or X.X.X
     If there are no tags, version compliance is false.
     No pagination used since tags are often empty, making it necessary to check
-    for an empty generator, which is awkward. We only need to check some tags anyway.
+    for an empty generator, which is awkward and obfuscates the code.
+    Tags have never exceeded n=100.
 
     Args:
         service (Service): Service object with API connection and metadata vars
