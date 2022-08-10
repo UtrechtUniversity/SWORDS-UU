@@ -69,11 +69,13 @@ Note: Some variables were derived based on existing literature. They have been r
 - `--tests_output`: Optional. Path for test folder output. Default: `results/test_paths`
 - `--commits`: Set this flag if commit-related variables should be retrieved. These include correct version control usage (was everything committed within a day?) [1], life span of the repository measured as days between first and last commit [1,2], and whether the repository is still active (was there a commit within the last 365 days?) [2]
 - `--commits_output`: Optional. Path for commit variables output. Default: `results/commits`
+- `--versions`: Set this flag if version identifiability should be retrieved [3]. This checks GitHub tags. Tags need to be in the format of `X.X` or `X.X.X`.
+- `--versions_output`: Optional. Path for commit variables output. Default: `results/versions`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/github_api/github.py --contributors --languages --topics --readmes --files "CONTRIBUTING,code_of_conduct,test"
+python scripts/github_api/github.py --contributors --languages --topics --readmes --files "CONTRIBUTING,code_of_conduct" --tests --commits --versions
 python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output results/contributors.csv
 python scripts/github_api/github.py --input results/repositories_labeled.xlsx --contributors --languages --topics
 python scripts/github_api/github.py --input results/repositories_labeled.xlsx --input_languages results/languages.csv
@@ -114,3 +116,5 @@ See [here](../README.md#contact).
 [1] Russell PH, Johnson RL, Ananthan S, Harnke B, Carlson NE (2018) A large-scale analysis of bioinformatics code on GitHub. PLOS ONE 13(10): e0205898. https://doi.org/10.1371/journal.pone.0205898
 
 [2] W. Hasselbring, L. Carr, S. Hettrick, H. Packer and T. Tiropanis, "Open Source Research Software," in Computer, vol. 53, no. 8, pp. 84-88, Aug. 2020, doi: 10.1109/MC.2020.2998235.
+
+[3] Eva Martín del Pico, Josep Lluís Gelpí, and Salvador Capella-Gutiérrez. FAIRsoft - A practical implementation of FAIR principles for research software. Technical report, bioRxiv, May 2022. URL https://www.biorxiv.org/content/10.1101/2022.05.04.490563v1.

@@ -220,6 +220,36 @@ def get_test_location(service: Service, repo: Repo):
     return result
 
 
+def get_version_identifiability(service: Service, repo: Repo):
+    """Retrieves identifiability with version scheme.
+    All tags must follow the scheme: X.X or X.X.X
+    If there are no tags, version compliance is false.
+    No pagination used since tags are often empty, making it necessary to check
+    for an empty generator, which is awkward. We only need to check some tags anyway.
+
+    Args:
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
+
+    Returns:
+        list: repo url and compliance boolean
+    """
+    tags = service.api.repos.list_tags(owner=repo.owner,
+                         repo=repo.repo_name, per_page=100)
+    result = []
+    version_identifiability = False
+    if tags:
+        for tag in tags:
+            split = tag["name"].split(".")
+            print(split)
+            if len(split) in [2,3]:
+                version_identifiability = True
+            else: # all versions must follow the scheme. If one is wrong, exit
+                version_identifiability = False
+                break
+    result.append([repo.url, version_identifiability])
+    return result
+
 
 def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True):
     """The function calls the ghapi api to retrieve
@@ -228,7 +258,7 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
         service (Service): Service object with API connection and metadata vars
         repo    (Repo)   : Repository variables bundled together
         variable_type (string): which type of variable should be retrieved. Supported are:
-                                contributors, languages, readmes, files, commits
+                                contributors, languages, readmes, files, commits, versions
         verbose (boolean): if True, retrieve all variables from API.
             Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
@@ -255,6 +285,9 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
             elif variable_type == "commits":
                 retrieved_variables.extend(
                     get_commit_variables(service, repo))
+            elif variable_type == "versions":
+                retrieved_variables.extend(
+                    get_version_identifiability(service, repo))
         except Exception as e:  # pylint: disable=broad-except
             print(f"There was an error for repository {repo.url} : {e}")
             # (non-existing repo)
@@ -368,6 +401,16 @@ if __name__ == '__main__':
                         "-commit_out",
                         help="Optional. Path for file location output",
                         default="results/commits.csv")
+
+    parser.add_argument("--versions",
+                        "-versions",
+                        action='store_true',
+                        help="Set this flag if version identifiability should be retrieved")
+
+    parser.add_argument("--versions_output",
+                        "-versions_out",
+                        help="Optional. Path for version identifiability output",
+                        default="results/versions.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()
@@ -504,3 +547,21 @@ if __name__ == '__main__':
 
         export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span",
                     "repo_active"], "commits", args.commits_output)
+
+
+    if args.versions:
+        # get data
+        version_variables = []
+        for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                              df_repos["owner"], df_repos["name"])):
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "versions")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                version_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+            print(version_variables)
+
+        export_file(version_variables, ["html_url_repository", "version_identifiable"],
+                    "version identifiability", args.versions_output)
