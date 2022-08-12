@@ -93,9 +93,9 @@ python scripts/github_api/github.py --commits
 
 There is an additional script to parse the retrieved GitHub data named **parse_github_data.py**. This includes the README.csv and files.csv to compute for the following variables:
 
-- Existence of installation instructions. Done by parsing the README with regex to see if there are mentions of install / installation / docker
-- Existence of usage examples. Done by parsing the README with regex for mentions of usage / getting started / quick start / example / tutorial
-- Existence of contribution guidelines. Done by parsing the README for mentions of contributing / contribute / contribution / development
+- Existence of installation instructions. Done by parsing the README with regex to see if there are mentions of `install / docker`
+- Existence of usage examples. Done by parsing the README with regex for mentions of `usage / getting started / quick start / example / tutorial`
+- Existence of contribution guidelines. Done by parsing the README with regex for mentions of `contribut`
 
 There are 2 arguments that can be passed.
 
