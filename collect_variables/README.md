@@ -63,13 +63,16 @@ Note: Some variables were derived based on existing literature. They have been r
 - `--topics_output`: Optional. Path for topics output. Default: `results/topics`
 - `--readmes`: Set this flag if readmes should be retrieved
 - `--readmes_output`: Optional. Path for readmes output. Default: `results/readmes`
-- `--files`: A comma separated string of file names that should be searched. This can also include folder names. Can be used to see if there is a code of conduct or a tests folder for example.
+- `--files`: A comma separated string of file names that should be searched. Looks for exact matches. This can also include folder names. Can be used to see if there is a code of conduct or a contributing file for example.
 - `--files_output`: Optional. Path for files output. Default: `results/files`
 - `--tests`: Set this flag if test folder locations should be retrieved. This only retrieves the first result that is matched during recursive search. One matching result means that a test folder exists.
 - `--tests_output`: Optional. Path for test folder output. Default: `results/test_paths`
-- `--commits`: Set this flag if commit-related variables should be retrieved. These include correct version control usage (was everything committed within a day?) [1], life span of the repository measured as days between first and last commit [1,2], and whether the repository is still active (was there a commit within the last 365 days?) [2]
+- `--commits`: Set this flag if commit-related variables should be retrieved. These include the following variables:
+  - correct version control usage (was everything committed within a day?) [1]
+  - life span of the repository measured as days between first and last commit [1,2]
+  - whether the repository is still active (was there a commit within the last 365 days?) [2]
 - `--commits_output`: Optional. Path for commit variables output. Default: `results/commits`
-- `--versions`: Set this flag if version identifiability should be retrieved [3]. This checks GitHub tags. Tags need to be in the format of `X.X` or `X.X.X`.
+- `--versions`: Set this flag if version identifiability should be retrieved [3]. This checks only GitHub tags. Tags need to be in the format of `X.X` or `X.X.X`.
 - `--versions_output`: Optional. Path for commit variables output. Default: `results/versions`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
@@ -84,6 +87,25 @@ python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct"
 python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct" --tests
 python scripts/github_api/github.py --tests
 python scripts/github_api/github.py --commits
+```
+
+#### Computing variables based on retrieved GitHub data
+
+There is an additional script to parse the retrieved GitHub data named **parse_github_data.py**. This includes the README.csv and files.csv to compute for the following variables:
+
+- Existence of installation instructions. Done by parsing the README with regex to see if there are mentions of install / installation / docker
+- Existence of usage examples. Done by parsing the README with regex for mentions of usage / getting started / quick start / example / tutorial
+- Existence of contribution guidelines. Done by parsing the README for mentions of contributing / contribute / contribution / development
+
+There are 2 arguments that can be passed.
+
+- `--input`: The file name of the repositories. Default value: `/results/readmes.csv`
+- `--output`: The file name of the output. Default value: `results/readme_variables.csv`
+
+Navigate to this folder and execute the script. Adjust parameters as needed. Example:
+
+```console
+python scripts/parse_readme/parse_readme.py --input results/readmes.csv
 ```
 
 ### Download statistics
