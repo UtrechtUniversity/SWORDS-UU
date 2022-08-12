@@ -24,25 +24,6 @@ def read_input_file(file_path):
     return input_file
 
 
-def export_file(variables_retrieved, columns, var_type, output):
-    """Exports the retrieved data to a file.
-
-    Args:
-        variables_retrieved (List): Holds the retrieved variables
-        columns (List): column names of the retrieved variables
-        var_type (string): Used to output which variables were retrieved
-        output (string): file path
-    """
-    df_data = pd.DataFrame(variables_retrieved, columns=columns)
-    current_date = datetime.today().strftime('%Y-%m-%d')
-    df_data["date"] = current_date
-    df_data.to_csv(output, index=False)
-    print(
-        f"Successfully retrieved {var_type} variables. Saved result to {output}."
-    )
-
-
-
 if __name__ == '__main__':
     # Initiate the parser
     parser = argparse.ArgumentParser()
@@ -74,9 +55,6 @@ if __name__ == '__main__':
         contrib_guidelines = bool(re.search("contribut", readme))
         results.append([url, install_instruction, usage_example, contrib_guidelines])
     print(results)
-    
-    # export_file(version_variables, ["html_url_repository", "version_identifiable"],
-    #                 "version identifiability", args.versions_output)
 
     df_results = pd.DataFrame(results,
                                 columns=[
