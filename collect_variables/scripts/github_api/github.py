@@ -295,6 +295,8 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
             if any(status_code in str(e) for status_code in ["204", "404"]):
                 print(f"Repository does not exist: {repo.url}")
             elif "403" in str(e):  # timeout
+                # this does not use time until token refresh as sleep time
+                # due to the issue described in the print
                 print("Github seems to have issues with users that are accessing API data from"
                       " an organization they are part of. It is not possible to distinguish"
                       " between this error and a timeout issue. In case this is an issue for"
