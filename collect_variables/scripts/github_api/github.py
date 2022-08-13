@@ -311,11 +311,11 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                 )
             time.sleep(service.sleep)
             return None
-        remaining_requests = serv.api.rate_limit.get()["rate"]["remaining"]
+        remaining_requests = service.api.rate_limit.get()["rate"]["remaining"]
         print(f"Remaining GitHub requests: {remaining_requests}")
 
         if remaining_requests < 5: # additional safety to not breach request limit
-            time.sleep(sleep_time = serv.api.rate_limit.get()["rate"]["reset"] - int(time.time()))
+            time.sleep(sleep_time = service.api.rate_limit.get()["rate"]["reset"] - int(time.time()))
         request_successful = True
         time.sleep(service.sleep)
         return retrieved_variables
