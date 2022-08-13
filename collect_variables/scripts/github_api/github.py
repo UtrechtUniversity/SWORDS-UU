@@ -311,6 +311,11 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                 )
             time.sleep(service.sleep)
             return None
+        remaining_requests = serv.api.rate_limit.get()["rate"]["remaining"]
+        print(f"Remaining GitHub requests: {remaining_requests}")
+
+        if remaining_requests < 5: # additional safety to not breach request limit
+            time.sleep(sleep_time = serv.api.rate_limit.get()["rate"]["reset"] - int(time.time()))
         request_successful = True
         time.sleep(service.sleep)
         return retrieved_variables
@@ -324,7 +329,7 @@ if __name__ == '__main__':
     if token is None:
         SLEEP = 6
     else:
-        SLEEP = 2
+        SLEEP = 1.2
     serv = Service(api=GhApi(token=token), sleep=SLEEP)
     # Initiate the parser
     parser = argparse.ArgumentParser()
@@ -547,7 +552,6 @@ if __name__ == '__main__':
                 commit_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
-            print(commit_variables)
 
         export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span",
                     "repo_active"], "commits", args.commits_output)
