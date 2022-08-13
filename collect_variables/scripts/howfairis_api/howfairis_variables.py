@@ -74,7 +74,7 @@ def parse_repo(repo_url):
                 print("Skipping repository...")
                 request_successful = True  # skip this repo
                 return None
-            elif "TimeoutError" in str(e):
+            if "TimeoutError" in str(e):
                 time.sleep(5)
             else:
                 sleep_time = api.rate_limit.get()["rate"]["reset"] - int(time.time())
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     parser.add_argument("--output",
                         "-o",
                         help="The file name of the filtered repositories.",
-                        default="results/repositories_howfairis.csv")
+                        default="results/howfairis.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()

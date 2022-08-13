@@ -36,14 +36,14 @@ python scripts/all_variables.py
 In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. There are 2 arguments that can be passed.
 
 - `--input`: The file name of the repositories. Default value: `../collect_repositories/results/repositories_filtered.csv`
-- `--output`: The file name of the output. Default value: `results/repositories_howfairis.csv`
+- `--output`: The file name of the output. Default value: `results/howfairis.csv`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
 python scripts/howfairis_api/howfairis_variables.py
 python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv
-python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output results/repositories_howfairis_duplicate
+python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output results/howfairis_duplicate
 ```
 
 ### Gather GitHub variables as tidy data
