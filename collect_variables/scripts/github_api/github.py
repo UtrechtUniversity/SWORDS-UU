@@ -425,7 +425,8 @@ if __name__ == '__main__':
           f"\nRetrieving readmes? {args.readmes}"
           f"\nRetrieving file locations for the following files: {args.files}"
           f"\nRetrieving test locations? {args.tests}"
-          f"\nRetrieving commit variables? {args.commits}")
+          f"\nRetrieving commit variables? {args.commits}"
+          f"\nRetrieving version variable? {args.versions}")
 
     df_repos = read_input_file(args.input)
 
