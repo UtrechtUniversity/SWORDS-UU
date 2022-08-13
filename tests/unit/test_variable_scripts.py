@@ -79,7 +79,7 @@ def test_get_data_from_api(mock_repo):
 
     service = MagicMock()
     service.api.git.get_tree.side_effect = mock_get
-    service.api.rate_limit.get.side_effect = mock_get
+    service.api.rate_limit.get.side_effect = mock_limit
     service.file_list = ["code_of_conduct"]
 
     result = get_data_from_api(service, mock_repo, "files")
