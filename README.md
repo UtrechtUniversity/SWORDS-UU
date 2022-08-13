@@ -103,7 +103,7 @@ year = {2022}
 
 ## License
 
-The SWORDS project template is published under the [MIT License](/license).
+The SWORDS project template is published under the [MIT License](/LICENSE).
 
 Icons of the banner are made by [Freepik](https://www.freepik.com "Freepik") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon").
 
