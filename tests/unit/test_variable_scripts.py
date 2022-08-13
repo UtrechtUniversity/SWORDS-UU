@@ -74,9 +74,12 @@ def test_get_data_from_api(mock_repo):
                                         type="blob"),
                                AttrDict(path="code_of_conduct.md",
                                         type="blob")))
+    def mock_limit(*args, **kwargs):
+        return AttrDict(rate=AttrDict(remaining=100, reset=9999999999))
 
     service = MagicMock()
     service.api.git.get_tree.side_effect = mock_get
+    service.api.rate_limit.get.side_effect = mock_get
     service.file_list = ["code_of_conduct"]
 
     result = get_data_from_api(service, mock_repo, "files")
