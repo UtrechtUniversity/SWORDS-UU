@@ -238,17 +238,17 @@ def get_version_identifiability(service: Service, repo: Repo):
     tags = service.api.repos.list_tags(owner=repo.owner,
                          repo=repo.repo_name, per_page=100)
     result = []
-    version_identifiability = False
+    version_identifiability = None
     if tags:
         for tag in tags:
             split = tag["name"].split(".")
-            print(split)
             if len(split) in [2,3]:
                 version_identifiability = True
             else: # all versions must follow the scheme. If one is wrong, exit
                 version_identifiability = False
                 break
-    result.append([repo.url, version_identifiability])
+        result.append([repo.url, version_identifiability])
+        return result
     return result
 
 
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     if token is None:
         SLEEP = 6
     else:
-        SLEEP = 1.2
+        SLEEP = 0
     serv = Service(api=GhApi(token=token), sleep=SLEEP)
     # Initiate the parser
     parser = argparse.ArgumentParser()
@@ -569,7 +569,6 @@ if __name__ == '__main__':
                 version_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
-            print(version_variables)
 
         export_file(version_variables, ["html_url_repository", "version_identifiable"],
                     "version identifiability", args.versions_output)
