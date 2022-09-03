@@ -178,7 +178,7 @@ def get_commit_variables(service: Service, repo: Repo):
 
     Returns:
         list: list with url and three variables:
-            correct version control usage (was everything committed within a day?),
+            correct version control usage (are there commits in the days after initial one?),
             life span of the repository measured as days between first and last commit,
             whether the repository is still active (was there a commit within the last 365 days?)
     """
@@ -190,7 +190,7 @@ def get_commit_variables(service: Service, repo: Repo):
         for commit in page:
             commit_dates.append(datetime.strptime(commit["commit"]["author"]["date"],
                                                   "%Y-%m-%dT%H:%M:%SZ"))
-    vcs_usage = commit_dates[0].date() == commit_dates[-1].date()
+    vcs_usage = commit_dates[0].date() != commit_dates[-1].date()
     life_span = (commit_dates[0].date() - commit_dates[-1].date()).days
     repo_active = (datetime.today().date() - commit_dates[0].date()) < timedelta(days=365)
     result.append([repo.url, vcs_usage, life_span, repo_active])
