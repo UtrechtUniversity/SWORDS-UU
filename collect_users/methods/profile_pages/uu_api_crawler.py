@@ -1,4 +1,3 @@
-#pylint: skip-file
 """
 This file retrieves Github usernames from the API of Utrecht University employee pages
 """
@@ -21,17 +20,17 @@ def get_employees_url(faculty_number):
     Returns:
         Series: Employee URLs retrieved from faculty
     """
-    url = f"{REST_API_URL}/GetEmployeesOrganogram?f={faculty_number}&l=EN&fullresult=true"
-    json_nested = requests.get(url)
+    request_url = f"{REST_API_URL}/GetEmployeesOrganogram?f={faculty_number}&l=EN&fullresult=true"
+    json_nested = requests.get(request_url)
     df_employees = pd.DataFrame(json_nested.json()["Employees"])
     try:
         return df_employees["Url"]
-    except Exception as e: # pylint: disable=broad-except
-        print(f"There was an error: {e}")
+    except Exception as ex: # pylint: disable=broad-except
+        print(f"There was an error: {ex}")
         return None
 
 
-    
+
 def parse_string_list_for_github_name(words):
     """Gathers all github names from a list of strings
 
@@ -59,7 +58,7 @@ def parse_string_list_for_github_name(words):
             githubio_split = word.split(".")
             try:
                 user = githubio_split[0].split("://")[1]
-            except Exception as e: # pylint: disable=broad-except
+            except Exception: # pylint: disable=broad-except
                 user = githubio_split[0]
             # sometimes, there is still some tokens after the username
             # due to the href format of the links. This is migated by
@@ -94,23 +93,24 @@ def parse_urls_for_github_name(employee_urls):
                 githubio_split = link.split(".")
                 try:
                     user = githubio_split[0].split("://")[1]
-                except Exception as e: # pylint: disable=broad-except
+                except Exception: # pylint: disable=broad-except
                     user = githubio_split[0]
                 matches.append(user)
     return matches
-    
-def get_all_employee_github_links(url):
+
+
+def get_all_employee_github_links(employee_id):
     """Gathers all github links from a URL
 
     Args:
-        url (string): URL
+        employee_id (string): UU employee id
 
     Returns:
         List: Github links
     """
     time.sleep(1)
     try:
-        api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={url}")
+        api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={employee_id}")
         api_json = api_link.json()
         git_link_list = []
         #try to retrieve from CV text
@@ -127,7 +127,7 @@ def get_all_employee_github_links(url):
             github_names = parse_string_list_for_github_name(split_employee_profile)
             if github_names:
                 git_link_list.extend(github_names)
-                
+
         if "Links" in api_json["Employee"].keys() and api_json["Employee"]['LinksSocialMedia']:
             links_social_media = api_json["Employee"]['LinksSocialMedia']
             github_names = parse_urls_for_github_name(links_social_media)
@@ -138,14 +138,14 @@ def get_all_employee_github_links(url):
             return list(set(git_link_list))
         else:
             return None
-    except Exception as e: # pylint: disable=broad-except
-        print(f"There was an error: {e}")
+    except Exception as ex: # pylint: disable=broad-except
+        print(f"There was an error: {ex}")
         return None
 
 
 if __name__ == '__main__':
 
-    counter = 0
+    COUNTER = 0
     employee_github = []
     SERVICE = "github.com"
     current_date = datetime.today().strftime('%Y-%m-%d')
@@ -165,8 +165,9 @@ if __name__ == '__main__':
                     github_user_names = get_all_employee_github_links(url)
                     if github_user_names:
                         for github_user_name in github_user_names:
-                            counter += 1
-                            print(f"Found user: '{github_user_name}'. Staff ID: '{url}'. Total: {counter}")
+                            COUNTER += 1
+                            print(f"Found user: '{github_user_name}'. \
+                                  Staff ID: '{url}'. Total: {COUNTER}")
                             employee_github.append(
                                 [SERVICE, current_date, github_user_name, url])
             except Exception as e: # pylint: disable=broad-except
