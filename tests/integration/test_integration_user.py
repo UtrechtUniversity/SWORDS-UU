@@ -120,9 +120,9 @@ def test_update_new_users(users_enriched_old, users_merged, service):
 
 
 def test_filter_users(users_enriched):
-    print(df_users_enriched)
     df_users_enriched = users_enriched
     df_users_enriched["is_student"] = df_users_enriched['bio'].apply(
         is_student)
+    print(df_users_enriched)
     print(df_users_enriched['is_student'].value_counts())
     assert df_users_enriched['is_student'].value_counts()[1] == 117
