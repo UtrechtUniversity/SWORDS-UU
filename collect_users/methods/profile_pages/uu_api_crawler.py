@@ -23,6 +23,7 @@ def get_employees_url(faculty_number):
     request_url = f"{REST_API_URL}/GetEmployeesOrganogram?f={faculty_number}&l=EN&fullresult=true"
     json_nested = requests.get(request_url)
     df_employees = pd.DataFrame(json_nested.json()["Employees"])
+    print(df_employees["Url"])
     try:
         return df_employees["Url"]
     except Exception as ex: # pylint: disable=broad-except
@@ -157,18 +158,18 @@ if __name__ == '__main__':
     )
     for i in range(99):
         try:
-            faculty_url = list(get_employees_url(i))
+            faculty_employee_ids = list(get_employees_url(i))
             print(f"Parsing faculty number {i}")
             try:
-                for url in faculty_url:
-                    github_user_names = get_all_employee_github_links(url)
+                for employee_id in faculty_employee_ids:
+                    github_user_names = get_all_employee_github_links(employee_id)
                     if github_user_names:
                         for github_user_name in github_user_names:
                             COUNTER += 1
                             print(f"Found user: '{github_user_name}'. \
-                                  Staff ID: '{url}'. Total: {COUNTER}")
+                                  Employee ID: '{employee_id}'. Total: {COUNTER}")
                             employee_github.append(
-                                [SERVICE, current_date, github_user_name, url])
+                                [SERVICE, current_date, github_user_name, employee_id])
             except Exception as e: # pylint: disable=broad-except
                 print(f"couldn't loop through urls. Error: {e}")
                 continue
