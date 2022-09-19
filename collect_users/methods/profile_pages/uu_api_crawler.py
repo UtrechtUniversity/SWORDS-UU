@@ -136,8 +136,7 @@ def get_all_employee_github_links(employee_id):
 
         if len(git_link_list) != 0:
             return list(set(git_link_list))
-        else:
-            return None
+        return None
     except Exception as ex: # pylint: disable=broad-except
         print(f"There was an error: {ex}")
         return None
