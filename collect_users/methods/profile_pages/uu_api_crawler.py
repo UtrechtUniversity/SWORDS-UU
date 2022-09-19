@@ -23,7 +23,6 @@ def get_employees_url(faculty_number):
     request_url = f"{REST_API_URL}/GetEmployeesOrganogram?f={faculty_number}&l=EN&fullresult=true"
     json_nested = requests.get(request_url)
     df_employees = pd.DataFrame(json_nested.json()["Employees"])
-    print(df_employees["Url"])
     try:
         return df_employees["Url"]
     except Exception as ex: # pylint: disable=broad-except
@@ -100,18 +99,18 @@ def parse_urls_for_github_name(employee_urls):
     return matches
 
 
-def get_all_employee_github_links(employee_id):
+def get_all_employee_github_usernames(id):
     """Gathers all github links from a URL
 
     Args:
-        employee_id (string): UU employee id
+        id (string): UU employee id
 
     Returns:
         List: Github links
     """
     time.sleep(1)
     try:
-        api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={employee_id}")
+        api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={id}")
         api_json = api_link.json()
         git_link_list = []
         #try to retrieve from CV text
@@ -162,7 +161,7 @@ if __name__ == '__main__':
             print(f"Parsing faculty number {i}")
             try:
                 for employee_id in faculty_employee_ids:
-                    github_user_names = get_all_employee_github_links(employee_id)
+                    github_user_names = get_all_employee_github_usernames(employee_id)
                     if github_user_names:
                         for github_user_name in github_user_names:
                             COUNTER += 1
