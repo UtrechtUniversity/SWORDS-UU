@@ -99,18 +99,18 @@ def parse_urls_for_github_name(employee_urls):
     return matches
 
 
-def get_all_employee_github_usernames(id):
+def get_all_employee_github_usernames(user_id):
     """Gathers all github links from a URL
 
     Args:
-        id (string): UU employee id
+        user_id (string): UU employee id
 
     Returns:
         List: Github links
     """
     time.sleep(1)
     try:
-        api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={id}")
+        api_link = requests.get(f"{REST_API_URL}/getEmployeeData?page={user_id}")
         api_json = api_link.json()
         git_link_list = []
         #try to retrieve from CV text
