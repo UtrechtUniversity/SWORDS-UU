@@ -190,10 +190,20 @@ def get_commit_variables(service: Service, repo: Repo):
         for commit in page:
             commit_dates.append(datetime.strptime(commit["commit"]["author"]["date"],
                                                   "%Y-%m-%dT%H:%M:%SZ"))
+            first_commit = commit # this will be the first commit after finishing the loops
+
     vcs_usage = commit_dates[0].date() != commit_dates[-1].date()
     life_span = (commit_dates[0].date() - commit_dates[-1].date()).days
     repo_active = (datetime.today().date() - commit_dates[0].date()) < timedelta(days=365)
-    result.append([repo.url, vcs_usage, life_span, repo_active])
+
+    # no valid GitHub user did the first commit
+    if first_commit["author"] is None or len(first_commit["author"]) == 0:
+        first_commit_user = None
+    else:
+        first_commit_user = first_commit["author"]["login"]
+    first_commit_date = commit_dates[-1].strftime('%Y-%m-%d')
+    result.append([repo.url, vcs_usage, life_span,
+                   repo_active, first_commit_user, first_commit_date])
     return result
 
 
@@ -315,7 +325,9 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
         print(f"Remaining GitHub requests: {remaining_requests}")
 
         if remaining_requests < 5: # additional safety to not breach request limit
-            time.sleep(service.api.rate_limit.get()["rate"]["reset"] - int(time.time()))
+            sleep_time = service.api.rate_limit.get()["rate"]["reset"] - int(time.time())
+            print(f"Reached request limit. Sleep for {sleep_time} seconds.")
+            time.sleep(sleep_time)
         request_successful = True
         time.sleep(service.sleep)
         return retrieved_variables
@@ -553,8 +565,8 @@ if __name__ == '__main__':
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
 
-        export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span",
-                    "repo_active"], "commits", args.commits_output)
+        export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span", "first_commit_user",
+                    "first_commit_date", "repo_active"], "commits", args.commits_output)
 
 
     if args.versions:

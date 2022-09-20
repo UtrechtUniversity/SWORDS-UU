@@ -71,6 +71,8 @@ Note: Some variables were derived based on existing literature. They have been r
   - correct version control usage (was everything committed within a day?) [1]
   - life span of the repository measured as days between first and last commit [1,2]
   - whether the repository is still active (was there a commit within the last 365 days?) [2]
+  - GitHub username of the first person who committed
+  - date of first commit
 - `--commits_output`: Optional. Path for commit variables output. Default: `results/commits`
 - `--versions`: Set this flag if version identifiability should be retrieved [3]. This checks only GitHub tags. Tags need to be in the format of `X.X` or `X.X.X`.
 - `--versions_output`: Optional. Path for commit variables output. Default: `results/versions`
