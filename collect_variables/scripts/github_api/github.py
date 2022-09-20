@@ -565,8 +565,9 @@ if __name__ == '__main__':
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
 
-        export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span", "first_commit_user",
-                    "first_commit_date", "repo_active"], "commits", args.commits_output)
+        export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span", 
+                    "first_commit_user", "first_commit_date", "repo_active"], 
+                    "commits", args.commits_output)
 
 
     if args.versions:
