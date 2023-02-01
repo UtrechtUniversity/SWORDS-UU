@@ -9,6 +9,7 @@ import pandas as pd
 import time
 
 from collect_users.methods.github_search.github_search import get_complete_query_result, get_users_from_repos, get_users_from_users
+from collect_users.methods.profile_pages.uu_api_crawler import get_all_employee_github_usernames, get_employees_url
 from collect_users.scripts.enrich_users import read_input_file, get_userdata, update_users, Service
 from collect_users.scripts.prepare_filtering import is_student
 
@@ -38,6 +39,22 @@ def test_search_users(service):
     time.sleep(5)
     assert len(ids_search_users[0]
                ) == 3 and ids_search_users[0][0] == "github.com"
+
+
+
+"""
+Tests for uu_api_crawler.py
+"""
+
+def test_get_employees_url():
+    employee_urls = get_employees_url(0)
+    assert len(employee_urls) >= 1
+
+
+def test_get_all_employee_github_links():
+    employee_id = "JdeBruin1"
+    github_usernames = get_all_employee_github_usernames(employee_id)
+    assert len(github_usernames) >= 1
 
 
 """
@@ -100,10 +117,3 @@ def test_update_new_users(users_enriched_old, users_merged, service):
     df_users_enriched = update_users(df_users_annotated,
                                      results_github_user_api)
     assert len(df_users_enriched) >= len(df_users_annotated)
-
-
-def test_filter_users(users_enriched):
-    df_users_enriched = users_enriched
-    df_users_enriched["is_student"] = df_users_enriched['bio'].apply(
-        is_student)
-    assert df_users_enriched['is_student'].value_counts()[1] == 117

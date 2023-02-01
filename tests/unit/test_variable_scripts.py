@@ -8,11 +8,11 @@ from fastcore.foundation import AttrDict, L
 from howfairis import Compliance
 
 from collect_variables.scripts.github_api.github import (get_data_from_api,
-                                                         get_coc,
                                                          get_contributors,
-                                                         get_jupyter_notebooks,
                                                          get_languages,
                                                          get_readmes,
+                                                         get_file_locations,
+                                                         get_test_location,
                                                          Repo)
 
 from collect_variables.scripts.howfairis_api.howfairis_variables import (get_howfairis_compliance,
@@ -74,27 +74,16 @@ def test_get_data_from_api(mock_repo):
                                         type="blob"),
                                AttrDict(path="code_of_conduct.md",
                                         type="blob")))
+    def mock_limit(*args, **kwargs):
+        return AttrDict(rate=AttrDict(remaining=100, reset=9999999999))
 
     service = MagicMock()
     service.api.git.get_tree.side_effect = mock_get
+    service.api.rate_limit.get.side_effect = mock_limit
+    service.file_list = ["code_of_conduct"]
 
-    result = get_data_from_api(service, mock_repo, "coc")
-    assert result[1] == "code_of_conduct.md"
-
-
-def test_get_coc(mock_repo):
-    def mock_get(*args, **kwargs):
-        return AttrDict(url="https://api.github.com/repos/kequach/MyAnimeList-Analysis/git/trees/ef0ab1f473fea05a46ffdafdf08a4acf6ddfa6f4",
-                        tree=L(AttrDict(path="README.md",
-                                        type="blob"),
-                               AttrDict(path="code_of_conduct.md",
-                                        type="blob")))
-
-    service = MagicMock()
-    service.api.git.get_tree.side_effect = mock_get
-
-    result = get_coc(service, mock_repo)
-    assert result[1] == "code_of_conduct.md"
+    result = get_data_from_api(service, mock_repo, "files")
+    assert result[0][1] == "code_of_conduct.md"
 
 
 def test_get_contributors(mock_repo):
@@ -110,7 +99,7 @@ def test_get_contributors(mock_repo):
     assert result[0][1] == "kequach"
 
 
-def test_get_jupyter_notebooks(mock_repo):
+def test_get_files(mock_repo):
     def mock_get(*args, **kwargs):
         return AttrDict(url="https://api.github.com/repos/kequach/MyAnimeList-Analysis/git/trees/ef0ab1f473fea05a46ffdafdf08a4acf6ddfa6f4",
                         tree=L(AttrDict(path="README.md",
@@ -121,9 +110,23 @@ def test_get_jupyter_notebooks(mock_repo):
     service = MagicMock()
     service.api.git.get_tree.side_effect = mock_get
 
-    result = get_jupyter_notebooks(service, mock_repo)
+    result = get_file_locations(service, mock_repo, [".ipynb"])
     assert result[0][1] == "analysis_notebook.ipynb"
 
+
+def test_get_test_location(mock_repo):
+    def mock_get(*args, **kwargs):
+        return AttrDict(url="https://api.github.com/repos/kequach/MyAnimeList-Analysis/git/trees/ef0ab1f473fea05a46ffdafdf08a4acf6ddfa6f4",
+                        tree=L(AttrDict(path="tests",
+                                        type="tree"),
+                               AttrDict(path="analysis_notebook.ipynb",
+                                        type="blob")))
+
+    service = MagicMock()
+    service.api.git.get_tree.side_effect = mock_get
+
+    result = get_test_location(service, mock_repo)
+    assert result[0][1] == "tests"
 
 def test_get_languages(mock_repo):
     def mock_get(*args, **kwargs):

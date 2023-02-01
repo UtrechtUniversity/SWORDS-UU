@@ -2,16 +2,15 @@
 This file retrieves Github API variables for an input file with repositories.
 """
 import os
-import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import ast
 import argparse
 import base64
 
 import pandas as pd
 from dotenv import load_dotenv
-from ghapi.all import GhApi
+from ghapi.all import GhApi, paged
 from fastcore.foundation import L
 
 
@@ -24,6 +23,7 @@ class Service:
         self.api = api
         self.current_date = datetime.today().strftime('%Y-%m-%d')
         self.sleep = sleep
+        self.file_list = None
 
 
 class Repo:
@@ -127,28 +127,6 @@ def get_languages(service: Service, repo: Repo):
     return languages
 
 
-def get_jupyter_notebooks(service: Service, repo: Repo):
-    """Retrieves jupyter notebooks for a Github repository
-
-    Args:
-        service (Service): Service object with API connection and metadata vars
-        repo    (Repo)   : Repository variables bundled together
-
-    Returns:
-        list: jupyter notebooks file name list retrieved from Github
-    """
-    jupyter_notebooks = []
-    jupyter_notebooks_data = service.api.git.get_tree(
-        owner=repo.owner, repo=repo.repo_name,
-        tree_sha=repo.branch, recursive=1)
-    for file in jupyter_notebooks_data["tree"]:
-        if file["type"] == "blob" and ".ipynb" in file["path"]:
-            jupyter_notebooks_entry = [repo.url, file["path"]]
-            print(jupyter_notebooks_entry)
-            jupyter_notebooks.append(jupyter_notebooks_entry)
-    return jupyter_notebooks
-
-
 def get_readmes(service: Service, repo: Repo):
     """Retrieves languages for a Github repository
 
@@ -166,24 +144,122 @@ def get_readmes(service: Service, repo: Repo):
     return readme_data
 
 
-def get_coc(service: Service, repo: Repo):
-    """Retrieves code of conduct file locations for a Github repository.
-    There are also functions to retrieve a code of conduct in ghapi but they seem deprecated.
+def get_file_locations(service: Service, repo: Repo, file_names):
+    """Retrieves file locations of a file name search for a Github repository.
+
+    Args:
+        service    (Service): Service object with API connection and metadata vars
+        repo       (Repo)   : Repository variables bundled together
+        file_names (list)   : List of file names that should be searched.
+                              Examples: ".ipynb", "CONTRIBUTING"
+
+    Returns:
+        list: file name list retrieved from Github
+    """
+    result = []
+    content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
+                                       tree_sha=repo.branch, recursive=1)
+    for file in content["tree"]:
+        if any(file_name.lower() in file.path.lower() for file_name in file_names):
+            file_names_entry = [repo.url, file["path"]]
+            print(file_names_entry)
+            result.append(file_names_entry)
+    return result
+
+
+def get_commit_variables(service: Service, repo: Repo):
+    """Retrieves commit dates of a repository.
+    Design decision to use slower sequential pagination to do less requests.
+    Parallel pages retrieval required an additional request.
 
     Args:
         service (Service): Service object with API connection and metadata vars
         repo    (Repo)   : Repository variables bundled together
 
     Returns:
-        string: code of conduct retrieved from Github
+        list: list with url and three variables:
+            correct version control usage (are there commits in the days after initial one?),
+            life span of the repository measured as days between first and last commit,
+            whether the repository is still active (was there a commit within the last 365 days?)
     """
-    coc = []
+    commit_pages = paged(service.api.repos.list_commits, owner=repo.owner,
+                         repo=repo.repo_name, per_page=100)
+    commit_dates = []
+    result = []
+    for page in commit_pages:
+        for commit in page:
+            commit_dates.append(datetime.strptime(commit["commit"]["author"]["date"],
+                                                  "%Y-%m-%dT%H:%M:%SZ"))
+            first_commit = commit # this will be the first commit after finishing the loops
+
+    vcs_usage = commit_dates[0].date() != commit_dates[-1].date()
+    life_span = (commit_dates[0].date() - commit_dates[-1].date()).days
+    repo_active = (datetime.today().date() - commit_dates[0].date()) < timedelta(days=365)
+
+    # no valid GitHub user did the first commit
+    if first_commit["author"] is None or len(first_commit["author"]) == 0:
+        first_commit_user = None
+    else:
+        first_commit_user = first_commit["author"]["login"]
+    first_commit_date = commit_dates[-1].strftime('%Y-%m-%d')
+    result.append([repo.url, vcs_usage, life_span,
+                   repo_active, first_commit_user, first_commit_date])
+    return result
+
+
+def get_test_location(service: Service, repo: Repo):
+    """Retrieves test folder locations for a Github repository.
+
+    Args:
+        service    (Service): Service object with API connection and metadata vars
+        repo       (Repo)   : Repository variables bundled together
+
+    Returns:
+        list: test folder list retrieved from Github
+    """
+    result = []
     content = service.api.git.get_tree(owner=repo.owner, repo=repo.repo_name,
                                        tree_sha=repo.branch, recursive=1)
     for file in content["tree"]:
-        if "code_of_conduct.md" in file.path.lower():
-            coc.extend([repo.url, file["path"]])
-    return coc
+        if "test" in file.path.lower() and file.type == "tree":
+            folder_names_entry = [repo.url, file["path"]]
+            print(folder_names_entry)
+            result.append(folder_names_entry)
+            # if there is one positive result we can conclude that there are tests
+            return result
+    return result
+
+
+def get_version_identifiability(service: Service, repo: Repo):
+    """Retrieves identifiability with version scheme.
+    All tags must follow the scheme: X.X or X.X.X
+    If there are no tags, version compliance is false.
+    No pagination used since tags are often empty, making it necessary to check
+    for an empty generator, which is awkward and obfuscates the code.
+    Tags have never exceeded n=100.
+
+    Args:
+        service (Service): Service object with API connection and metadata vars
+        repo    (Repo)   : Repository variables bundled together
+
+    Returns:
+        list: repo url and compliance boolean
+    """
+    tags = service.api.repos.list_tags(owner=repo.owner,
+                         repo=repo.repo_name, per_page=100)
+    result = []
+    version_identifiability = None
+    if tags:
+        for tag in tags:
+            split = tag["name"].split(".")
+            if len(split) in [2,3]:
+                version_identifiability = True
+            else: # all versions must follow the scheme. If one is wrong, exit
+                version_identifiability = False
+                break
+        result.append([repo.url, version_identifiability])
+        return result
+    return result
 
 
 def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True):
@@ -193,7 +269,7 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
         service (Service): Service object with API connection and metadata vars
         repo    (Repo)   : Repository variables bundled together
         variable_type (string): which type of variable should be retrieved. Supported are:
-                                contributors, languages, jupyter_notebooks, readmes, coc
+                                contributors, languages, readmes, files, commits, versions
         verbose (boolean): if True, retrieve all variables from API.
             Otherwise, only collect username and contributions (only relevant for contributors)
     Returns:
@@ -208,21 +284,29 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                     get_contributors(service, repo, verbose))
             elif variable_type == "languages":
                 retrieved_variables.extend(get_languages(service, repo))
-            elif variable_type == "jupyter_notebooks":
-                retrieved_variables.extend(
-                    get_jupyter_notebooks(service, repo))
             elif variable_type == "readmes":
                 retrieved_variables.extend(
                     get_readmes(service, repo))
-            elif variable_type == "coc":
+            elif variable_type == "files":
                 retrieved_variables.extend(
-                    get_coc(service, repo))
+                    get_file_locations(service, repo, service.file_list))
+            elif variable_type == "tests":
+                retrieved_variables.extend(
+                    get_test_location(service, repo))
+            elif variable_type == "commits":
+                retrieved_variables.extend(
+                    get_commit_variables(service, repo))
+            elif variable_type == "versions":
+                retrieved_variables.extend(
+                    get_version_identifiability(service, repo))
         except Exception as e:  # pylint: disable=broad-except
             print(f"There was an error for repository {repo.url} : {e}")
             # (non-existing repo)
             if any(status_code in str(e) for status_code in ["204", "404"]):
                 print(f"Repository does not exist: {repo.url}")
             elif "403" in str(e):  # timeout
+                # this does not use time until token refresh as sleep time
+                # due to the issue described in the print
                 print("Github seems to have issues with users that are accessing API data from"
                       " an organization they are part of. It is not possible to distinguish"
                       " between this error and a timeout issue. In case this is an issue for"
@@ -235,7 +319,15 @@ def get_data_from_api(service: Service, repo: Repo, variable_type, verbose=True)
                 print(
                     f"Unhandled status code: {e} - skip repository"
                 )
+            time.sleep(service.sleep)
             return None
+        remaining_requests = service.api.rate_limit.get()["rate"]["remaining"]
+        print(f"Remaining GitHub requests: {remaining_requests}")
+
+        if remaining_requests < 5: # additional safety to not breach request limit
+            sleep_time = service.api.rate_limit.get()["rate"]["reset"] - int(time.time())
+            print(f"Reached request limit. Sleep for {sleep_time} seconds.")
+            time.sleep(sleep_time)
         request_successful = True
         time.sleep(service.sleep)
         return retrieved_variables
@@ -249,7 +341,7 @@ if __name__ == '__main__':
     if token is None:
         SLEEP = 6
     else:
-        SLEEP = 2
+        SLEEP = 0
     serv = Service(api=GhApi(token=token), sleep=SLEEP)
     # Initiate the parser
     parser = argparse.ArgumentParser()
@@ -258,7 +350,7 @@ if __name__ == '__main__':
     parser.add_argument("--input",
                         "-i",
                         help="The file name of the repositories data.",
-                        default="results/repositories_howfairis.csv")
+                        default="../collect_repositories/results/repositories_filtered.csv")
 
     parser.add_argument("--contributors",
                         "-c",
@@ -269,23 +361,6 @@ if __name__ == '__main__':
                         "-cout",
                         help="Optional. Path for contributors output",
                         default="results/contributors.csv")
-
-    parser.add_argument(
-        "--jupyter",
-        "-j",
-        action='store_true',
-        help="Set this flag if jupyter notebooks should be retrieved")
-
-    parser.add_argument(
-        "--input_languages",
-        "-ilang",
-        help="Optional. Needed if languages are not retrieved but jupyter notebooks are."
-    )
-
-    parser.add_argument("--jupyter_output",
-                        "-jout",
-                        help="Optional. Path for jupyter notebooks output",
-                        default="results/jupyter_notebooks.csv")
 
     parser.add_argument("--languages",
                         "-l",
@@ -317,15 +392,45 @@ if __name__ == '__main__':
                         help="Optional. Path for readmes output",
                         default="results/readmes.csv")
 
-    parser.add_argument("--coc",
-                        "-coc",
-                        action='store_true',
-                        help="Set this flag if code of conducts should be retrieved")
+    parser.add_argument("--files",
+                        "-f",
+                        type=str,
+                        help="Delimited list of file (sub)strings that should be searched")
 
-    parser.add_argument("--coc_output",
-                        "-cocout",
-                        help="Optional. Path for code of conduct output",
-                        default="results/coc.csv")
+    parser.add_argument("--files_output",
+                        "-fout",
+                        help="Optional. Path for file location output",
+                        default="results/files.csv")
+
+    parser.add_argument("--tests",
+                        "-tests",
+                        action='store_true',
+                        help="Set this flag if test folder paths should be retrieved")
+
+    parser.add_argument("--tests_output",
+                        "-tests_out",
+                        help="Optional. Path for file location output",
+                        default="results/test_paths.csv")
+
+    parser.add_argument("--commits",
+                        "-commits",
+                        action='store_true',
+                        help="Set this flag if commit-related variables should be retrieved")
+
+    parser.add_argument("--commits_output",
+                        "-commit_out",
+                        help="Optional. Path for file location output",
+                        default="results/commits.csv")
+
+    parser.add_argument("--versions",
+                        "-versions",
+                        action='store_true',
+                        help="Set this flag if version identifiability should be retrieved")
+
+    parser.add_argument("--versions_output",
+                        "-versions_out",
+                        help="Optional. Path for version identifiability output",
+                        default="results/versions.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()
@@ -333,14 +438,14 @@ if __name__ == '__main__':
         f"Retrieving howfairis variables for the following file: {args.input}")
     print(f"Retrieving contributors? {args.contributors}"
           f"\nRetrieving languages? {args.languages}"
-          f"\nRetrieving jupyter notebooks? {args.jupyter}"
           f"\nRetrieving topics? {args.topics}"
           f"\nRetrieving readmes? {args.readmes}"
-          f"\nRetrieving code of conducts? {args.coc}")
+          f"\nRetrieving file locations for the following files: {args.files}"
+          f"\nRetrieving test locations? {args.tests}"
+          f"\nRetrieving commit variables? {args.commits}"
+          f"\nRetrieving version variable? {args.versions}")
 
     df_repos = read_input_file(args.input)
-
-    LANGUAGES = None
 
     if args.contributors:
         # get column names from arbitrary repo
@@ -351,7 +456,6 @@ if __name__ == '__main__':
             time.sleep(serv.sleep)
         else:
             print("There was an error retrieving column names.")
-
         # get data
         contributors_variables = []
         for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
@@ -382,38 +486,6 @@ if __name__ == '__main__':
         cols = ["html_url_repository", "language", "num_chars"]
         export_file(language_variables, cols,
                     "language", args.languages_output)
-        if args.jupyter:  # keep df for parsing jupyter files
-            LANGUAGES = pd.DataFrame(language_variables, columns=cols)
-
-    if args.jupyter:
-        if LANGUAGES is None:
-            if args.input_languages is None:
-                print(
-                    "Please provide a file with languages that can be parsed for "
-                    "jupyter notebooks.")
-                sys.exit()
-            else:
-                LANGUAGES = read_input_file(args.input_languages)
-        jupyter_variables = []
-        languages_jupyter = LANGUAGES[LANGUAGES["language"] ==
-                                      "Jupyter Notebook"].drop(
-            ["language", "num_chars"], axis=1)
-        print(f"Parse {len(languages_jupyter.index)} repos.")
-        for counter, url in enumerate(languages_jupyter["html_url_repository"]):
-            # example url: https://github.com/UtrechtUniversity/SWORDS-UU
-            row = df_repos.loc[df_repos['html_url'] == url]
-            branch = row["default_branch"].values[0]
-            owner, repo_name = url.split("github.com/")[1].split("/")
-            repository = Repo(url, owner, repo_name, branch)
-            retrieved_data = get_data_from_api(
-                serv, repository, "jupyter_notebooks")
-            if retrieved_data is not None:
-                jupyter_variables.extend(retrieved_data)
-            if counter % 10 == 0:
-                print(
-                    f"Parsed {counter} out of {len(languages_jupyter.index)} repos.")
-        export_file(jupyter_variables, ["html_url_repository", "path"], "jupyter notebook",
-                    args.jupyter_output)
 
     if args.topics:
         topics_variables = []
@@ -443,19 +515,73 @@ if __name__ == '__main__':
         export_file(readmes_variables, ["html_url_repository", "readme"], "readme",
                     args.readmes_output)
 
-    if args.coc:
+    if args.files:
         # get data
-        coc_variables = []
+        serv.file_list = args.files.split(",")
+        file_variables = []
         for counter, (url, owner, repo_name,
                       branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
                                                df_repos["name"], df_repos["default_branch"])):
-            repository = Repo(url, owner, repo_name)
-            retrieved_data = get_data_from_api(serv, repository, "coc")
+            repository = Repo(url, owner, repo_name, branch)
+            retrieved_data = get_data_from_api(serv, repository, "files")
             print(retrieved_data)
             if retrieved_data is not None:
-                coc_variables.append(retrieved_data)
+                file_variables.extend(retrieved_data)
             if counter % 10 == 0:
                 print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
 
-        export_file(coc_variables, ["html_url_repository", "coc"], "coc",
-                    args.coc_output)
+        export_file(file_variables, ["html_url_repository", "file_location"], "files",
+                    args.files_output)
+
+
+    if args.tests:
+        # get data
+        file_variables = []
+        for counter, (url, owner, repo_name,
+                      branch) in enumerate(zip(df_repos["html_url"], df_repos["owner"],
+                                               df_repos["name"], df_repos["default_branch"])):
+            repository = Repo(url, owner, repo_name, branch)
+            retrieved_data = get_data_from_api(serv, repository, "tests")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                file_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+
+        export_file(file_variables, ["html_url_repository", "file_location"], "tests",
+                    args.tests_output)
+
+
+    if args.commits:
+        # get data
+        commit_variables = []
+        for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                              df_repos["owner"], df_repos["name"])):
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "commits")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                commit_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+
+        export_file(commit_variables, ["html_url_repository", "vcs_usage", "life_span",
+                    "first_commit_user", "first_commit_date", "repo_active"],
+                    "commits", args.commits_output)
+
+
+    if args.versions:
+        # get data
+        version_variables = []
+        for counter, (url, owner, repo_name) in enumerate(zip(df_repos["html_url"],
+                                                              df_repos["owner"], df_repos["name"])):
+            repository = Repo(url, owner, repo_name)
+            retrieved_data = get_data_from_api(serv, repository, "versions")
+            print(retrieved_data)
+            if retrieved_data is not None:
+                version_variables.extend(retrieved_data)
+            if counter % 10 == 0:
+                print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
+
+        export_file(version_variables, ["html_url_repository", "version_identifiable"],
+                    "version identifiability", args.versions_output)

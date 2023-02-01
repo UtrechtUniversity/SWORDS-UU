@@ -67,7 +67,11 @@ print(f"Filtered {num_filtered} of {num_total} repositories. {num_final}"
 
 current_date = datetime.today().strftime('%Y-%m-%d')
 df_repos_filtered = df_repos_filtered.assign(date=current_date)
-df_repos_filtered.to_csv(args.output, index=False)
+
+if "xlsx" in args.output:
+    df_repos_filtered.to_excel(args.output, index=False)
+else:
+    df_repos_filtered.to_csv(args.output, index=False)
 
 print(
     f"Successfully filtered user repositories. Saved result to {args.output}.")

@@ -33,55 +33,88 @@ python scripts/all_variables.py
 
 ### Gather howfairis variables
 
-In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. Note: The output concatenates the howfairis variables to the whole repository data. By doing so, it is possible to reuse this file to gather GitHub variables based on this file.
-There are 2 arguments that can be passed.
+In this step, howfairis variables are retrieved. To do this, execute the file **howfairis_variables.py**. There are 2 arguments that can be passed.
 
 - `--input`: The file name of the repositories. Default value: `../collect_repositories/results/repositories_filtered.csv`
-- `--output`: The file name of the output. Default value: `results/repositories_howfairis.csv`
+- `--output`: The file name of the output. Default value: `results/howfairis.csv`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
 python scripts/howfairis_api/howfairis_variables.py
 python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv
-python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output results/repositories_howfairis_duplicate
+python scripts/howfairis_api/howfairis_variables.py --input ../collect_repositories/results/repositories_filtered_2021-11-04.csv --output results/howfairis_duplicate
 ```
 
 ### Gather GitHub variables as tidy data
 
-In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, jupyter notebook file paths and topics in tidy data format. To do this, execute the file **github.py**.
-There are 10 arguments that can be passed. For each of the 4 information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional. In addition, the jupyter notebooks require an additional argument to specify an input file for the languages (output file of languages) in case languages is not also retrieved. See examples.
+In this step, additional variables from repositories are retrieved. These include information about contributors, used languages, file paths, readme content and topics in tidy data format. To do this, execute the file **github.py**.
+There are several arguments that can be passed. For each of the information types you can set a flag if you want to retrieve this information, as well as the file output path which is optional.
+For file locations, specify a list of comma separated strings for file or folder names that should be searched. Note that the names work as a substring so you can also match any `.ipynb` file for example. See examples.
 
-- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `results/repositories_howfairis.csv`
+Note: Some variables were derived based on existing literature. They have been referenced accordingly.
+
+- `--input`: The file name of the repositories data. This can also be the output from the previous howfairis step. Default: `../collect_repositories/results/repositories_filtered.csv`
 - `--contributors`: Set this flag if contributors should be retrieved
 - `--contributors_output`: Optional. Path for contributors output. Default: `results/contributors`
-- `--jupyter`: Set this flag if jupyter notebooks should be retrieved
-- `--input_languages`: Optional. If languages are not retrieved but jupyter notebooks should be, there needs to be an input file with the languages.
-- `--jupyter_output`: Optional. Path for jupyter notebooks output. Default: `results/jupyter_notebooks`
 - `--languages`: Set this flag if languages should be retrieved
 - `--languages_output`: Optional. Path for languages output. Default: `results/languages`
 - `--topics`: Set this flag if topics should be retrieved
 - `--topics_output`: Optional. Path for topics output. Default: `results/topics`
 - `--readmes`: Set this flag if readmes should be retrieved
 - `--readmes_output`: Optional. Path for readmes output. Default: `results/readmes`
-- `--coc`: Set this flag if code of conduct should be retrieved
-- `--coc_output`: Optional. Path for coc output. Default: `results/coc`
+- `--files`: A comma separated string of file names that should be searched. Looks for exact matches. This can also include folder names. Can be used to see if there is a code of conduct or a contributing file for example.
+- `--files_output`: Optional. Path for files output. Default: `results/files`
+- `--tests`: Set this flag if test folder locations should be retrieved. This only retrieves the first result that is matched during recursive search. One matching result means that a test folder exists.
+- `--tests_output`: Optional. Path for test folder output. Default: `results/test_paths`
+- `--commits`: Set this flag if commit-related variables should be retrieved. These include the following variables:
+  - correct version control usage (was everything committed within a day?) [1]
+  - life span of the repository measured as days between first and last commit [1,2]
+  - whether the repository is still active (was there a commit within the last 365 days?) [2]
+  - GitHub username of the first person who committed
+  - date of first commit
+- `--commits_output`: Optional. Path for commit variables output. Default: `results/commits`
+- `--versions`: Set this flag if version identifiability should be retrieved [3]. This checks only GitHub tags. Tags need to be in the format of `X.X` or `X.X.X`.
+- `--versions_output`: Optional. Path for commit variables output. Default: `results/versions`
 
 Navigate to this folder and execute the script. Adjust parameters as needed. Example:
 
 ```console
-python scripts/github_api/github.py --jupyter --contributors --languages --topics --readmes --coc
+python scripts/github_api/github.py --contributors --languages --topics --readmes --files "CONTRIBUTING,code_of_conduct" --tests --commits --versions
 python scripts/github_api/github.py --input ../collect_repositories/results/repositories_filtered.csv --contributors --contributors_output results/contributors.csv
-python scripts/github_api/github.py --input results/repositories_howfairis.csv --contributors --languages --jupyter --topics
-python scripts/github_api/github.py --input results/repositories_howfairis.csv --jupyter --input_languages results/languages.csv
-python scripts/github_api/github.py --readmes --coc
+python scripts/github_api/github.py --input results/repositories_labeled.xlsx --contributors --languages --topics
+python scripts/github_api/github.py --input results/repositories_labeled.xlsx --input_languages results/languages.csv
+python scripts/github_api/github.py --readmes
+python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct"
+python scripts/github_api/github.py --files "CONTRIBUTING,code_of_conduct" --tests
+python scripts/github_api/github.py --tests
+python scripts/github_api/github.py --commits
+```
+
+#### Computing variables based on retrieved GitHub data
+
+There is an additional script to parse the retrieved GitHub data named **parse_github_data.py**. This includes the README.csv and files.csv to compute for the following variables:
+
+- Existence of installation instructions. Done by parsing the README with regex to see if there are mentions of `install / docker`
+- Existence of usage examples. Done by parsing the README with regex for mentions of `usage / getting started / quick start / example / tutorial`
+- Existence of contribution guidelines. Done by parsing the README with regex for mentions of `contribut`
+
+There are 2 arguments that can be passed.
+
+- `--input`: The file name of the repositories. Default value: `/results/readmes.csv`
+- `--output`: The file name of the output. Default value: `results/readme_variables.csv`
+
+Navigate to this folder and execute the script. Adjust parameters as needed. Example:
+
+```console
+python scripts/parse_readme/parse_readme.py --input results/readmes.csv
 ```
 
 ### Download statistics
 
-Installation statistics are collected from the PyPi and RStudio CRAN mirror.
+Installation statistics are collected from the registries PyPi, npm and RStudio CRAN mirror. Assumes JSON format as input.
 
-```
+```console
 python scripts/download_stats.py
 ```
 
@@ -101,3 +134,11 @@ See [/LICENSE](../LICENSE).
 ## Contact
 
 See [here](../README.md#contact).
+
+## References
+
+[1] Russell PH, Johnson RL, Ananthan S, Harnke B, Carlson NE (2018) A large-scale analysis of bioinformatics code on GitHub. PLOS ONE 13(10): e0205898. https://doi.org/10.1371/journal.pone.0205898
+
+[2] W. Hasselbring, L. Carr, S. Hettrick, H. Packer and T. Tiropanis, "Open Source Research Software," in Computer, vol. 53, no. 8, pp. 84-88, Aug. 2020, doi: 10.1109/MC.2020.2998235.
+
+[3] Eva Martín del Pico, Josep Lluís Gelpí, and Salvador Capella-Gutiérrez. FAIRsoft - A practical implementation of FAIR principles for research software. Technical report, bioRxiv, May 2022. URL https://www.biorxiv.org/content/10.1101/2022.05.04.490563v1.

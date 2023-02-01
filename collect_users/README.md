@@ -94,7 +94,7 @@ There are 4 arguments that can be passed.
 Navigate to this folder and execute the script. Adjust parameters as needed. Examples:
 
 ```console
-python scripts/enrich_users.py --input results/users_merged.csv --output results/users_enriched.csv
+python scripts/enrich_users.py
 python scripts/enrich_users.py --input results/users_merged.csv --fileupdate results/users_enriched.csv
 python scripts/enrich_users.py --input results/users_merged.csv --update --fileupdate results/users_enriched.csv --output results/users_enriched_updated.csv
 python scripts/enrich_users.py --input results/users_merged.csv --update --fileupdate results/users_enriched_summer2021.xlsx --output results/users_enriched_updated.csv
@@ -114,6 +114,7 @@ Navigate to this folder and execute the script. Adjust parameters as needed. Exa
 
 ```console
 python scripts/prepare_filtering.py
+python scripts/prepare_filtering.py --input results/users_enriched.xlsx --output results/users_enriched.xlsx
 ```
 
 ### Filter users

@@ -7,6 +7,7 @@ from datetime import datetime
 import argparse
 
 from howfairis import Repo, Checker
+from ghapi.all import GhApi
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -60,23 +61,24 @@ def parse_repo(repo_url):
     while not request_successful:
         try:
             entry = [repo_url]
-            result = get_howfairis_compliance(repo_url)
-            entry.extend(result)
+            entry.extend(get_howfairis_compliance(repo_url))
             print(entry)
-            time.sleep(2)
+            time.sleep(1)
             request_successful = True
             return entry
         except Exception as e: # pylint: disable=broad-except
             print(f"Error occured for {repo_url} (most likely timeout issue due"
                 f" to API limitation. Sleep for a while. Error message: {e}")
             if "Something went wrong asking the repo for its default branch" in str(
-                    e):
+                    e): # repo might be deleted
                 print("Skipping repository...")
                 request_successful = True  # skip this repo
-            elif "TimeoutError" in str(e):
+                return None
+            if "TimeoutError" in str(e):
                 time.sleep(5)
             else:
-                time.sleep(1500)
+                sleep_time = api.rate_limit.get()["rate"]["reset"] - int(time.time())
+                time.sleep(sleep_time + 2)
 
 # if unauthorized API is used, rate limit is lower,
 # leading to a ban and waiting time needs to be increased
@@ -84,6 +86,8 @@ def parse_repo(repo_url):
 load_dotenv()
 token = os.getenv('GITHUB_TOKEN')
 user = os.getenv('GITHUB_USER')
+
+api = GhApi(token=token)
 if token is not None and user is not None:
     os.environ['APIKEY_GITHUB'] = user + ":" + token
 
@@ -100,21 +104,20 @@ if __name__ == '__main__':
     parser.add_argument("--output",
                         "-o",
                         help="The file name of the filtered repositories.",
-                        default="results/repositories_howfairis.csv")
+                        default="results/howfairis.csv")
 
     # Read arguments from the command line
     args = parser.parse_args()
     print(f"Retrieving howfairis variables for the following file: {args.input}")
 
 
-
     df_repos = read_input_file(args.input)
-
-
     howfairis_variables = []
 
     for counter, url in enumerate(df_repos["html_url"]):
-        howfairis_variables.append(parse_repo(url))
+        result = parse_repo(url)
+        if result is not None: # If repo is deleted it is None
+            howfairis_variables.append(result)
         if counter % 10 == 0:
             print(f"Parsed {counter} out of {len(df_repos.index)} repos.")
 
@@ -124,11 +127,10 @@ if __name__ == '__main__':
                                     "howfairis_license", "howfairis_registry",
                                     "howfairis_citation", "howfairis_checklist"
                                 ])
-    df_repo_merged = pd.merge(df_repos, df_howfairis, how="left", on='html_url')
 
     current_date = datetime.today().strftime('%Y-%m-%d')
-    df_repo_merged["date"] = current_date
-    df_repo_merged.to_csv(args.output, index=False)
+    df_howfairis["date"] = current_date
+    df_howfairis.to_csv(args.output, index=False)
 
     print(
         f"Successfully retrieved howfairis variables for {len(df_howfairis.index)}"

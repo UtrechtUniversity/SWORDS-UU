@@ -51,7 +51,7 @@ def get_repos(user_id, service):
             service.api.repos.list_for_user, num_pages, user_id)
         for page in query_result[0]:
             result.append(page)
-        time.sleep(serv.sleep)
+        time.sleep(service.sleep)
     else:
         result.extend(query_result)
     return result
@@ -135,20 +135,23 @@ if __name__ == '__main__':
 
     print("Finished processing users. Flattening nested structures...")
     # Flatten nested structures
-    for i, _ in enumerate(result_repos):
-        for key in result_repos[i].keys():
-            if isinstance(result_repos[i][key], AttrDict):
+    for result_repo in result_repos:
+        for key in result_repo.keys():
+            if isinstance(result_repo[key], AttrDict):
                 if key == "owner":
-                    result_repos[i][key] = result_repos[i][key]["login"]
+                    result_repo[key] = result_repo[key]["login"]
                 elif key == "permissions":
-                    result_repos[i][key] = ""
+                    result_repo[key] = ""
                 elif key == "license":
-                    result_repos[i][key] = result_repos[i][key]["name"]
+                    result_repo[key] = result_repo[key]["name"]
 
     df_result_repos = pd.DataFrame(result_repos)
     df_result_repos["date"] = serv.current_date
-    df_result_repos.to_csv(args.output, index=False)
 
+    if "xlsx" in args.output:
+        df_result_repos.to_excel(args.output, index=False)
+    else:
+        df_result_repos.to_csv(args.output, index=False)
     print(
         f"Successfully retrieved user repositories. Saved result to {args.output}."
     )
